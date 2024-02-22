@@ -27,9 +27,9 @@ function init_db() {
     db.exec(`
         CREATE TABLE IF NOT EXISTS Users (
             user_id         INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+            email           VARCHAR(100) NOT NULL,
             username        VARCHAR(50) NOT NULL,
             password        VARCHAR(60) NOT NULL,
-            phone_number    VARCHAR(20) NOT NULL,
             is_employee     INTEGER DEFAULT 0 NOT NULL
         );
     `, (err) => {
