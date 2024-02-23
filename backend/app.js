@@ -3,6 +3,7 @@ const app = express();
 const session = require("express-session");
 const { db } = require("./database");
 const dotenv = require('dotenv').config()
+const cors = require("cors");
 
 const authRoute = require("./routes/auth");
 
@@ -15,13 +16,19 @@ app.use(session({
     saveUninitialized: false,
 }));
 
+// CORS middleware
+app.use(cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    credentials: true,
+}));
+
 // parse request bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(authRoute);
 
-const PORT = process.env.PORT || 6000;
+const PORT = process.env.PORT || 8888;
 app.listen(PORT, () => {
     console.log(`Server up and running on port ${PORT}`);
 });

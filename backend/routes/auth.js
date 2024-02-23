@@ -58,6 +58,6 @@ router.post("/login",
 router.post("/logout", checkLoggedIn, (req, res) => {
     req.session.destroy();
     res.status(200).send("Successfully logged out");
-})
+});
 
 module.exports = router;
