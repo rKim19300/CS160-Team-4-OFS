@@ -20,16 +20,11 @@ export default function LogInPage() {
     const handleSubmit = async (event) => {
         // this function runs when we press "Continue" button
         event.preventDefault();
-        try {
-            let response = await axiosInstance.post("/api/login", { email, password });
-            // the code here will run if the status code is 2xx and everything went well
-            let responseMsg = response.data;
-            console.log(responseMsg);
-        } catch (err) {
-            // err gets thrown when response status code is 4xx
-            let errMessage = err.response.data;
-            setErrMsg(errMessage); // TODO: display the error message to the user
-            console.log(errMessage);
+        let response = await axiosInstance.post("/api/login", { email, password });
+        let responseMsg = response.data;
+        console.log(responseMsg);
+        if (response.status !== 200) {
+            setErrMsg(responseMsg);
         }
     }
 
