@@ -34,7 +34,7 @@ router.post("/signup",
 
 router.post("/login", 
     validateReqBody([
-        body("email").isLength({ max: email_max_len }).isEmail().withMessage("Invalid email"),
+        body("email").isLength({ max: email_max_len }).withMessage(`Email length too long. Max character length is ${email_max_len}`),
         body("password").isLength({ min: pw_min_len, max: pw_max_len }).withMessage(`Password must be between ${pw_min_len} and ${pw_max_len} characters`),
     ]),
     async (req, res) => {

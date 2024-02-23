@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import axiosInstance from "../axiosInstance";
 import {
   Flex,
   Text,
@@ -19,22 +20,16 @@ export default function LogInPage() {
     const handleSubmit = async (event) => {
         // this function runs when we press "Continue" button
         event.preventDefault();
-        let response = await fetch(`http://localhost:8888/login`, {
-            method: "POST",
-            credentials: 'include',
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                "email": email,
-                "password": password
-            })
-        });
-        let responseMsg = await response.text();
-        console.log(responseMsg);
-        if (!response.ok) {
-            // something went wrong while logging in
-            setErrMsg(responseMsg); // TODO: Display this error message on the page
+        try {
+            let response = await axiosInstance.post("/api/login", { email, password });
+            // the code here will run if the status code is 2xx and everything went well
+            let responseMsg = response.data;
+            console.log(responseMsg);
+        } catch (err) {
+            // err gets thrown when response status code is 4xx
+            let errMessage = err.response.data;
+            setErrMsg(errMessage); // TODO: display the error message to the user
+            console.log(errMessage);
         }
     }
 

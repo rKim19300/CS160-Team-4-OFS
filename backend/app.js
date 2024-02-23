@@ -26,7 +26,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(authRoute);
+app.use("/api", authRoute);
 
 const PORT = process.env.PORT || 8888;
 app.listen(PORT, () => {
