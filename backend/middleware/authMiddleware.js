@@ -29,4 +29,13 @@ const checkLoggedIn = (req, res, next) => {
     }
 }
 
-module.exports = { validateReqBody, checkLoggedIn };
+const checkIsEmployee = (req, res, next) => {
+    if (req.session.user && Boolean(req.session.user.is_employee)) {
+        next();
+    } else {
+        res.status(401).send("You are not an employee");
+    }
+
+}
+
+module.exports = { validateReqBody, checkLoggedIn, checkIsEmployee };

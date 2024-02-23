@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
-const { db } = require("../database");
+const { DB } = require("../database");
 const { validateReqBody, checkLoggedIn } = require("../middleware/authMiddleware");
 
 const pw_min_len = 1;
@@ -19,13 +19,9 @@ router.post("/signup",
     async (req, res) => {
     try {
         let { username, password, email } = req.body;
-        // check if email already exists
-        let q = await db.query("SELECT * FROM Users WHERE email = ?", [email]);
-        if (q.length > 0) return res.status(400).send("Email already exists");
-        // hash password and insert data into db
-        let salt = await bcrypt.genSalt();
-        let hashedPw = await bcrypt.hash(password, salt);
-        await db.query("INSERT INTO Users(username, password, email) VALUES (?, ?, ?)", [username, hashedPw, email]);
+        let emailExists = await DB.check_email_exists(email);
+        if (emailExists) return res.status(400).send("Email already exists");
+        await DB.insert_new_user(email, username, password);
         return res.status(200).send("Successfully signed up");
     } catch (err) {
         return res.status(400).send(`Something went wrong when trying to sign up: ${err}`);
@@ -40,14 +36,10 @@ router.post("/login",
     async (req, res) => {
     try {
         let { email, password } = req.body;
-        // check to see if username exists in db
-        let queryRes = await db.query("SELECT * FROM Users WHERE email = ?", [email]);
-        if (queryRes.length === 0) return res.status(400).send("Invalid credentials");
-        // check if password is correct
-        let { user_id, username, is_employee, password: pw_in_db } = queryRes[0];
-        let validPw = await bcrypt.compare(password, pw_in_db);
-        if (!validPw) return res.status(400).send("Invalid credentials");
-        // set the session
+        let emailExists = await DB.check_email_exists(email);
+        if (!emailExists) return res.status(400).send("Invalid credentials");
+        let isValidPw = await DB.is_valid_password(email, password);
+        if (!isValidPw) return res.status(400).send("Invalid credentials");
         req.session.user = { user_id, username, email, is_employee };
         return res.status(200).send("Successfully logged in");
     } catch (err) {
