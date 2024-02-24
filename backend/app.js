@@ -10,7 +10,7 @@ const productsRoute = require("./routes/products");
 // set up the express session config
 let TWO_HOURS_IN_MS = 2*60*60*1000;
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || "sessionSecret",
     cookie: { maxAge: TWO_HOURS_IN_MS },
     resave: false,
     saveUninitialized: false,
