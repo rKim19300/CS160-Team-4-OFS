@@ -34,7 +34,7 @@ function init_db() {
             user_type       INTEGER DEFAULT 0 NOT NULL
         );
 
-        CREATE TABLE IF NOT EXITS Orders (
+        CREATE TABLE IF NOT EXISTS Orders (
             order_id        PRIMARY KEY AUTOINCREMENT UNIQUE,
             user_id         INTEGER NOT NULL,
             cost            REAL NOT NULL,
@@ -46,7 +46,7 @@ function init_db() {
             FOREIGN KEY (user_id) REFERENCES Users(user_id)
         );
 
-        CREATE TABLE IF NOT EXITS Order_items (
+        CREATE TABLE IF NOT EXISTS Order_items (
             order_id        INTEGER NOT NULL,
             product_id      INTEGER NOT NULL,
             quantity        INTEGER NOT NULL,
@@ -54,7 +54,7 @@ function init_db() {
             FOREIGN KEY (product_id) REFERENCES Products(products_id)
         );
 
-        CREATE TABLE IF NOT EXITS Products (
+        CREATE TABLE IF NOT EXISTS Products (
             product_id      PRIMARY KEY AUTOINCREMENT UNIQUE,
             name            VARCHAR(50) NOT NULL,
             description     TEXT NOT NULL,
@@ -63,12 +63,12 @@ function init_db() {
             quantity        INTEGER NOT NULL,
         );
 
-        CREATE TABLE IF NOT EXITS Categories (
+        CREATE TABLE IF NOT EXISTS Categories (
             category_id     PRIMARY KEY AUTOINCREMENT UNIQUE,
             name            VARCHAR(50) NOT NULL
         );
 
-        CREATE TABLE IF NOT EXITS Product_to_categories (
+        CREATE TABLE IF NOT EXISTS Product_to_categories (
             product_id      INTEGER NOT NULL,
             category_id     INTEGER NOT NULL,
             FOREIGN KEY (product_id) REFERENCES Products(product_id),
@@ -77,13 +77,13 @@ function init_db() {
         );
 
 
-        CREATE TABLE IF NOT EXITS Cart (
+        CREATE TABLE IF NOT EXISTS Cart (
             cart_id         PRIMARY KEY AUTOINCREMENT UNIQUE,
             user_id         INTEGER NOT NULL,
             FOREIGN KEY (user_id) REFERENCES Users(user_id)
         );
 
-        CREATE TABLE IF NOT EXITS Cart_items (
+        CREATE TABLE IF NOT EXISTS Cart_items (
             cart_id         INTEGER NOT NULL,
             product_id      INTEGER NOT NULL,
             quantity        INTEGER NOT NULL,
@@ -91,14 +91,14 @@ function init_db() {
             FOREIGN KEY (product_id) REFERENCES Products(product_id)
         );
 
-        CREATE TABLE IF NOT EXITS Robot (
+        CREATE TABLE IF NOT EXISTS Robot (
             robot_id        PRIMARY KEY AUTOINCREMENT UNIQUE,
             latitude        TEXT NOT NULL,
             longitude       TEXT NOT NULL,
             status          INTEGER NOT NULL
         );
 
-        CREATE TABLE IF NOT EXITS Delivery_routes (
+        CREATE TABLE IF NOT EXISTS Delivery_routes (
             route_id        PRIMARY KEY AUTOINCREMENT UNIQUE,
             robot_id        INTEGER NOT NULL,
             order_id        INTEGER NOT NULL,
