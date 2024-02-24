@@ -137,7 +137,7 @@ class DB {
     // PRODUCTS queries
     ///////
     static async select_all_products() {
-        let prods = await db.query("SELECT * FROM products");
+        let prods = await db.query("SELECT * FROM Products");
         return prods;
     }
 }

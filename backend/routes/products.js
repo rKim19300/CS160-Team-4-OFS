@@ -15,4 +15,8 @@ router.post("/updateProduct/:prodID", checkIsEmployee, async (req, res) => {
 
 });
 
+router.post("/removeProduct/:prodID", checkIsEmployee, async (req, res) => {
+
+});
+
 module.exports = router;
