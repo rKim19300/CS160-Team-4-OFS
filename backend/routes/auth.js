@@ -24,7 +24,8 @@ router.post("/signup",
         await DB.insert_new_user(email, username, password);
         return res.status(200).send("Successfully signed up");
     } catch (err) {
-        return res.status(400).send(`Something went wrong when trying to sign up: ${err}`);
+        console.log(`ERROR SIGNING UP: ${err}`);
+        return res.status(400).send(`Something went wrong when trying to sign up`);
     }
 });
 
@@ -37,14 +38,15 @@ router.post("/login",
     try {
         let { email, password } = req.body;
         let emailExists = await DB.check_email_exists(email);
-        if (!emailExists) return res.status(400).send("Invalid credentials");
+        if (!emailExists) return res.status(401).send("Invalid credentials");
         let isValidPw = await DB.is_valid_password(email, password);
-        if (!isValidPw) return res.status(400).send("Invalid credentials");
+        if (!isValidPw) return res.status(401).send("Invalid credentials");
         let { user_id, username, is_employee } = await DB.get_user_from_email(email);
         req.session.user = { user_id, username, email, is_employee };
         return res.status(200).send("Successfully logged in");
     } catch (err) {
-        return res.status(400).send(`Something went wrong when trying to log in: ${err}`);
+        console.log(`ERROR LOGGING IN: ${err}`);
+        return res.status(400).send(`Something went wrong when trying to log in`);
     }
 });
 

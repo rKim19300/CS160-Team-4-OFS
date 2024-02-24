@@ -26,5 +26,14 @@ class TestLoginEndpoints(unittest.TestCase):
         self.assertTrue("connect.sid" in r.cookies)
 
 
+    def test_invalidCredentials(self):
+        '''This test case will send INVALID credentials to the `/api/login` route
+        EXPECTED RESPONSE
+            - HTTP 401 status code
+            - "Invalid credentials" message
+        '''
+        pass
+
+
 if __name__ == "__main__":
     unittest.main()
