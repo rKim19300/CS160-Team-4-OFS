@@ -40,6 +40,7 @@ router.post("/login",
         if (!emailExists) return res.status(400).send("Invalid credentials");
         let isValidPw = await DB.is_valid_password(email, password);
         if (!isValidPw) return res.status(400).send("Invalid credentials");
+        let { user_id, username, is_employee } = await DB.get_user_from_email(email);
         req.session.user = { user_id, username, email, is_employee };
         return res.status(200).send("Successfully logged in");
     } catch (err) {
