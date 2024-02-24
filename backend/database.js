@@ -60,9 +60,6 @@ class DB {
         return validPw
     }
 
-    ///////
-    // USER queries
-    ///////
     static async get_user_from_email(email) {
         let q = await db.query("SELECT user_id, email, username, is_employee FROM Users WHERE email = ?", [email]);
         return q[0];

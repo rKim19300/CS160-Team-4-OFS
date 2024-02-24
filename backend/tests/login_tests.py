@@ -9,8 +9,12 @@ HEADERS = {
 
 class TestLoginEndpoints(unittest.TestCase):
     def test_validCredentials(self):
-        # This test case will send VALID credentials.
-        # Should get back 200 status code, a "Successfuly logged in" message, as well as a cookie labeled "connect.sid"
+        '''This test case will send VALID credentials to the `/api/login` route
+        EXPECTED RESPONSE
+            - HTTP 200 status code
+            - "Successfully logged in" message
+            - cookie labeled "connect.sid"
+        '''
         data = json.dumps({
                 "email": "bob@bob.com",
                 "password": "bob"
