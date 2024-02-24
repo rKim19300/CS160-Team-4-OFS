@@ -31,8 +31,81 @@ function init_db() {
             email           VARCHAR(100) UNIQUE NOT NULL,
             username        VARCHAR(50) NOT NULL,
             password        VARCHAR(60) NOT NULL,
-            is_employee     INTEGER DEFAULT 0 NOT NULL
+            user_type       INTEGER DEFAULT 0 NOT NULL
         );
+
+        CREATE TABLE IF NOT EXITS Orders (
+            order_id        PRIMARY KEY AUTOINCREMENT UNIQUE,
+            user_id         INTEGER NOT NULL,
+            cost            REAL NOT NULL,
+            weight          REAL NOT NULL,
+            address         VARCHAR(50) NOT NULL,
+            delivery_fee    REAL NOT NULL,
+            status          INTEGER DEFAULT 0 NOT NULL,
+            created_at      TEXT NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES Users(user_id)
+        );
+
+        CREATE TABLE IF NOT EXITS Order_items (
+            order_id        INTEGER NOT NULL,
+            product_id      INTEGER NOT NULL,
+            quantity        INTEGER NOT NULL,
+            FOREIGN KEY (order_id) REFERENCES Orders(order_id),
+            FOREIGN KEY (product_id) REFERENCES Products(products_id)
+        );
+
+        CREATE TABLE IF NOT EXITS Products (
+            product_id      PRIMARY KEY AUTOINCREMENT UNIQUE,
+            name            VARCHAR(50) NOT NULL,
+            description     TEXT NOT NULL,
+            price           REAL NOT NULL,
+            weight          REAL NOT NULL,
+            quantity        INTEGER NOT NULL,
+        );
+
+        CREATE TABLE IF NOT EXITS Categories (
+            category_id     PRIMARY KEY AUTOINCREMENT UNIQUE,
+            name            VARCHAR(50) NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXITS Product_to_categories (
+            product_id      INTEGER NOT NULL,
+            category_id     INTEGER NOT NULL,
+            FOREIGN KEY (product_id) REFERENCES Products(product_id),
+            FOREIGN KEY (category_id) REFERENCES Categories(Categories_id),
+            UNIQUE (product_id, category_id)
+        );
+
+
+        CREATE TABLE IF NOT EXITS Cart (
+            cart_id         PRIMARY KEY AUTOINCREMENT UNIQUE,
+            user_id         INTEGER NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES Users(user_id)
+        );
+
+        CREATE TABLE IF NOT EXITS Cart_items (
+            cart_id         INTEGER NOT NULL,
+            product_id      INTEGER NOT NULL,
+            quantity        INTEGER NOT NULL,
+            FOREIGN KEY (cart_id) REFERENCES Cart(cart_id),
+            FOREIGN KEY (product_id) REFERENCES Products(product_id)
+        );
+
+        CREATE TABLE IF NOT EXITS Robot (
+            robot_id        PRIMARY KEY AUTOINCREMENT UNIQUE,
+            latitude        TEXT NOT NULL,
+            longitude       TEXT NOT NULL,
+            status          INTEGER NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXITS Delivery_routes (
+            route_id        PRIMARY KEY AUTOINCREMENT UNIQUE,
+            robot_id        INTEGER NOT NULL,
+            order_id        INTEGER NOT NULL,
+            FOREIGN KEY (robot_id) REFERENCES Robot(robot_id),
+            FOREIGN KEY (order_id) REFERENCES Orders(order_id)
+        );
+
     `, (err) => {
         if (err) console.log(`Error while trying to setup the DB tables: ${err}`);
     });
