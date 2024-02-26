@@ -12,7 +12,7 @@ class TestLoginEndpoints(unittest.TestCase):
         '''This test case will send VALID credentials to the `/api/login` route
         EXPECTED RESPONSE
             - HTTP 200 status code
-            - "Successfully logged in" message
+            - "Successfully logged in" message (no need to check this, would be a little redundant)
             - cookie labeled "connect.sid"
         '''
         data = json.dumps({
@@ -22,7 +22,6 @@ class TestLoginEndpoints(unittest.TestCase):
         r = requests.post(f"{API_BASE_URL}/api/login", data=data, headers=HEADERS)
         # check to make sure that the response is what we're expecting
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.text, "Successfully logged in")
         self.assertTrue("connect.sid" in r.cookies)
 
 

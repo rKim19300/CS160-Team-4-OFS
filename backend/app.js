@@ -6,6 +6,7 @@ const cors = require("cors");
 
 const authRoute = require("./routes/auth");
 // const productsRoute = require("./routes/products");
+const cartRoute = require("./routes/cart");
 
 // set up the express session config
 let TWO_HOURS_IN_MS = 2*60*60*1000;
@@ -28,6 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", authRoute);
 // app.use("/api", productsRoute);
+app.use("/api", cartRoute);
 
 const PORT = process.env.PORT || 8888;
 app.listen(PORT, () => {

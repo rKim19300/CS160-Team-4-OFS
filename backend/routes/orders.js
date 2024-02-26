@@ -1,10 +1,9 @@
 const router = require("express").Router();
 const { DB } = require("../database");
-const { checkIsLoggedIn, checkIsEmployee } = require("../middleware/authMiddleware");
+const { checkLoggedIn, checkIsEmployee } = require("../middleware/authMiddleware");
 
-router.post("/placeOrder", checkIsLoggedIn, async (req, res) => {
+router.post("/placeOrder", checkLoggedIn, async (req, res) => {
     try {
-        let { quantity, product_id, address } = req.body;
         // TODO: FINISH THIS
     } catch (err) {
         console.log(`ERROR WHEN PLACING AN ORDER: ${err}`);
@@ -12,7 +11,7 @@ router.post("/placeOrder", checkIsLoggedIn, async (req, res) => {
     }
 });
 
-router.get("/viewMyOrders", checkIsLoggedIn, async (req, res) => {
+router.get("/viewMyOrders", checkLoggedIn, async (req, res) => {
     try {
         let orderHistory = await DB.get_user_order_history(req.user_id);
         return res.status(200).json(orderHistory);

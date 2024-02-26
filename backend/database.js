@@ -33,8 +33,17 @@ function init_db() {
             user_type       INTEGER DEFAULT 0 NOT NULL
         );
 
+        CREATE TABLE IF NOT EXISTS Products (
+            product_id      INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+            name            VARCHAR(50) UNIQUE NOT NULL,
+            description     TEXT NOT NULL,
+            price           REAL NOT NULL,
+            weight          REAL NOT NULL,
+            quantity        INTEGER NOT NULL
+        );
+
         CREATE TABLE IF NOT EXISTS Orders (
-            order_id        PRIMARY KEY AUTOINCREMENT UNIQUE,
+            order_id        INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
             user_id         INTEGER NOT NULL,
             cost            REAL NOT NULL,
             weight          REAL NOT NULL,
@@ -50,20 +59,11 @@ function init_db() {
             product_id      INTEGER NOT NULL,
             quantity        INTEGER NOT NULL,
             FOREIGN KEY (order_id) REFERENCES Orders(order_id),
-            FOREIGN KEY (product_id) REFERENCES Products(products_id)
-        );
-
-        CREATE TABLE IF NOT EXISTS Products (
-            product_id      PRIMARY KEY AUTOINCREMENT UNIQUE,
-            name            VARCHAR(50) NOT NULL,
-            description     TEXT NOT NULL,
-            price           REAL NOT NULL,
-            weight          REAL NOT NULL,
-            quantity        INTEGER NOT NULL,
+            FOREIGN KEY (product_id) REFERENCES Products(product_id)
         );
 
         CREATE TABLE IF NOT EXISTS Categories (
-            category_id     PRIMARY KEY AUTOINCREMENT UNIQUE,
+            category_id     INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
             name            VARCHAR(50) NOT NULL
         );
 
@@ -71,13 +71,12 @@ function init_db() {
             product_id      INTEGER NOT NULL,
             category_id     INTEGER NOT NULL,
             FOREIGN KEY (product_id) REFERENCES Products(product_id),
-            FOREIGN KEY (category_id) REFERENCES Categories(Categories_id),
+            FOREIGN KEY (category_id) REFERENCES Categories(category_id),
             UNIQUE (product_id, category_id)
         );
 
-
         CREATE TABLE IF NOT EXISTS Cart (
-            cart_id         PRIMARY KEY AUTOINCREMENT UNIQUE,
+            cart_id         INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
             user_id         INTEGER NOT NULL,
             FOREIGN KEY (user_id) REFERENCES Users(user_id)
         );
@@ -87,18 +86,19 @@ function init_db() {
             product_id      INTEGER NOT NULL,
             quantity        INTEGER NOT NULL,
             FOREIGN KEY (cart_id) REFERENCES Cart(cart_id),
-            FOREIGN KEY (product_id) REFERENCES Products(product_id)
+            FOREIGN KEY (product_id) REFERENCES Products(product_id),
+            UNIQUE (cart_id, product_id)
         );
 
         CREATE TABLE IF NOT EXISTS Robot (
-            robot_id        PRIMARY KEY AUTOINCREMENT UNIQUE,
+            robot_id        INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
             latitude        TEXT NOT NULL,
             longitude       TEXT NOT NULL,
             status          INTEGER NOT NULL
         );
 
         CREATE TABLE IF NOT EXISTS Delivery_routes (
-            route_id        PRIMARY KEY AUTOINCREMENT UNIQUE,
+            route_id        INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
             robot_id        INTEGER NOT NULL,
             order_id        INTEGER NOT NULL,
             FOREIGN KEY (robot_id) REFERENCES Robot(robot_id),
@@ -136,6 +136,15 @@ class DB {
         return prods;
     }
 
+    static async get_product_info(product_id) {
+        let q = await db.query("SELECT * FROM Products WHERE product_id = ?", [product_id]);
+        return q[0];
+    }
+
+    static async add_new_product(name, description, price, weight, quantity) {
+        await db.query("INSERT INTO Products(name, description, price, weight, quantity) VALUES (?, ?, ?, ?, ?)", [name, description, price, weight, quantity]);
+    }
+
     ///////
     // CART queries
     ///////
@@ -148,7 +157,7 @@ class DB {
     }
 
     static async insert_item_into_cart(cart_id, product_id, quantity) {
-        await db.query("INSERT INTO Cart_items(cart_id, product_id, quantity) VALUES (?, ?, ?)", [cart_id, product_id, quantity]);
+        await db.query("INSERT INTO Cart_items(cart_id, product_id, quantity) VALUES (?, ?, ?) ON CONFLICT(cart_id, product_id) DO UPDATE SET quantity = quantity + ?", [cart_id, product_id, quantity, quantity]);
     }
 
     static async remove_item_from_cart(cart_id, product_id) {
