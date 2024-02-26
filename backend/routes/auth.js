@@ -19,9 +19,11 @@ router.post("/signup",
     async (req, res) => {
     try {
         let { username, password, email } = req.body;
-        let emailExists = await DB.check_email_exists(email);
-        if (emailExists) return res.status(400).send("Email already exists");
-        await DB.insert_new_user(email, username, password);
+        let existingUser = await DB.get_user_from_email(email);
+        if (existingUser !== undefined) return res.status(400).send("Email already exists");
+        let salt = await bcrypt.genSalt();
+        let hashedPw = await bcrypt.hash(password, salt);
+        await DB.insert_new_user(email, username, hashedPw);
         return res.status(200).send("Successfully signed up");
     } catch (err) {
         console.log(`ERROR SIGNING UP: ${err}`);
@@ -37,12 +39,13 @@ router.post("/login",
     async (req, res) => {
     try {
         let { email, password } = req.body;
-        let emailExists = await DB.check_email_exists(email);
-        if (!emailExists) return res.status(401).send("Invalid credentials");
-        let isValidPw = await DB.is_valid_password(email, password);
-        if (!isValidPw) return res.status(401).send("Invalid credentials");
-        let { user_id, username, is_employee } = await DB.get_user_from_email(email);
-        req.session.user = { user_id, username, email, is_employee };
+        let user = await DB.get_user_from_email(email);
+        if (user === undefined) return res.status(401).send("Invalid credentials");
+        let pw_in_db = await DB.get_stored_password(email);
+        let isValidPw = await bcrypt.compare(password, pw_in_db);
+        if (!isValidPw) return res.status(401).send("Invalid Credentials");
+        let { user_id, username, user_type } = user;
+        req.session.user = { user_id, username, email, user_type };
         return res.status(200).send("Successfully logged in");
     } catch (err) {
         console.log(`ERROR LOGGING IN: ${err}`);

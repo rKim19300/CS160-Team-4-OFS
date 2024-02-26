@@ -1,5 +1,4 @@
 const sqlite3 = require("sqlite3").verbose();
-const bcrypt = require("bcrypt");
 
 // db connection object
 const db = new sqlite3.Database("db.db", (err) => {
@@ -115,27 +114,18 @@ class DB {
     ///////
     // AUTH queries
     ///////
-    static async check_email_exists(email) {
-        let q = await db.query("SELECT * FROM Users WHERE email = ?", [email]);
-        return q.length > 0;
+    static async get_user_from_email(email) {
+        let q = await db.query("SELECT user_id, email, username, user_type FROM Users WHERE email = ?", [email]);
+        return q[0];
     }
 
-    static async insert_new_user(email, username, password) {
-        let salt = await bcrypt.genSalt();
-        let hashedPw = await bcrypt.hash(password, salt);
+    static async insert_new_user(email, username, hashedPw) {
         await db.query("INSERT INTO Users(email, username, password) VALUES (?, ?, ?)", [email, username, hashedPw]);
     }
 
-    static async is_valid_password(email, password) {
+    static async get_stored_password(email) {
         let q = await db.query("SELECT password FROM Users WHERE email = ?", [email]);
-        let pw_in_db = q[0].password;
-        let validPw = await bcrypt.compare(password, pw_in_db);
-        return validPw
-    }
-
-    static async get_user_from_email(email) {
-        let q = await db.query("SELECT user_id, email, username, is_employee FROM Users WHERE email = ?", [email]);
-        return q[0];
+        return q[0].password;
     }
 
     ///////
@@ -144,6 +134,37 @@ class DB {
     static async select_all_products() {
         let prods = await db.query("SELECT * FROM Products");
         return prods;
+    }
+
+    ///////
+    // CART queries
+    ///////
+    static async get_cart_id(user_id) {
+        let q = await db.query("SELECT cart_id FROM Cart WHERE user_id = ?", [user_id]);
+        if (q.length !== 0) return q[0]["cart_id"];
+        await db.query("INSERT INTO Cart(user_id) VALUES (?)", [user_id]);
+        let res = await db.query("SELECT cart_id FROM Cart WHERE user_id = ?", [user_id]); 
+        return res[0]["cart_id"];
+    }
+
+    static async insert_item_into_cart(cart_id, product_id, quantity) {
+        await db.query("INSERT INTO Cart_items(cart_id, product_id, quantity) VALUES (?, ?, ?)", [cart_id, product_id, quantity]);
+    }
+
+    static async remove_item_from_cart(cart_id, product_id) {
+        await db.query("DELETE FROM Cart_items WHERE cart_id = ? AND product_id = ?", [cart_id, product_id]);
+    }
+
+    static async get_cart_items(cart_id) {
+        let q = await db.query("SELECT p.product_id, p.name, p.description, p.price, p.weight, ci.quantity FROM Cart_items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
+        return q;
+    }
+
+    ///////
+    // ORDER queries
+    ///////
+    static async get_user_order_history(user_id) {
+        // TODO: FINISH THIS
     }
 }
 
