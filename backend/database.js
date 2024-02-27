@@ -169,6 +169,10 @@ class DB {
         return q;
     }
 
+    static async modify_cart_item_quantity(cart_id, product_id, quantity) {
+        await db.query("UPDATE Cart_Items SET quantity = ? WHERE cart_id = ? AND product_id = ?", [quantity, cart_id, product_id]);
+    }
+
     ///////
     // ORDER queries
     ///////

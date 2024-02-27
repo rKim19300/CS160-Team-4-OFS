@@ -28,6 +28,18 @@ router.post("/removeItemFromCart", checkLoggedIn, async (req, res) => {
     }
 });
 
+router.post("/modifyCartItemQuantity", checkLoggedIn, async (req, res) => {
+    try {
+        let { product_id, quantity } = req.body;
+        let cart_id = await DB.get_cart_id(req.user_id);
+        await DB.modify_cart_item_quantity(cart_id, product_id, quantity);
+        return res.status(200).send("Successfully modified cart item quantity");
+    } catch (err) {
+        console.log(`ERROR MODIFYING CART ITEM QUANTITY: ${err}`);
+        return res.status(400).send("Something went wrong when modifying cart item quantity");
+    }
+});
+
 router.get("/viewCart", checkLoggedIn, async (req, res) => {
     try {
         let cart_id = await DB.get_cart_id(req.user_id);
