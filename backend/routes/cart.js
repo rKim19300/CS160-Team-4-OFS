@@ -7,7 +7,9 @@ router.post("/addItemToCart", checkLoggedIn, async (req, res) => {
         let { product_id, quantity } = req.body;
         let productInfo = await DB.get_product_info(product_id);
         if (productInfo === undefined) return res.status(400).send(`Product with id ${product_id} does not exist`);
+        // TODO: CHECK THAT (productInfo.weight * quantity) IS BELOW THE THRESHOLD
         let cart_id = await DB.get_cart_id(req.user_id);
+        // TODO: MAKE SURE THAT AMOUNT OF `product_id` IN USERS CART IS NOT > productInfo.quantity
         await DB.insert_item_into_cart(cart_id, product_id, quantity);
         return res.status(200).send("Successfully added item to cart");
     } catch (err) {

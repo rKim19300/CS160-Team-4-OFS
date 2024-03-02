@@ -6,7 +6,7 @@ const db = new sqlite3.Database("db.db", (err) => {
         return console.error(`Error while connecting to database: ${err.message}`);
     }
     console.log("Successfully connected to database");
-    init_db();
+    setup_tables();
 })
 
 // create a .query() method that allows us to run commands using async/await syntax
@@ -23,7 +23,7 @@ db.query = function(sql, params) {
     });
 }
 
-function init_db() {
+function setup_tables() {
     db.exec(`
         CREATE TABLE IF NOT EXISTS Users (
             user_id         INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -37,6 +37,7 @@ function init_db() {
             product_id      INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
             name            VARCHAR(50) UNIQUE NOT NULL,
             description     TEXT NOT NULL,
+            image_url       TEXT NOT NULL,
             price           REAL NOT NULL,
             weight          REAL NOT NULL,
             quantity        INTEGER NOT NULL
@@ -104,7 +105,6 @@ function init_db() {
             FOREIGN KEY (robot_id) REFERENCES Robot(robot_id),
             FOREIGN KEY (order_id) REFERENCES Orders(order_id)
         );
-
     `, (err) => {
         if (err) console.log(`Error while trying to setup the DB tables: ${err}`);
     });
@@ -119,8 +119,8 @@ class DB {
         return q[0];
     }
 
-    static async insert_new_user(email, username, hashedPw) {
-        await db.query("INSERT INTO Users(email, username, password) VALUES (?, ?, ?)", [email, username, hashedPw]);
+    static async insert_new_user(email, username, hashedPw, user_type=0) {
+        await db.query("INSERT INTO Users(email, username, password, user_type) VALUES (?, ?, ?, ?)", [email, username, hashedPw, user_type]);
     }
 
     static async get_stored_password(email) {
@@ -141,8 +141,8 @@ class DB {
         return q[0];
     }
 
-    static async add_new_product(name, description, price, weight, quantity) {
-        await db.query("INSERT INTO Products(name, description, price, weight, quantity) VALUES (?, ?, ?, ?, ?)", [name, description, price, weight, quantity]);
+    static async add_new_product(name, description, image_url, price, weight, quantity) {
+        await db.query("INSERT INTO Products(name, description, image_url, price, weight, quantity) VALUES (?, ?, ?, ?, ?, ?)", [name, description, image_url, price, weight, quantity]);
     }
 
     ///////
