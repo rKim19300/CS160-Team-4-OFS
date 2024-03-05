@@ -30,7 +30,7 @@ export default function NavBarCustomer() {
     <Flex className={styles.container}>
       <Flex className={styles.leftSide}>
         <a href="/customer" className={styles.linkWrapper}>
-          <img className={styles.logoImg} src="logo.png" />
+          <img className={styles.logoImg} src="/logo.png" />
         </a>
 
         <InputGroup className={styles.searchBarContainer}>

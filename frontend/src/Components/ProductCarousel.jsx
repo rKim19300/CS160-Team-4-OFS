@@ -40,7 +40,7 @@ export default function ProductCarousel({ products }) {
         swipeable
       >
         {products.map((product, idx) => (
-          <ProductItem key={idx} product={product} />
+            <ProductItem key={idx} product={product} />
         ))}
       </Carousel>
     </div>
