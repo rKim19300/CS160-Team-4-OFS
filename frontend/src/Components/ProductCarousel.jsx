@@ -50,10 +50,10 @@ export default function ProductCarousel({ products }) {
 function ProductItem({ product }) {
   return (
     <Flex className={styles.productItem}>
-      <img className={styles.prodImg} src={product.img} />
+      <img className={styles.prodImg} src={product.image_url} />
       <Text className={styles.productTitle}>{product.name}</Text>
-      <Text className={styles.productPrice}>{product.price}</Text>
-      <Text className={styles.productWeight}>{product.weight}</Text>
+      <Text className={styles.productPrice}>${product.price.toFixed(2)}</Text>
+      <Text className={styles.productWeight}>{product.weight} lbs</Text>
     </Flex>
   );
 }
