@@ -2,9 +2,4 @@
     flex-direction: column;
     padding: 56px 0 0 0;
     justify-self: center;
-  }
-
-  .statTheme {
-    border-radius: 25px;
-    border: 4px solid #000000;
-  }
+}

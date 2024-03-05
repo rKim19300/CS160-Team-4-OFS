@@ -5,12 +5,16 @@ import {
 } from "@chakra-ui/react";
 
 /**
+ * A SimpleGrid in which the components fade-in one-by-one
+ * 
  * @param { children } The same children of the SimpleGrid in chakraUI
  * @param { delay }    The amount of delay between when each component is 
  *                     loaded into the grid
+ * @param { spacing }  The spacing between the components
+ * @param { columns }  The number of columns the components are divided into
  * @returns            A Grid in which each component fades in according a delay
  */
-const FadeInGrid = ({ children, delay }) => {
+const FadeInGrid = ({ children, delay, spacing, columns}) => {
   const [isVisible, setIsVisible] = useState([]);
 
   useEffect(() => {
@@ -30,7 +34,7 @@ const FadeInGrid = ({ children, delay }) => {
   }, [children, delay]);
 
   return (
-    <SimpleGrid columns={3} spacing={4}>
+    <SimpleGrid columns={columns} spacing={spacing}>
       {children.map((child, index) => (
         <Box
           key={index}

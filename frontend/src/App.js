@@ -3,7 +3,7 @@ import "./App.css";
 import { ChakraProvider } from "@chakra-ui/react";
 import LogInPage from "./Pages/LogInPage";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import StatisticsPage from "./Pages/StatisticsPage";
+import StatisticsPage from "./Pages/EmployeeDashboard/EmployeeDashboard";
 
 function App() {
   return (
