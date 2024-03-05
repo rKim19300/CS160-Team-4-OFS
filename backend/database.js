@@ -173,11 +173,35 @@ class DB {
         await db.query("UPDATE Cart_Items SET quantity = ? WHERE cart_id = ? AND product_id = ?", [quantity, cart_id, product_id]);
     }
 
+    static async get_cart_weight(cart_id) {
+        let q = await db.query("SELECT SUM(p.weight * ci.quantity) FROM Cart_Items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
+        return q[0];
+    }
+
+    static async get_cart_cost(cart_id) {
+        let q = await db.query("SELECT SUM(p.price * ci.quantity) FROM Cart_Items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
+        return q[0];
+    }
+
+    static async delete_all_cart_items(cart_id) {
+        await db.query("DELETE FROM Cart_items WHERE cart_id = ?", [cart_id]);
+    }
+
     ///////
     // ORDER queries
     ///////
     static async get_user_order_history(user_id) {
         // TODO: FINISH THIS
+    }
+
+    static async add_new_order(user_id, cost, weight, address, delivery_fee, created_at, cart_id) {
+        // inserts the order data into the `Orders` table and the `Order_items` table
+        await db.query("INSERT INTO Orders(user_id, cost, weight, address, delivery_fee, created_at) VALUES (?, ?, ?, ?, ?, ?)", [user_id, cost, weight, address, delivery_fee, created_at]);
+        let cart_items = await db.query("SELECT product_id, quantity FROM Cart_items WHERE cart_id = ?", [cart_id]);
+        for (let cart_item of cart_items) {
+            let { product_id, quantity } = cart_item;
+            await db.query("INSERT INTO Order_items(product_id, quantity) VALUES (?, ?)", [product_id, quantity]);
+        }
     }
 }
 

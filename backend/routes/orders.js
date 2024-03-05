@@ -5,8 +5,31 @@ const { checkLoggedIn, checkIsEmployee } = require("../middleware/authMiddleware
 router.post("/placeOrder", checkLoggedIn, async (req, res) => {
     try {
         // TODO: FINISH THIS
-        // Don't forget to check product inventory before finalizing order.
         // Don't forget that when an order is placed, we need to subtract from product inventory
+        let { addressInfo } = req.body;
+        // iterate over all items in cart and make sure the quantity is within the quantity in inventory
+        let cart_id = await DB.get_cart_id(req.user_id);
+
+        // Don't forget to check product inventory before finalizing order.
+        // TODO: WILL PROBABLY NEED TO CHANGE THIS
+        // let cart_items = await DB.get_cart_items(cart_id);
+        // let errMsgs = [];
+        // for (let ci of cart_items) {
+        //     let { product_id, quantity: cartQuantity, name } = ci;
+        //     let productInfo = await DB.get_product_info(product_id);
+        //     if (cartQuantity > productInfo["quantity"]) {
+        //         errMsgs.push(`${name} current has an inventory count of ${productInfo["quantity"]}, which is less than ${cartQuantity}`);
+        //     }
+        // }
+        // if (errMsgs.length > 0) return res.status(400).json(errMsgs);
+
+        let order_weight = await DB.get_cart_weight(cart_id);
+        let order_cost = await DB.get_cart_cost(cart_id);
+        let delivery_fee = order_weight < 20 ? 0 : 10;
+        await DB.add_new_order(req.user_id, order_cost+delivery_fee, order_weight, ADDRESS, delivery_fee, CREATEDAT, cart_id);
+        await DB.delete_all_cart_items(cart_id);
+        // make sure to update product inventory
+        
     } catch (err) {
         console.log(`ERROR WHEN PLACING AN ORDER: ${err}`);
         return res.status(400).send("Something went wrong when trying to place the order");
