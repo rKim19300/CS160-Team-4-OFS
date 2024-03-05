@@ -20,10 +20,10 @@ import {
 import employeeDashboardTheme from "../themes/EmployeeDashboardTheme";
 import styles from "./EmployeeDashboard.module.css";
 import SideBarEmployee from "../Components/SideBarEmployee";
-import Inventory from "./EmployeeDashboardComponents/Inventory";
-import Orders from "./EmployeeDashboardComponents/Orders";
-import Analytics from "./EmployeeDashboardComponents/Analytics";
-import Employees from "./EmployeeDashboardComponents/Employees";
+import Inventory from "../Components/EmployeeDashboardComponents/Inventory.jsx";
+import Orders from "../Components/EmployeeDashboardComponents/Orders.jsx";
+import Analytics from "../Components/EmployeeDashboardComponents/Analytics.jsx";
+import Employees from "../Components/EmployeeDashboardComponents/Employees.jsx";
 import Components from "../enums/EmployeeDashboardComponents.ts";
 
 /**
