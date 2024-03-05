@@ -24,53 +24,7 @@ import React, {
       Link,
     } from "@chakra-ui/react";
 import Chart from "react-apexcharts";
-import FadeInGrid from "../../../CustomComponents/FadeInGrid"
-
-
-    /**
-     * @returns The highlights of the day for the for the Highlights tab
-     */
-    function Highlights() {
-        return (
-            <>
-              <Flex>
-                <FadeInGrid columns={3} spacing={10} delay={50}>
-                  <Box>
-                    <Stat>
-                      <StatLabel>Sales</StatLabel>
-                      <StatNumber>$999.99</StatNumber>
-                      <StatHelpText>
-                          <StatArrow type='increase'/>
-                          24.05%
-                      </StatHelpText>
-                    </Stat>
-                  </Box>
-                  <Box>
-                    <Stat>
-                      <StatLabel>Best Seller (Apples)</StatLabel>
-                      <StatNumber>300 Qty.</StatNumber>
-                      <StatHelpText>
-                          The store sold 300 Apples today!
-                      </StatHelpText>
-                    </Stat>
-                  </Box>
-                  <Box>
-                    <Stat>
-                      <StatLabel>Completed Orders</StatLabel>
-                      <StatNumber>30</StatNumber>
-                      <StatHelpText>
-                      <StatArrow type='increase'/>
-                          10.75%
-                      </StatHelpText>
-                    </Stat>
-                  </Box>
-                  <Box>
-                  </Box>
-                </FadeInGrid>
-              </Flex>
-            </>
-        );
-    }
+import FadeInGrid from "../../CustomComponents/FadeInGrid"
 
 /**
  * 
@@ -98,6 +52,51 @@ export default function Analytics() {
         </Tabs>
         </>
     );
+}
+
+/**
+ * @returns The highlights of the day for the for the Highlights tab
+ */
+function Highlights() {
+return (
+    <>
+      <Flex>
+        <FadeInGrid columns={3} spacing={10} delay={50}>
+          <Box>
+            <Stat>
+              <StatLabel>Sales</StatLabel>
+              <StatNumber>$999.99</StatNumber>
+              <StatHelpText>
+                  <StatArrow type='increase'/>
+                  24.05%
+              </StatHelpText>
+            </Stat>
+          </Box>
+          <Box>
+            <Stat>
+              <StatLabel>Best Seller (Apples)</StatLabel>
+              <StatNumber>300 Qty.</StatNumber>
+              <StatHelpText>
+                  The store sold 300 Apples today!
+              </StatHelpText>
+            </Stat>
+          </Box>
+          <Box>
+            <Stat>
+              <StatLabel>Completed Orders</StatLabel>
+              <StatNumber>30</StatNumber>
+              <StatHelpText>
+              <StatArrow type='increase'/>
+                  10.75%
+              </StatHelpText>
+            </Stat>
+          </Box>
+          <Box>
+          </Box>
+        </FadeInGrid>
+      </Flex>
+    </>
+);
 }
 
 

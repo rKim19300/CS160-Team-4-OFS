@@ -3,7 +3,7 @@ import "./App.css";
 import { ChakraProvider } from "@chakra-ui/react";
 import LogInPage from "./Pages/LogInPage";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import EmployeeDashboard from "./Pages/EmployeeDashboard/EmployeeDashboard";
+import EmployeeDashboard from "./Pages/EmployeeDashboard";
 
 function App() {
   return (
@@ -11,7 +11,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LogInPage />} />
-          <Route path="/StatisticsPage" element={<EmployeeDashboard />} />
+          <Route path="/EmployeeDashboard" element={<EmployeeDashboard />} />
         </Routes>
       </BrowserRouter>
     </ChakraProvider>

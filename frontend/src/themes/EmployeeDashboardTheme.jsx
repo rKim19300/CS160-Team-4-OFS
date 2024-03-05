@@ -30,7 +30,7 @@ const statisticsPageTheme = extendTheme({
                     height: "80vh",
                   },
             }
-        }
+        },
     }
 
 });

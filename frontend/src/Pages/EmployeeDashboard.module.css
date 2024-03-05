@@ -1,5 +1,9 @@
 .container {
     flex-direction: column;
     padding: 56px 0 0 0;
-    justify-self: center;
+    justify-self: left;
+}
+
+.menuContent {
+    max-width: 100vw;
 }

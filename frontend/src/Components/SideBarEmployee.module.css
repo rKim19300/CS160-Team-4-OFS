@@ -1,0 +1,30 @@
+.container {
+    /* border-right: 2px solid gray; */
+    height: calc(100vh - 12vh);
+    padding: 24px 24px;
+    flex-direction: column;
+    justify-content: space-between;
+    position: -webkit-sticky;
+    position: sticky;
+    overflow: auto;
+    left: 0;
+    top: 12vh;
+    width: 15vw;
+  }
+  
+  .categoriesContainer {
+    flex-direction: column;
+    align-items: start;
+  }
+  
+  /* .productButton {
+  } */
+  
+  .indent {
+    margin-left: 24px;
+  }
+  
+  .bottomButtons {
+    flex-direction: column;
+    gap: 8px;
+  }
