@@ -7,11 +7,6 @@ import {
     Center,
     Box,
     Flex,
-    Stat,
-    StatLabel,
-    StatNumber,
-    StatHelpText,
-    StatArrow,
     Tabs, 
     TabList, 
     TabPanels, 
@@ -22,10 +17,8 @@ import {
     MenuButton, 
     Link,
   } from "@chakra-ui/react";
-import statisticsPageTheme from "../../themes/StatisticsPageTheme";
-import Chart from "react-apexcharts";
+import employeeDashboardTheme from "../../themes/EmployeeDashboardTheme";
 import styles from "./EmployeeDashboard.module.css"
-import FadeInGrid from "../../CustomComponents/FadeInGrid"
 import Inventory from "./EmployeeDashboardComponents/Inventory";
 import Orders from "./EmployeeDashboardComponents/Orders";
 import Analytics from "./EmployeeDashboardComponents/Analytics";
@@ -37,11 +30,11 @@ import Employees from "./EmployeeDashboardComponents/Employees";
  * 
  * @returns The statistic page containing Tabs leading to Highlights and Charts
  */
-export default function StatisticsPage() {
+export default function EmployeeDashboard() {
     return (
       <>
       <Center>
-          <ChakraProvider resetCSS theme={statisticsPageTheme}>
+          <ChakraProvider resetCSS theme={employeeDashboardTheme}>
               <Flex className={styles.container}>
                   <Tabs isFitted={true} isLazy={true} orientation="vertical">
                       <TabList>
