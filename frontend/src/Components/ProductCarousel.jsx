@@ -3,6 +3,7 @@ import { Flex, Text } from "@chakra-ui/react";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import styles from "./ProductCarousel.module.css";
+import { Link } from "react-router-dom";
 
 const responsive = {
   superLargeDesktop: {
@@ -51,7 +52,9 @@ function ProductItem({ product }) {
   return (
     <Flex className={styles.productItem}>
       <img className={styles.prodImg} src={product.image_url} />
-      <Text className={styles.productTitle}>{product.name}</Text>
+      <Link to={`/productInfo/${product.product_id}`}>
+        <Text className={styles.productTitle}>{product.name}</Text>
+      </Link>
       <Text className={styles.productPrice}>${product.price.toFixed(2)}</Text>
       <Text className={styles.productWeight}>{product.weight} lbs</Text>
     </Flex>
