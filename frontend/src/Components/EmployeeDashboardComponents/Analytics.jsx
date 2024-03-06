@@ -1,4 +1,3 @@
-
 import React, {
     useEffect, 
     useState, 
@@ -18,18 +17,19 @@ import React, {
       TabPanels, 
       Tab, 
       TabPanel,  
-      ChakraProvider, 
-      Menu,
-      MenuButton, 
-      Link,
+      Heading
     } from "@chakra-ui/react";
 import Chart from "react-apexcharts";
-import FadeInGrid from "../../CustomComponents/FadeInGrid"
 
 /**
  * 
  */
-export default function Analytics() {
+export default function Analytics(weekRevenue, weekOrders, monthRevenue, monthOrders, 
+  yearRevenue, yearOrders) {
+
+    //alert(typeof(weekRevenue.categories[0]))
+    //alert(typeof(weekRevenue.data[0]))
+
     return (
         <>
         <Tabs isFitted={true} isLazy={true}>
@@ -39,76 +39,50 @@ export default function Analytics() {
             <Tab>Year</Tab>
           </TabList>
           <TabPanels>
+            {/* Week revenue/Order */}
             <TabPanel>
               <Center>
                 <Box> 
-                  <RevenueByWeek/>
+                <Heading textAlign="center">Revenue by Week)</Heading>
+                <WeekRevenueGraph/>
                 </Box>
               </Center>
             </TabPanel>
-            <TabPanel></TabPanel>
-            <TabPanel></TabPanel>
+            {/* Month revenue/Order */}
+            <TabPanel>
+              <Center>
+                <Box> 
+                  <Heading textAlign="center">Revenue by Month</Heading>
+                  <MonthRevenueGraph/>
+                </Box>
+              </Center>
+            </TabPanel>
+            {/* Year revenue/Order */}
+            <TabPanel>
+              <Center>
+                <Box> 
+                  <Heading textAlign="center">Revenue by Year</Heading>
+                  <YearRevenueGraph/>
+                </Box>
+              </Center>
+            </TabPanel>
           </TabPanels>
         </Tabs>
         </>
     );
 }
 
-/**
- * @returns The highlights of the day for the for the Highlights tab
- */
-function Highlights() {
-return (
-    <>
-      <Flex>
-        <FadeInGrid columns={3} spacing={10} delay={50}>
-          <Box>
-            <Stat>
-              <StatLabel>Sales</StatLabel>
-              <StatNumber>$999.99</StatNumber>
-              <StatHelpText>
-                  <StatArrow type='increase'/>
-                  24.05%
-              </StatHelpText>
-            </Stat>
-          </Box>
-          <Box>
-            <Stat>
-              <StatLabel>Best Seller (Apples)</StatLabel>
-              <StatNumber>300 Qty.</StatNumber>
-              <StatHelpText>
-                  The store sold 300 Apples today!
-              </StatHelpText>
-            </Stat>
-          </Box>
-          <Box>
-            <Stat>
-              <StatLabel>Completed Orders</StatLabel>
-              <StatNumber>30</StatNumber>
-              <StatHelpText>
-              <StatArrow type='increase'/>
-                  10.75%
-              </StatHelpText>
-            </Stat>
-          </Box>
-          <Box>
-          </Box>
-        </FadeInGrid>
-      </Flex>
-    </>
-);
-}
-
-
-// TODO create const functions to fill the chart with data
+// TODO Fill the charts with queried data
 
 /**
  * 
  */
-class RevenueByWeek extends Component {
+class WeekRevenueGraph extends Component {
 
     constructor(props) {
       super(props);
+
+      //const { categories, seriesData } = this.props; // Assuming you're passing categories and seriesData as props
 
       this.state = {
         options: {
@@ -116,21 +90,21 @@ class RevenueByWeek extends Component {
             id: "basic-bar"
           },
           xaxis: {
-            categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999]
+            categories: ['Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday']
           }
         },
         series: [
           {
             name: "series-1",
-            data: [30, 40, 45, 50, 49, 60, 70, 91, ]
+            data: [1374, 1500, 608, 589, 2343, 1989, 1893]
           }
         ]
       };
     }
-  
+
     render() {
       return (
-        <div className="revenue-by-week">
+        <div className="bar-graph">
           <div className="row">
             <div className="mixed-chart">
               <Chart
@@ -146,13 +120,15 @@ class RevenueByWeek extends Component {
     }
   }
 
-/**
+  /**
  * 
  */
-class RevenueByMonth extends Component {
+class MonthRevenueGraph extends Component {
 
   constructor(props) {
     super(props);
+
+    //const { categories, seriesData } = this.props; // Assuming you're passing categories and seriesData as props
 
     this.state = {
       options: {
@@ -160,13 +136,14 @@ class RevenueByMonth extends Component {
           id: "basic-bar"
         },
         xaxis: {
-          categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999]
+          categories: ['April', 'May', 'June', 'July', 'August', 'September', 'October', 
+          'November', 'December', 'January', 'February', 'March']
         }
       },
       series: [
         {
           name: "series-1",
-          data: [30, 40, 45, 50, 49, 60, 70, 91, ]
+          data: [13740, 15000, 6080, 5890, 23430, 19890, 18930, 15000, 6080, 5890, 23430, 19890]
         }
       ]
     };
@@ -174,7 +151,7 @@ class RevenueByMonth extends Component {
 
   render() {
     return (
-      <div className="revenue-by-month">
+      <div className="bar-graph">
         <div className="row">
           <div className="mixed-chart">
             <Chart
@@ -190,46 +167,48 @@ class RevenueByMonth extends Component {
   }
 }
 
-/**
+  /**
  * 
  */
-class RevenueByYear extends Component {
+  class YearRevenueGraph extends Component {
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      options: {
-        chart: {
-          id: "basic-bar"
+    constructor(props) {
+      super(props);
+  
+      //const { categories, seriesData } = this.props; // Assuming you're passing categories and seriesData as props
+  
+      this.state = {
+        options: {
+          chart: {
+            id: "basic-bar"
+          },
+          xaxis: {
+            categories: ['2022', '2023', '2024']
+          }
         },
-        xaxis: {
-          categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999]
-        }
-      },
-      series: [
-        {
-          name: "series-1",
-          data: [30, 40, 45, 50, 49, 60, 70, 91, ]
-        }
-      ]
-    };
-  }
-
-  render() {
-    return (
-      <div className="revenue-by-year">
-        <div className="row">
-          <div className="mixed-chart">
-            <Chart
-              options={this.state.options}
-              series={this.state.series}
-              type="bar"
-              width="500"
-            />
+        series: [
+          {
+            name: "series-1",
+            data: [97800, 112897, 152389]
+          }
+        ]
+      };
+    }
+  
+    render() {
+      return (
+        <div className="bar-graph">
+          <div className="row">
+            <div className="mixed-chart">
+              <Chart
+                options={this.state.options}
+                series={this.state.series}
+                type="bar"
+                width="500"
+              />
+            </div>
           </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
-}

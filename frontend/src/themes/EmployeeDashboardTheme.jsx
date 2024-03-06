@@ -24,11 +24,7 @@ const statisticsPageTheme = extendTheme({
                     fontWeight: "semibold", 
                     backgroundColor: "green",
                     _selected: { color: "green", }
-                },
-                tabpanel: {
-                    width: "62vw",
-                    height: "80vh",
-                  },
+                }
             }
         },
     }
