@@ -24,18 +24,18 @@ router.get("/productInfo/:prodID", checkLoggedIn, async (req, res) => {
     }
 });
 
-router.post("/updateProduct/:prodID", checkIsEmployee, async (req, res) => {
-
-});
-
-router.post("/removeProduct/:prodID", checkIsEmployee, async (req, res) => {
-
-});
+// router.post("/updateProduct/:prodID", checkIsEmployee, async (req, res) => {
+//
+// });
+//
+// router.post("/removeProduct/:prodID", checkIsEmployee, async (req, res) => {
+//
+// });
 
 router.post("/addProduct", checkIsEmployee, async (req, res) => {
     try {
-        let { name, description, price, weight, quantity } = req.body;
-        await DB.add_new_product(name, description, price, weight, quantity);
+        let { name, description, image_url, price, weight, quantity } = req.body;
+        await DB.add_new_product(name, description, image_url, price, weight, quantity);
         return res.status(200).send("Successfully inserted product into database");
     } catch (err) {
         console.log(`ERROR WHEN ADDING PRODUCT: ${err}`);

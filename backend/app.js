@@ -5,7 +5,7 @@ const dotenv = require('dotenv').config()
 const cors = require("cors");
 
 const authRoute = require("./routes/auth");
-// const productsRoute = require("./routes/products");
+const productsRoute = require("./routes/products");
 const cartRoute = require("./routes/cart");
 
 // set up the express session config
@@ -28,7 +28,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", authRoute);
-// app.use("/api", productsRoute);
+app.use("/api", productsRoute);
 app.use("/api", cartRoute);
 
 const PORT = process.env.PORT || 8888;

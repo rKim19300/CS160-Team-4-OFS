@@ -7,7 +7,9 @@ router.post("/addItemToCart", checkLoggedIn, async (req, res) => {
         let { product_id, quantity } = req.body;
         let productInfo = await DB.get_product_info(product_id);
         if (productInfo === undefined) return res.status(400).send(`Product with id ${product_id} does not exist`);
+        // TODO: CHECK THAT (productInfo.weight * quantity) IS BELOW THE THRESHOLD
         let cart_id = await DB.get_cart_id(req.user_id);
+        // TODO: MAKE SURE THAT AMOUNT OF `product_id` IN USERS CART IS NOT > productInfo.quantity
         await DB.insert_item_into_cart(cart_id, product_id, quantity);
         return res.status(200).send("Successfully added item to cart");
     } catch (err) {
@@ -25,6 +27,18 @@ router.post("/removeItemFromCart", checkLoggedIn, async (req, res) => {
     } catch (err) {
         console.log(`ERROR REMOVING ITEM FROM CART: ${err}`);
         return res.status(400).send("Something went wrong when removing item from cart");
+    }
+});
+
+router.post("/modifyCartItemQuantity", checkLoggedIn, async (req, res) => {
+    try {
+        let { product_id, quantity } = req.body;
+        let cart_id = await DB.get_cart_id(req.user_id);
+        await DB.modify_cart_item_quantity(cart_id, product_id, quantity);
+        return res.status(200).send("Successfully modified cart item quantity");
+    } catch (err) {
+        console.log(`ERROR MODIFYING CART ITEM QUANTITY: ${err}`);
+        return res.status(400).send("Something went wrong when modifying cart item quantity");
     }
 });
 

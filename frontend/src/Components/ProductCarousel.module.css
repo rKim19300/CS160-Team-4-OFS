@@ -1,0 +1,21 @@
+.productItem {
+  flex-direction: column;
+  border: 2px solid gray;
+  border-radius: 4px;
+  max-width: 60%;
+  padding: 8px;
+}
+
+.prodImg {
+  height: 20vh;
+}
+
+.productTitle {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.productWeight {
+  font-size: 16px;
+  color: gray;
+}

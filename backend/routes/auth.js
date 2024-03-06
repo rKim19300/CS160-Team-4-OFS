@@ -44,9 +44,8 @@ router.post("/login",
         let pw_in_db = await DB.get_stored_password(email);
         let isValidPw = await bcrypt.compare(password, pw_in_db);
         if (!isValidPw) return res.status(401).send("Invalid Credentials");
-        let { user_id, username, user_type } = user;
-        req.session.user = { user_id, username, email, user_type };
-        return res.status(200).send("Successfully logged in");
+        req.session.user = user
+        return res.status(200).json(user);
     } catch (err) {
         console.log(`ERROR LOGGING IN: ${err}`);
         return res.status(400).send(`Something went wrong when trying to log in`);
