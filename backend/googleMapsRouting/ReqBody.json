@@ -1,0 +1,20 @@
+{
+  "origin":{
+      "address": "1 Washington Sq, San Jose, CA 95192"
+  },
+  "destination":{
+      "address": "1 Washington Sq, San Jose, CA 95192"
+  },
+  "intermediates": [],
+  "travelMode": "DRIVE",
+  "routingPreference": "TRAFFIC_AWARE",
+  "departureTime": "2022-10-15T15:01:23.045123456Z",
+  "computeAlternativeRoutes": false,
+  "routeModifiers": {
+    "avoidTolls": false,
+    "avoidHighways": false,
+    "avoidFerries": false
+  },
+  "languageCode": "en-US",
+  "units": "IMPERIAL"
+}
