@@ -27,7 +27,7 @@ async function addProducts() {
     await DB.add_new_product(
         "Orange",
         "Our vibrant oranges burst with juicy sweetness and refreshing citrus flavor, perfect for a healthy snack or a tasty addition to salads and desserts",
-        "https://m.media-amazon.com/images/I/710A+YmGSqL._AC_UF894,1000_QL80_.jpg",
+        "https://5.imimg.com/data5/EE/ER/MY-27568370/fresh-orange-500x500.png",
         1.99, 1, 45
     );
     await DB.add_new_product(

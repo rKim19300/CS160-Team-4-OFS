@@ -26,7 +26,8 @@ router.post("/placeOrder", checkLoggedIn, async (req, res) => {
         let order_weight = await DB.get_cart_weight(cart_id);
         let order_cost = await DB.get_cart_cost(cart_id);
         let delivery_fee = order_weight < 20 ? 0 : 10;
-        await DB.add_new_order(req.user_id, order_cost+delivery_fee, order_weight, ADDRESS, delivery_fee, CREATEDAT, cart_id);
+        let ordered_at = new Date().toLocaleString().replace(",", "");
+        await DB.add_new_order(req.user_id, order_cost+delivery_fee, order_weight, ADDRESS, delivery_fee, ordered_at, cart_id);
         await DB.delete_all_cart_items(cart_id);
         // make sure to update product inventory
         

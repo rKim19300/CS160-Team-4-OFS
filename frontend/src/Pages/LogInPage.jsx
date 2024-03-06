@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import { useNavigate } from "react-router-dom";
 import axiosInstance from "../axiosInstance";
 import {
   Flex,
@@ -16,15 +17,17 @@ export default function LogInPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errMsg, setErrMsg] = useState("");
+    const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
         // this function runs when we press "Continue" button
         event.preventDefault();
         let response = await axiosInstance.post("/api/login", { email, password });
-        let responseMsg = response.data;
-        console.log(responseMsg);
-        if (response.status !== 200) {
-            setErrMsg(responseMsg);
+        let responseMsg = response.data; // if successful, json obj of user data { email, user_type, username, user_id } 
+        if (response.status === 200) {
+          navigate("/customer");
+        } else {
+          setErrMsg(responseMsg);
         }
     }
 
