@@ -1,17 +1,9 @@
 import React, {
-    useEffect, 
-    useState, 
     Component
   } from "react";
   import {
       Center,
       Box,
-      Flex,
-      Stat,
-      StatLabel,
-      StatNumber,
-      StatHelpText,
-      StatArrow,
       Tabs, 
       TabList, 
       TabPanels, 
@@ -43,7 +35,7 @@ export default function Analytics(weekRevenue, weekOrders, monthRevenue, monthOr
             <TabPanel>
               <Center>
                 <Box> 
-                <Heading textAlign="center">Revenue by Week)</Heading>
+                <Heading textAlign="center">Revenue by Week</Heading>
                 <WeekRevenueGraph/>
                 </Box>
               </Center>

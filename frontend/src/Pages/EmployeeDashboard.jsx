@@ -1,21 +1,10 @@
 import React, {
-  useEffect, 
   useState, 
-  Component
 } from "react";
 import {
-    Center,
     Box,
-    Flex,
-    Tabs, 
-    TabList, 
-    TabPanels, 
-    Tab, 
-    TabPanel,  
+    Flex,  
     ChakraProvider, 
-    Menu,
-    MenuButton, 
-    Link,
   } from "@chakra-ui/react";
 import employeeDashboardTheme from "../themes/EmployeeDashboardTheme";
 import styles from "./EmployeeDashboard.module.css";
