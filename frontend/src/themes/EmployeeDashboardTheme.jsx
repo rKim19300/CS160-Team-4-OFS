@@ -12,7 +12,8 @@ const statisticsPageTheme = extendTheme({
                     rounded: "lg",
                     borderWidth: "2px",
                     borderColor: "grey", 
-                    p: "2"
+                    p: "2", 
+                    width: "200px", 
                   },
                   icon: {},
                   number: {},
