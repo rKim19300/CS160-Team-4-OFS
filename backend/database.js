@@ -175,12 +175,12 @@ class DB {
 
     static async get_cart_weight(cart_id) {
         let q = await db.query("SELECT SUM(p.weight * ci.quantity) FROM Cart_Items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
-        return q[0];
+        return q[0]["SUM(p.weight * ci.quantity)"] || 0;
     }
 
-    static async get_cart_cost(cart_id) {
+    static async get_cart_subtotal_cost(cart_id) {
         let q = await db.query("SELECT SUM(p.price * ci.quantity) FROM Cart_Items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
-        return q[0];
+        return q[0]["SUM(p.price * ci.quantity)"] || 0;
     }
 
     static async delete_all_cart_items(cart_id) {

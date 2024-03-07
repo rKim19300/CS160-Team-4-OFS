@@ -24,10 +24,11 @@ router.post("/placeOrder", checkLoggedIn, async (req, res) => {
         // if (errMsgs.length > 0) return res.status(400).json(errMsgs);
 
         let order_weight = await DB.get_cart_weight(cart_id);
-        let order_cost = await DB.get_cart_cost(cart_id);
+        let subtotal_cost = await DB.get_cart_subtotal_cost(cart_id);
         let delivery_fee = order_weight < 20 ? 0 : 10;
+        let taxAmount = subtotal_cost / 100;
         let ordered_at = new Date().toLocaleString().replace(",", "");
-        await DB.add_new_order(req.user_id, order_cost+delivery_fee, order_weight, ADDRESS, delivery_fee, ordered_at, cart_id);
+        await DB.add_new_order(req.user_id, subtotal_cost+delivery_fee+taxAmount, order_weight, ADDRESS, delivery_fee, ordered_at, cart_id);
         await DB.delete_all_cart_items(cart_id);
         // make sure to update product inventory
         

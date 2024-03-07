@@ -25,13 +25,19 @@ import { FaCartShopping, FaTrashCan } from "react-icons/fa6";
 
 export default function ShoppingCart({ isOpen, onClose, btnRef }) {
   const [cartItems, setCartItems] = useState(null);
+  const [deliveryFee, setDeliveryFee] = useState(0);
+  const [cartSubtotal, setCartSubtotal] = useState(0);
+  const [taxAmount, setTaxAmount] = useState(0);
 
   // fetch the user's cart from the backend
   useEffect(() => {
     try {
       async function fetchData() {
         let response = await axiosInstance.get("/api/viewCart");
-        setCartItems(response.data);
+        setCartItems(response.data.cartItems);
+        setDeliveryFee(response.data.summary.deliveryFee);
+        setCartSubtotal(response.data.summary.cartSubtotalCost);
+        setTaxAmount(response.data.summary.taxAmount);
       }
       fetchData();
     } catch (err) {
@@ -72,20 +78,20 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
           <DrawerFooter className={styles.drawerFooter}>
             <Flex justifyContent="space-between" width="100%">
               <Text className={styles.bottomText}>Subtotal</Text>
-              <Text className={styles.bottomText}>$1.99</Text>
+              <Text className={styles.bottomText}>${cartSubtotal.toFixed(2)}</Text>
             </Flex>
             <Flex justifyContent="space-between" width="100%">
               <Text className={styles.bottomText}>Delivery Fee</Text>
-              <Text className={styles.bottomText}>Free</Text>
+              <Text className={styles.bottomText}>${deliveryFee.toFixed(2)}</Text>
             </Flex>
             <Flex justifyContent="space-between" width="100%">
               <Text className={styles.bottomText}>Tax & Services</Text>
-              <Text className={styles.bottomText}>$1.00</Text>
+              <Text className={styles.bottomText}>${taxAmount.toFixed(2)}</Text>
             </Flex>
             <Divider marginY="8px" />
             <Flex justifyContent="space-between" width="100%">
               <Text className={styles.bottomText}>Total</Text>
-              <Text className={styles.bottomText}>$2.99</Text>
+              <Text className={styles.bottomText}>${(cartSubtotal+deliveryFee+taxAmount).toFixed(2)}</Text>
             </Flex>
             <Button className={styles.checkoutButton} colorScheme="green">
               Checkout

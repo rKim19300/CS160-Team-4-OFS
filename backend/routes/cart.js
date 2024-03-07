@@ -59,7 +59,16 @@ router.get("/viewCart", checkLoggedIn, async (req, res) => {
     try {
         let cart_id = await DB.get_cart_id(req.user_id);
         let cartItems = await DB.get_cart_items(cart_id);
-        return res.status(200).json(cartItems);
+        let cartWeight = await DB.get_cart_weight(cart_id);
+        let cartSubtotalCost = await DB.get_cart_subtotal_cost(cart_id);
+        return res.status(200).json({
+            cartItems,
+            "summary": {
+                cartSubtotalCost,
+                "deliveryFee": cartWeight > 20 ? 10 : 0,
+                "taxAmount": (cartSubtotalCost / 100)
+            }
+        });
     } catch (err) {
         console.log(`ERROR VIEWING CART: ${err}`);
         return res.status(400).send("Something went wrong when trying to access the cart");
