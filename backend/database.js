@@ -165,7 +165,7 @@ class DB {
     }
 
     static async get_cart_items(cart_id) {
-        let q = await db.query("SELECT p.product_id, p.name, p.description, p.price, p.weight, ci.quantity FROM Cart_items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
+        let q = await db.query("SELECT p.product_id, p.name, p.description, p.price, p.weight, p.image_url, ci.quantity FROM Cart_items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
         return q;
     }
 

@@ -1,8 +1,15 @@
 const router = require("express").Router();
 const { DB } = require("../database");
-const { checkLoggedIn, checkIsEmployee } = require("../middleware/authMiddleware");
+const { checkLoggedIn, checkIsEmployee, validateReqBody } = require("../middleware/authMiddleware");
+const { body } = require("express-validator");
 
-router.post("/addItemToCart", checkLoggedIn, async (req, res) => {
+router.post(
+    "/addItemToCart",
+    checkLoggedIn,
+    validateReqBody([
+        body('quantity').isInt({ min: 1 }).withMessage('Quantity must be an integer greater than or equal to 1')
+    ]),
+    async (req, res) => {
     try {
         let { product_id, quantity } = req.body;
         let productInfo = await DB.get_product_info(product_id);
@@ -30,7 +37,13 @@ router.post("/removeItemFromCart", checkLoggedIn, async (req, res) => {
     }
 });
 
-router.post("/modifyCartItemQuantity", checkLoggedIn, async (req, res) => {
+router.post(
+    "/modifyCartItemQuantity",
+    checkLoggedIn,
+    validateReqBody([
+        body("quantity").isInt({ min: 1 }).withMessage("Quantity must be an integer greater than or equal to 1")
+    ]),
+    async (req, res) => {
     try {
         let { product_id, quantity } = req.body;
         let cart_id = await DB.get_cart_id(req.user_id);
