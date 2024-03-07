@@ -12,7 +12,8 @@ const statisticsPageTheme = extendTheme({
                     rounded: "lg",
                     borderWidth: "2px",
                     borderColor: "grey", 
-                    p: "2"
+                    p: "2", 
+                    width: "200px", 
                   },
                   icon: {},
                   number: {},
@@ -24,13 +25,9 @@ const statisticsPageTheme = extendTheme({
                     fontWeight: "semibold", 
                     backgroundColor: "green",
                     _selected: { color: "green", }
-                },
-                tabpanel: {
-                    width: "62vw",
-                    height: "80vh",
-                  },
+                }
             }
-        }
+        },
     }
 
 });
