@@ -6,6 +6,7 @@ import ProductPage from "./Pages/ProductPage";
 import CustomerPage from "./Pages/CustomerPage";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import EmployeeDashboard from "./Pages/EmployeeDashboard/EmployeeDashboard";
+import OrderPage from "./Pages/OrderPage";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/StatisticsPage" element={<EmployeeDashboard />} />
           <Route path="/customer" element={<CustomerPage />} />
           <Route path="/productInfo/:id" element={<ProductPage />} />
+          <Route path="/order" element={<OrderPage />} />
         </Routes>
       </BrowserRouter>
     </ChakraProvider>
