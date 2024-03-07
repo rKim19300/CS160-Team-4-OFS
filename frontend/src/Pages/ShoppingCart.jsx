@@ -20,9 +20,27 @@ import {
   Divider,
 } from "@chakra-ui/react";
 import styles from "./ShoppingCart.module.css";
+import axiosInstance from "../axiosInstance";
 import { FaCartShopping, FaTrashCan } from "react-icons/fa6";
 
 export default function ShoppingCart({ isOpen, onClose, btnRef }) {
+  const [cartItems, setCartItems] = useState(null);
+
+  // fetch the user's cart from the backend
+  useEffect(() => {
+    try {
+      async function fetchData() {
+        let response = await axiosInstance.get("/api/viewCart");
+        setCartItems(response.data);
+      }
+      fetchData();
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
+  if (cartItems === null) return;
+
   return (
     <Flex>
       <Drawer
@@ -42,7 +60,13 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
           </DrawerHeader>
 
           <DrawerBody>
-            <CartItem />
+            {cartItems.length === 0 ? (
+              <Text>Your cart is empty</Text>
+            ) : (
+              cartItems.map((product) => (
+                <CartItem key={product.product_id} product={product} />
+              ))
+            )}
           </DrawerBody>
 
           <DrawerFooter className={styles.drawerFooter}>
@@ -73,19 +97,19 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
   );
 }
 
-function CartItem() {
+function CartItem({ product }) {
   return (
     <Flex className={styles.outsideContainer}>
       <Flex className={styles.topSection}>
         <Flex alignItems="center" gap="8px">
           <img
             className={styles.itemImg}
-            src="https://static.wikia.nocookie.net/the-snack-encyclopedia/images/7/7d/Apple.png"
+            src={product.image_url}
           />
-          <Text>Apple Juice</Text>
+          <Text>{product.name}</Text>
         </Flex>
 
-        <NumberInput size="xs" maxW={16} defaultValue={1}>
+        <NumberInput size="xs" maxW={16} defaultValue={product.quantity}>
           <NumberInputField height="100%" />
           <NumberInputStepper>
             <NumberIncrementStepper />
@@ -95,7 +119,7 @@ function CartItem() {
       </Flex>
 
       <Flex className={styles.bottomSection}>
-        <Text className={styles.priceText}>$1.99</Text>
+        <Text className={styles.priceText}>${(product.price * product.quantity).toFixed(2)}</Text>
         <Button
           className={styles.removeButton}
           leftIcon={<FaTrashCan />}
