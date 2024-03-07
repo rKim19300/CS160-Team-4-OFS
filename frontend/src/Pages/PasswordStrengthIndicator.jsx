@@ -19,7 +19,7 @@ const PasswordStrengthIndicator = ({ password }) => {
       condition: password.length >= 8,
     },
     {
-      label: "Password has at Least One Number",
+      label: "Number",
       condition: /\d/.test(password),
     },
   ];

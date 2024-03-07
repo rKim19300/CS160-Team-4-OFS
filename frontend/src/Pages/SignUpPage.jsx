@@ -4,7 +4,7 @@ import axiosInstance from "../axiosInstance";
 
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import PasswordStrengthIndicator from "./PasswordStrengthIndicator"; // Import the PasswordStrengthIndicator component
+import PasswordStrengthIndicator from "./PasswordStrengthIndicator";
 
 import {
   Text,
@@ -30,6 +30,18 @@ const validationSchema = Yup.object().shape({
     .required("Confirm Password is required"),
 });
 
+const handleRegistration = async (values) => {
+  // this function runs when we press "Submit"
+  try {
+    // Call the insert_new_user function from the DB class
+    // await DB.insert_new_user(values.email, values.userName, values.password);
+
+    console.log("User registered successfully!");
+  } catch (error) {
+    console.error("Error registering user:", error);
+  }
+};
+
 const FormComponent = () => {
   return (
     <div justification="center">
@@ -47,17 +59,16 @@ const FormComponent = () => {
           confirmPassword: "",
         }}
         validationSchema={validationSchema}
-        onSubmit={(values) => {
+        onSubmit={async (values) => {
+          // Call the insert_new_user function from the DB class
           // Handle form submission here
+          await handleRegistration(values);
           console.log(values);
         }}
       >
         {({ isSubmitting, values }) => (
-          <Form className={styles.SigUpContainer}>
+          <Form className={styles.sigUpContainer}>
             <div className={styles.emailInputContainer}>
-              {/* <label className={styles.formText} htmlFor="userName">
-                Username:
-              </label> */}
               <FormLabel className={styles.formText} htmlFor="userName">
                 User Name:{" "}
               </FormLabel>
@@ -65,45 +76,34 @@ const FormComponent = () => {
                 className={styles.formBoxInput}
                 type="text"
                 name="userName"
-                placeholder="Your Name"
               />
 
               <ErrorMessage name="userName" component="div" className="error" />
             </div>
 
             <div className={styles.emailInputContainer}>
-              {/* <label className={styles.formText} htmlFor="email">
-                Email:
-              </label> */}
+              {/* TODO: Handle email existed */}
               <FormLabel className={styles.formText} htmlFor="email">
                 Email Address:{" "}
               </FormLabel>
-              <Field
-                className={styles.formBoxInput}
-                type="text"
-                name="email"
-                placeholder="Enter Email"
-              />
+              <Field className={styles.formBoxInput} type="text" name="email" />
               <ErrorMessage name="email" component="div" className="error" />
             </div>
 
             <div className={styles.emailInputContainer}>
-              {/* <label className={styles.formText} htmlFor="password">
-                Password:
-              </label> */}
               <FormLabel className={styles.formText} htmlFor="password">
                 Password:{" "}
               </FormLabel>
-              {/* <Input type="password" name="password" /> */}
               <Field
                 className={styles.formBoxInput}
                 type="password"
                 name="password"
-                placeholder="Enter Password"
               />
               <ErrorMessage name="password" component="div" className="error" />
             </div>
-            {/* <div class="showpassword_box"><input type="checkbox" id="checkbox"><p>Show password</p></div>
+
+            {/* Next feature Plan: Click to show password
+            <div class="showpassword_box"><input type="checkbox" id="checkbox"><p>Show password</p></div>
             <Checkbox
               size="sm"
               colorScheme="green"
@@ -120,9 +120,6 @@ const FormComponent = () => {
             </div>
 
             <div className={styles.emailInputContainer}>
-              {/* <label className={styles.formText} htmlFor="confirmPassword">
-                Confirm Password:
-              </label> */}
               <FormLabel className={styles.formText} htmlFor="confirmPassword">
                 Confirm Password:
               </FormLabel>
@@ -141,6 +138,7 @@ const FormComponent = () => {
             <div>
               <Button
                 className={styles.continueButton}
+                margin="20px"
                 type="submit"
                 disabled={isSubmitting}
               >
