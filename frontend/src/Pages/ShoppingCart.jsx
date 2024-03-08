@@ -29,21 +29,29 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
   const [cartSubtotal, setCartSubtotal] = useState(0);
   const [taxAmount, setTaxAmount] = useState(0);
 
-  // fetch the user's cart from the backend
+  // fetch the user's cart info from the backend
+  async function fetchCartData() {
+    let response = await axiosInstance.get("/api/viewCart");
+    setCartItems(response.data.cartItems);
+    setDeliveryFee(response.data.summary.deliveryFee);
+    setCartSubtotal(response.data.summary.cartSubtotalCost);
+    setTaxAmount(response.data.summary.taxAmount);
+  }
+
   useEffect(() => {
     try {
-      async function fetchData() {
-        let response = await axiosInstance.get("/api/viewCart");
-        setCartItems(response.data.cartItems);
-        setDeliveryFee(response.data.summary.deliveryFee);
-        setCartSubtotal(response.data.summary.cartSubtotalCost);
-        setTaxAmount(response.data.summary.taxAmount);
-      }
-      fetchData();
+      fetchCartData();
     } catch (err) {
       console.error(err);
     }
   }, []);
+
+  async function removeItemFromCart(product_id) {
+    let response = await axiosInstance.post("/api/removeItemFromCart", { product_id });
+    if (response.status === 200) {
+      fetchCartData();
+    }
+  }
 
   if (cartItems === null) return;
 
@@ -70,7 +78,7 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
               <Text>Your cart is empty</Text>
             ) : (
               cartItems.map((product) => (
-                <CartItem key={product.product_id} product={product} />
+                <CartItem key={product.product_id} product={product} removeItemFromCart={removeItemFromCart} />
               ))
             )}
           </DrawerBody>
@@ -103,7 +111,7 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
   );
 }
 
-function CartItem({ product }) {
+function CartItem({ product, removeItemFromCart }) {
   return (
     <Flex className={styles.outsideContainer}>
       <Flex className={styles.topSection}>
@@ -131,6 +139,7 @@ function CartItem({ product }) {
           leftIcon={<FaTrashCan />}
           colorScheme="red"
           variant="ghost"
+          onClick={() => removeItemFromCart(product.product_id)}
         >
           Remove
         </Button>

@@ -23,7 +23,7 @@ import {
     AlertDialogOverlay,
     AlertDialogCloseButton
 } from "@chakra-ui/react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 export default function ProductPage() {
     let { id } = useParams();
@@ -33,6 +33,7 @@ export default function ProductPage() {
     const quantityRef = useRef(1); // Ref to hold the quantity
     const { isOpen, onOpen, onClose } = useDisclosure();
     const cancelRef = useRef();
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function fetchData() {
@@ -124,7 +125,8 @@ export default function ProductPage() {
                                         {quantityRef.current.value}x{productInfo.name} was placed in your cart
                                     </AlertDialogBody>
                                     <AlertDialogFooter>
-                                        <Button colorScheme="green" ref={cancelRef} onClick={onClose}>
+                                        {/* <Button colorScheme="green" ref={cancelRef} onClick={onClose}> */}
+                                        <Button colorScheme="green" ref={cancelRef} onClick={() => navigate("/customer")}>
                                             OK
                                         </Button>
                                     </AlertDialogFooter>
