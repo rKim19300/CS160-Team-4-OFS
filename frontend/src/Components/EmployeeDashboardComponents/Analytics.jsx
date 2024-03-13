@@ -54,7 +54,7 @@ export default function Analytics(weekRevenue, weekOrders, monthRevenue, monthOr
                   options={this.state.options}
                   series={this.state.series}
                   type="bar"
-                  width="500"
+                  width="600"
                 />
               </div>
             </div>
@@ -79,6 +79,14 @@ export default function Analytics(weekRevenue, weekOrders, monthRevenue, monthOr
             },
             xaxis: {
               categories: monthRevenue.categories
+            },
+            plotOptions: {
+              bar: {
+                dataLabels: {
+                  orientation: 'vertical',
+                  position: 'center' 
+                }
+              }
             }
           },
           series: [
@@ -99,7 +107,7 @@ export default function Analytics(weekRevenue, weekOrders, monthRevenue, monthOr
                   options={this.state.options}
                   series={this.state.series}
                   type="bar"
-                  width="500"
+                  width="600"
                 />
               </div>
             </div>
@@ -133,7 +141,6 @@ export default function Analytics(weekRevenue, weekOrders, monthRevenue, monthOr
           ]
         };
       }
-    
       render() {
         return (
           <div className="bar-graph">
@@ -143,7 +150,7 @@ export default function Analytics(weekRevenue, weekOrders, monthRevenue, monthOr
                   options={this.state.options}
                   series={this.state.series}
                   type="bar"
-                  width="500"
+                  width="600"
                 />
               </div>
             </div>

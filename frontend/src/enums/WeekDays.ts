@@ -1,15 +1,11 @@
-enum WeekDays {
-    Sunday = 0, 
-    Monday = 1, 
-    Tuesday = 2, 
-    Wednesday = 3, 
-    Thursday = 4, 
-    Friday = 5, 
-    Saturday = 6
-}
+/*const weekDays = Object.freeze({
+    0: 'Sunday', 
+    1: 'Monday', 
+    2: 'Tuesday', 
+    3: 'Wednesday', 
+    4: 'Thursday', 
+    5: 'Friday', 
+    6: 'Saturday'
+});*/
 
-const weekDays = Object.freeze({
-    
-});
-
-export default WeekDays;
+//module.exports = { weekDays };
