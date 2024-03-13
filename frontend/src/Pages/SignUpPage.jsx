@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../axiosInstance";
 
@@ -6,16 +6,11 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import PasswordStrengthIndicator from "./PasswordStrengthIndicator";
 
-import {
-  Text,
-  Button,
-  FormLabel,
-  Checkbox,
-  CheckboxGroup,
-} from "@chakra-ui/react";
+import { Text, Button, FormLabel, Stack } from "@chakra-ui/react";
 
 import styles from "./SignUpPage.module.css";
 
+// Create Schema to validate user inputs using Yup
 const validationSchema = Yup.object().shape({
   userName: Yup.string().required("userName is required"),
   email: Yup.string().email("Invalid email").required("Email is required"),
@@ -30,27 +25,21 @@ const validationSchema = Yup.object().shape({
     .required("Confirm Password is required"),
 });
 
-const handleRegistration = async (values) => {
-  // this function runs when we press "Submit"
-  try {
-    // Call the insert_new_user function from the DB class
-    // await DB.insert_new_user(values.email, values.userName, values.password);
+// Main Sign Up Function
+const SignUpPage = () => {
+  const navigate = useNavigate();
+  const [errMsg, setErrMsg] = useState("");
 
-    console.log("User registered successfully!");
-  } catch (error) {
-    console.error("Error registering user:", error);
-  }
-};
-
-const FormComponent = () => {
   return (
+    // Header Of The Page
     <div justification="center">
-      <Text className={styles.welcomeText} marginTop="100px;">
+      <Text className={styles.welcomeText} marginTop="10px;">
         <span style={{ color: "#28B463" }}>O</span>
         <span style={{ color: "#F39C12" }}>F</span>
         <span style={{ color: "#F4D03F" }}>S</span> Registration Form!
       </Text>
 
+      {/* Create Formik components for validation */}
       <Formik
         initialValues={{
           userName: "",
@@ -59,11 +48,48 @@ const FormComponent = () => {
           confirmPassword: "",
         }}
         validationSchema={validationSchema}
-        onSubmit={async (values) => {
-          // Call the insert_new_user function from the DB class
-          // Handle form submission here
-          await handleRegistration(values);
-          console.log(values);
+        // original API Call doesn't work
+        // onSubmit={async (event) => {
+        //   // this function runs when we press "Continue" button
+        //   event.preventDefault();
+        //   let response = await axiosInstance.post("/api/signup", {
+        //     userName,
+        //     email,
+        //     password,
+        //   });
+        //   let responseMsg = response.data; // if successful, json obj of user data { email, user_type, username, user_id }
+        //   if (response.status === 200) {
+        //     navigate("/customer");
+        //   } else {
+        //     setErrMsg(responseMsg);
+        //   }
+        // }}
+
+        onSubmit={async (values, { setSubmitting }) => {
+          try {
+            // Call API
+            let response = await axiosInstance.post("/api/signup", {
+              userName: values.userName,
+              email: values.email,
+              password: values.password,
+            });
+
+            // if successful, json obj of user data { email, user_type, username, user_id }
+            let responseMsg = response.data;
+
+            // Handle successful registration
+            if (response.status === 200) {
+              navigate("/customer");
+            } else {
+              setErrMsg(responseMsg); // Set error message based on API response
+            }
+          } catch (error) {
+            console.error("Error registering user:", error);
+            setErrMsg("Error registering user");
+            alert(errMsg);
+          } finally {
+            setSubmitting(false);
+          }
         }}
       >
         {({ isSubmitting, values }) => (
@@ -82,7 +108,7 @@ const FormComponent = () => {
             </div>
 
             <div className={styles.emailInputContainer}>
-              {/* TODO: Handle email existed */}
+              {/* TODO: Handle email existed - Error send back from BackEnd*/}
               <FormLabel className={styles.formText} htmlFor="email">
                 Email Address:{" "}
               </FormLabel>
@@ -115,6 +141,7 @@ const FormComponent = () => {
             >
               Show Password
             </Checkbox> */}
+
             <div>
               <PasswordStrengthIndicator password={values.password} />
             </div>
@@ -135,16 +162,26 @@ const FormComponent = () => {
               />
             </div>
 
-            <div>
-              <Button
-                className={styles.continueButton}
-                margin="20px"
-                type="submit"
-                disabled={isSubmitting}
-              >
-                Submit
-              </Button>
-            </div>
+            {/* Link back to Log In Page */}
+            <Stack spacing={4} direction="row" align="center">
+              <Text className={styles.bottomText}> Already a member? </Text>
+              <a href="./">
+                <Text
+                  className={styles.bottomText}
+                  _hover={{ textDecoration: "underline" }}
+                >
+                  Log In
+                </Text>
+              </a>
+            </Stack>
+
+            <Button
+              className={styles.continueButton}
+              type="submit"
+              disabled={isSubmitting}
+            >
+              Submit
+            </Button>
           </Form>
         )}
       </Formik>
@@ -152,4 +189,4 @@ const FormComponent = () => {
   );
 };
 
-export default FormComponent;
+export default SignUpPage;
