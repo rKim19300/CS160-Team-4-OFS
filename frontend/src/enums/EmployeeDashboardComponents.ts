@@ -1,4 +1,4 @@
-enum Components {
+export enum Components {
     Inventory = 'Inventory', 
     Orders = 'Orders', 
     Analytics = 'Analytics', 

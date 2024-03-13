@@ -203,6 +203,60 @@ class DB {
             await db.query("INSERT INTO Order_items(product_id, quantity) VALUES (?, ?)", [product_id, quantity]);
         }
     }
+    
+    // Gets the revenue from the past 7 days
+    static async get_week_revenue() {
+        let q = await db.query(`SELECT
+                                    SUM(CASE WHEN strftime('%w', created_at) = '0' THEN (cost + delivery_fee) ELSE 0 END) AS Sunday,
+                                    SUM(CASE WHEN strftime('%w', created_at) = '1' THEN (cost + delivery_fee) ELSE 0 END) AS Monday,
+                                    SUM(CASE WHEN strftime('%w', created_at) = '2' THEN (cost + delivery_fee) ELSE 0 END) AS Tuesday,
+                                    SUM(CASE WHEN strftime('%w', created_at) = '3' THEN (cost + delivery_fee) ELSE 0 END) AS Wednesday,
+                                    SUM(CASE WHEN strftime('%w', created_at) = '4' THEN (cost + delivery_fee) ELSE 0 END) AS Thursday,
+                                    SUM(CASE WHEN strftime('%w', created_at) = '5' THEN (cost + delivery_fee) ELSE 0 END) AS Friday,
+                                    SUM(CASE WHEN strftime('%w', created_at) = '6' THEN (cost + delivery_fee) ELSE 0 END) AS Saturday
+                                FROM Orders
+                                WHERE created_at BETWEEN datetime('now' , '-8 days') AND datetime('now' , '-1 days')`);
+        return q[0];
+    }
+
+    // Get the revenue from the past 12 months
+    // TODO only grab from completed orders
+    static async get_month_revenue() {
+        let q = await db.query(`SELECT
+                                    SUM(CASE WHEN strftime('%m', created_at) = '01' THEN (cost + delivery_fee) ELSE 0 END) AS January,
+                                    SUM(CASE WHEN strftime('%m', created_at) = '02' THEN (cost + delivery_fee) ELSE 0 END) AS February,
+                                    SUM(CASE WHEN strftime('%m', created_at) = '03' THEN (cost + delivery_fee) ELSE 0 END) AS March,
+                                    SUM(CASE WHEN strftime('%m', created_at) = '04' THEN (cost + delivery_fee) ELSE 0 END) AS April,
+                                    SUM(CASE WHEN strftime('%m', created_at) = '05' THEN (cost + delivery_fee) ELSE 0 END) AS May,
+                                    SUM(CASE WHEN strftime('%m', created_at) = '06' THEN (cost + delivery_fee) ELSE 0 END) AS June,
+                                    SUM(CASE WHEN strftime('%m', created_at) = '07' THEN (cost + delivery_fee) ELSE 0 END) AS July, 
+                                    SUM(CASE WHEN strftime('%m', created_at) = '08' THEN (cost + delivery_fee) ELSE 0 END) AS August,
+                                    SUM(CASE WHEN strftime('%m', created_at) = '09' THEN (cost + delivery_fee) ELSE 0 END) AS September, 
+                                    SUM(CASE WHEN strftime('%m', created_at) = '10' THEN (cost + delivery_fee) ELSE 0 END) AS October,
+                                    SUM(CASE WHEN strftime('%m', created_at) = '11' THEN (cost + delivery_fee) ELSE 0 END) AS November, 
+                                    SUM(CASE WHEN strftime('%m', created_at) = '12' THEN (cost + delivery_fee) ELSE 0 END) AS December  
+                                FROM Orders
+                                WHERE created_at > datetime('now' , '-12 months')`);
+        return q[0];
+    }
+
+    // Get the revenue by year starting from 2022
+    // TODO only grab from completed orders
+    /**
+     * 
+     * 
+     * @returns an array of year => revenue
+     */
+    static async get_year_revenue() {
+        let q = await db.query(`SELECT
+                                    strftime('%Y', created_at) AS year,
+                                    SUM(cost + delivery_fee) AS revenue
+                                FROM Orders
+                                GROUP BY year`);
+        return q;
+    }
+
+
 }
 
 // exporting the DB commands class
