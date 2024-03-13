@@ -2,14 +2,12 @@ import {
     Table,
     Thead,
     Tbody,
-    Tfoot,
     Tr,
     Th,
     Td,
     TableCaption,
     TableContainer,
     Heading,
-    Input,
   } from '@chakra-ui/react'
 
 /**
@@ -28,6 +26,7 @@ export default function Inventory() {
                     <Th>Name</Th>
                     <Th>Price</Th>
                     <Th isNumeric>Quantity</Th>
+                    <Th isNumeric>Weight in lbs</Th>
                     <Th></Th>
                 </Tr>
                 </Thead>
@@ -37,6 +36,7 @@ export default function Inventory() {
                     <Td>Apple</Td>
                     <Td>$0.50</Td>
                     <Td isNumeric>3</Td>
+                    <Td isNumeric>0.33</Td>
                     <Td><u>Edit</u></Td>
                 </Tr>
                 <Tr>
@@ -44,6 +44,7 @@ export default function Inventory() {
                     <Td>Apple Juice</Td>
                     <Td>$3.99</Td>
                     <Td isNumeric>200</Td>
+                    <Td isNumeric>8.35</Td>
                     <Td><u>Edit</u></Td>
                 </Tr>
                 <Tr>
@@ -51,13 +52,15 @@ export default function Inventory() {
                     <Td>Banana</Td>
                     <Td>$0.75</Td>
                     <Td isNumeric>178</Td>
+                    <Td isNumeric>0.25</Td>
                     <Td><u>Edit</u></Td>
                 </Tr>
                 <Tr>
                     <Td isNumeric>42</Td>
                     <Td>Salmon Fillet</Td>
                     <Td>$5.00</Td>
-                    <Td isNumeric>178</Td>
+                    <Td isNumeric>25</Td>
+                    <Td isNumeric>1.02</Td>
                     <Td><u>Edit</u></Td>
                 </Tr>
                 </Tbody>
