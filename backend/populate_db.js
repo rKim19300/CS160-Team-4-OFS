@@ -66,8 +66,207 @@ async function addUsers() {
     );
 }
 
+// To help test Analytics page
+async function addOrders() {
+    // user_id, cost, weight, address, delivery_fee, created_at, cart_id
+
+    /* Week */
+    await DB.add_new_order(
+        user_id=1, 
+        cost=43.28,
+        weight=4.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2024-03-12 01:15:00',
+        cart_id=1
+    );
+
+    await DB.add_new_order(
+        user_id=1, 
+        cost=57.28,
+        weight=6.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2024-03-11 01:15:00',
+        cart_id=1
+    );
+
+    await DB.add_new_order(
+        user_id=1, 
+        cost=68.28,
+        weight=8.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2024-03-10 01:15:00',
+        cart_id=1
+    );
+
+    await DB.add_new_order(
+        user_id=1, 
+        cost=89.28,
+        weight=10.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2024-03-09 01:15:00',
+        cart_id=1
+    );
+
+    await DB.add_new_order(
+        user_id=1, 
+        cost=38.28,
+        weight=5.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2024-03-08 01:15:00',
+        cart_id=1
+    );
+
+    await DB.add_new_order(
+        user_id=1, 
+        cost=27.28,
+        weight=5.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2024-03-07 01:15:00',
+        cart_id=1
+    );
+
+    await DB.add_new_order(
+        user_id=1, 
+        cost=16.28,
+        weight=2.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2024-03-06 01:15:00',
+        cart_id=1
+    );
+
+    /* Month */
+    await DB.add_new_order(
+        user_id=1, 
+        cost=11.28,
+        weight=2.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2024-02-06 01:15:00',
+        cart_id=1
+    );
+
+    await DB.add_new_order(
+        user_id=1, 
+        cost=21.28,
+        weight=2.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2024-01-06 01:15:00',
+        cart_id=1
+    );
+
+    await DB.add_new_order(
+        user_id=1, 
+        cost=98.28,
+        weight=2.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2023-12-06 01:15:00',
+        cart_id=1
+    );
+
+    await DB.add_new_order(
+        user_id=1, 
+        cost=100.28,
+        weight=2.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2023-11-06 01:15:00',
+        cart_id=1
+    );
+
+    await DB.add_new_order(
+        user_id=1, 
+        cost=62.28,
+        weight=2.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2023-10-06 01:15:00',
+        cart_id=1
+    );
+
+    await DB.add_new_order(
+        user_id=1, 
+        cost=92.28,
+        weight=2.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2023-09-06 01:15:00',
+        cart_id=1
+    );
+
+    await DB.add_new_order(
+        user_id=1, 
+        cost=98.28,
+        weight=2.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2023-08-06 01:15:00',
+        cart_id=1
+    );
+
+    await DB.add_new_order(
+        user_id=1, 
+        cost=98.28,
+        weight=2.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2023-07-06 01:15:00',
+        cart_id=1
+    );
+
+    await DB.add_new_order(
+        user_id=1, 
+        cost=98.28,
+        weight=2.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2023-06-06 01:15:00',
+        cart_id=1
+    );
+
+    await DB.add_new_order(
+        user_id=1, 
+        cost=98.28,
+        weight=2.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2023-05-06 01:15:00',
+        cart_id=1
+    );
+
+    await DB.add_new_order(
+        user_id=1, 
+        cost=98.28,
+        weight=2.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2023-04-06 01:15:00',
+        cart_id=1
+    );
+
+    await DB.add_new_order(
+        user_id=1, 
+        cost=98.28,
+        weight=2.75,
+        address='1 Washington Sq, San Jose, CA 95192', 
+        delivery_fee=6.58,
+        created_at='2022-04-06 01:15:00',
+        cart_id=1
+    );
+
+}
+
 
 (async () => {
     await addUsers();
     await addProducts();
+    await addOrders();
 })();

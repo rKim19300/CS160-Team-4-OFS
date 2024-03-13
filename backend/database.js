@@ -203,6 +203,22 @@ class DB {
             await db.query("INSERT INTO Order_items(product_id, quantity) VALUES (?, ?)", [product_id, quantity]);
         }
     }
+    
+    // Gets the revenue from the past 7 days
+    static async get_week_revenue() {
+        let q = await db.query(`SELECT
+                                    SUM(CASE WHEN strftime('%w', created_at) = '0' THEN (cost + delivery_fee) ELSE 0 END) AS sunday,
+                                    SUM(CASE WHEN strftime('%w', created_at) = '1' THEN (cost + delivery_fee) ELSE 0 END) AS monday,
+                                    SUM(CASE WHEN strftime('%w', created_at) = '2' THEN (cost + delivery_fee) ELSE 0 END) AS tuesday,
+                                    SUM(CASE WHEN strftime('%w', created_at) = '3' THEN (cost + delivery_fee) ELSE 0 END) AS wednesday,
+                                    SUM(CASE WHEN strftime('%w', created_at) = '4' THEN (cost + delivery_fee) ELSE 0 END) AS thursday,
+                                    SUM(CASE WHEN strftime('%w', created_at) = '5' THEN (cost + delivery_fee) ELSE 0 END) AS friday,
+                                    SUM(CASE WHEN strftime('%w', created_at) = '6' THEN (cost + delivery_fee) ELSE 0 END) AS saturday
+                                FROM Orders
+                                WHERE created_at BETWEEN datetime('now' , '-8 days') AND datetime('now' , '-1 days')`);
+        return q[0];
+    }
+
 }
 
 // exporting the DB commands class
