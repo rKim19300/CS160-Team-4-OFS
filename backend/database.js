@@ -212,7 +212,15 @@ class DB {
         }
     }
     
+    ///////
+    // ANALYTICS queries
+    ///////
+
     // Gets the revenue from the past 7 days
+    /**
+     * 
+     * @returns A single object mapping weekdays to revenue
+     */
     static async get_week_revenue() {
         let q = await db.query(`SELECT
                                     SUM(CASE WHEN strftime('%w', created_at) = '0' THEN (cost + delivery_fee) ELSE 0 END) AS Sunday,
@@ -229,6 +237,10 @@ class DB {
 
     // Get the revenue from the past 12 months
     // TODO only grab from completed orders
+    /**
+     * 
+     * @returns A single object mapping month names to revenue
+     */
     static async get_month_revenue() {
         let q = await db.query(`SELECT
                                     SUM(CASE WHEN strftime('%m', created_at) = '01' THEN (cost + delivery_fee) ELSE 0 END) AS January,
@@ -264,7 +276,16 @@ class DB {
         return q;
     }
 
+    ///////
+    // EMPLOYEES queries
+    ///////
 
+    static async get_employees() {
+        let q = await db.query(`SELECT username, user_id
+                                FROM Users
+                                WHERE user_type = 1`);
+        return q;
+    }
 }
 
 // exporting the DB commands class
