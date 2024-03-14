@@ -138,7 +138,10 @@ class DB {
 
     static async get_product_info(product_id) {
         let q = await db.query("SELECT * FROM Products WHERE product_id = ?", [product_id]);
-        return q[0];
+        if (q.length === 0) {
+            return { productInfo: null, errMsg: `Product with id ${product_id} does not exist` };
+        }
+        return { productInfo: q[0], errMsg: null };
     }
 
     static async add_new_product(name, description, image_url, price, weight, quantity) {
@@ -165,7 +168,7 @@ class DB {
     }
 
     static async get_cart_items(cart_id) {
-        let q = await db.query("SELECT p.product_id, p.name, p.description, p.price, p.weight, ci.quantity FROM Cart_items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
+        let q = await db.query("SELECT p.product_id, p.name, p.description, p.price, p.weight, p.image_url, ci.quantity FROM Cart_items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
         return q;
     }
 
@@ -175,16 +178,21 @@ class DB {
 
     static async get_cart_weight(cart_id) {
         let q = await db.query("SELECT SUM(p.weight * ci.quantity) FROM Cart_Items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
-        return q[0];
+        return q[0]["SUM(p.weight * ci.quantity)"] || 0;
     }
 
-    static async get_cart_cost(cart_id) {
+    static async get_cart_subtotal_cost(cart_id) {
         let q = await db.query("SELECT SUM(p.price * ci.quantity) FROM Cart_Items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
-        return q[0];
+        return q[0]["SUM(p.price * ci.quantity)"] || 0;
     }
 
     static async delete_all_cart_items(cart_id) {
         await db.query("DELETE FROM Cart_items WHERE cart_id = ?", [cart_id]);
+    }
+
+    static async get_cart_item_quantity(cart_id, product_id) {
+        let q = await db.query("SELECT quantity FROM Cart_items WHERE cart_id = ? AND product_id = ?", [cart_id, product_id]);
+        return q.length > 0 ? q[0]["quantity"] : 0;
     }
 
     ///////
