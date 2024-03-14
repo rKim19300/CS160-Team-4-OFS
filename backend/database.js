@@ -138,7 +138,10 @@ class DB {
 
     static async get_product_info(product_id) {
         let q = await db.query("SELECT * FROM Products WHERE product_id = ?", [product_id]);
-        return q[0];
+        if (q.length === 0) {
+            return { productInfo: null, errMsg: `Product with id ${product_id} does not exist` };
+        }
+        return { productInfo: q[0], errMsg: null };
     }
 
     static async add_new_product(name, description, image_url, price, weight, quantity) {
@@ -185,6 +188,11 @@ class DB {
 
     static async delete_all_cart_items(cart_id) {
         await db.query("DELETE FROM Cart_items WHERE cart_id = ?", [cart_id]);
+    }
+
+    static async get_cart_item_quantity(cart_id, product_id) {
+        let q = await db.query("SELECT quantity FROM Cart_items WHERE cart_id = ? AND product_id = ?", [cart_id, product_id]);
+        return q.length > 0 ? q[0]["quantity"] : 0;
     }
 
     ///////

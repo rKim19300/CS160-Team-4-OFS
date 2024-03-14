@@ -15,8 +15,8 @@ router.get("/allProducts", async (req, res) => {
 router.get("/productInfo/:prodID", checkLoggedIn, async (req, res) => {
     try {
         let product_id = req.params.prodID;
-        let productInfo = await DB.get_product_info(product_id);
-        if (productInfo === undefined) return res.status(400).send(`Product with id ${product_id} does not exist`);
+        let { productInfo, errMsg } = await DB.get_product_info(product_id);
+        if (errMsg) return res.status(400).send(errMsg);
         return res.status(200).json(productInfo);
     } catch (err) {
         console.log(`ERROR WHEN GETTING PRODUCT INFO: ${err}`);

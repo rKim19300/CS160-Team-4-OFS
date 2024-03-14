@@ -53,6 +53,18 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
     }
   }
 
+  async function modifyCartItemQuantity(product_id, quantity, setCartItemErrMsg) {
+    console.log(quantity);
+    let response = await axiosInstance.post("/api/modifyCartItemQuantity", { product_id, quantity });
+    if (response.status === 200) {
+      fetchCartData();
+      setCartItemErrMsg("");
+    } else {
+      setCartItemErrMsg(response.data);
+    }
+    console.log(response.data);
+  }
+
   if (cartItems === null) return;
 
   return (
@@ -78,7 +90,7 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
               <Text>Your cart is empty</Text>
             ) : (
               cartItems.map((product) => (
-                <CartItem key={product.product_id} product={product} removeItemFromCart={removeItemFromCart} />
+                <CartItem key={product.product_id} product={product} removeItemFromCart={removeItemFromCart} modifyCartItemQuantity={modifyCartItemQuantity} />
               ))
             )}
           </DrawerBody>
@@ -111,7 +123,10 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
   );
 }
 
-function CartItem({ product, removeItemFromCart }) {
+function CartItem({ product, removeItemFromCart, modifyCartItemQuantity }) {
+  const [cartItemErrMsg, setCartItemErrMsg] = useState("");
+
+  const quantityRef = useRef();
   return (
     <Flex className={styles.outsideContainer}>
       <Flex className={styles.topSection}>
@@ -123,8 +138,10 @@ function CartItem({ product, removeItemFromCart }) {
           <Text>{product.name}</Text>
         </Flex>
 
-        <NumberInput size="xs" maxW={16} defaultValue={product.quantity}>
-          <NumberInputField height="100%" />
+        <NumberInput size="xs" maxW={16}
+        defaultValue={product.quantity} min={1} clampValueOnBlur={false}
+        onBlur={() => modifyCartItemQuantity(product.product_id, quantityRef.current.value, setCartItemErrMsg)}>
+          <NumberInputField ref={quantityRef} height="100%" />
           <NumberInputStepper>
             <NumberIncrementStepper />
             <NumberDecrementStepper />
@@ -144,6 +161,9 @@ function CartItem({ product, removeItemFromCart }) {
           Remove
         </Button>
       </Flex>
+    {cartItemErrMsg && (
+      <Text fontSize="sm" color="red">{cartItemErrMsg}</Text>
+    )}
     </Flex>
   );
 }
