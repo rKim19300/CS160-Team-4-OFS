@@ -69,7 +69,7 @@ const SignUpPage = () => {
           try {
             // Call API
             let response = await axiosInstance.post("/api/signup", {
-              userName: values.userName,
+              username: values.userName,
               email: values.email,
               password: values.password,
             });
