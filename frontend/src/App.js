@@ -6,7 +6,7 @@ import SignUpPage from "./Pages/SignUpPage";
 import ProductPage from "./Pages/ProductPage";
 import CustomerPage from "./Pages/CustomerPage";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import EmployeeDashboard from "./Pages/EmployeeDashboard/EmployeeDashboard";
+import EmployeeDashboard from "./Pages/EmployeeDashboard";
 
 function App() {
   return (
@@ -15,9 +15,9 @@ function App() {
         <Routes>
           <Route path="/" element={<LogInPage />} />
           <Route path="/SignUp" element={<SignUpPage />} />
-          <Route path="/StatisticsPage" element={<EmployeeDashboard />} />
           <Route path="/customer" element={<CustomerPage />} />
           <Route path="/productInfo/:id" element={<ProductPage />} />
+          <Route path="/EmployeeDashboard" element={<EmployeeDashboard />} />
         </Routes>
       </BrowserRouter>
     </ChakraProvider>
