@@ -1,5 +1,5 @@
 .container {
-  /* border-right: 2px solid gray; */
+  border-right: 2px solid gray;
   height: calc(100vh - 12vh);
   padding: 24px 24px;
   flex-direction: column;
