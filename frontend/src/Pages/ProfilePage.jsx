@@ -62,6 +62,8 @@ export default function ProfilePage() {
       if (response.status === 200) {
         console.log("User info updated!");
         toast.success("Account updated successfully!");
+      } else {
+        toast.error(response.data);
       }
     } catch (err) {
       console.error(err);
