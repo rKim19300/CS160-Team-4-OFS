@@ -142,11 +142,6 @@ class DB {
   ///////
   // USER queries
   ///////
-  static async get_user_info(user_id) {
-    let q = await db.query("SELECT * FROM Users WHERE user_id = ?", [user_id]);
-    return q[0];
-  }
-
   static async update_user_info(user_id, username, email) {
     await db.query(
       "UPDATE Users SET username = ?, email = ? WHERE user_id = ?",

@@ -18,7 +18,6 @@ import {
   FaRegFaceGrinTongue,
   FaRegFaceGrinSquint,
   FaRegFaceGrinTongueSquint,
-  FaRegFaceSurprise,
   FaRegFaceSmile,
 } from "react-icons/fa6";
 
@@ -27,7 +26,6 @@ export default function ProfilePage() {
     <FaRegFaceGrinTongue className={styles.profileIcon} />,
     <FaRegFaceGrinSquint className={styles.profileIcon} />,
     <FaRegFaceGrinTongueSquint className={styles.profileIcon} />,
-    <FaRegFaceSurprise className={styles.profileIcon} />,
     <FaRegFaceSmile className={styles.profileIcon} />,
   ];
 
@@ -37,22 +35,21 @@ export default function ProfilePage() {
   const [icon, setIcon] = useState(icons[0]);
 
   async function fetchData() {
-    let response = await axiosInstance.get("/api/viewUser");
-    setUserId(response.data.user_id);
-    setUsername(response.data.username);
-    setEmail(response.data.email);
-
-    const iconIndex = response.data.user_id % icons.length;
-    setIcon(icons[iconIndex]);
-    console.log(icon);
-  }
-
-  useEffect(() => {
     try {
-      fetchData();
+      let response = await axiosInstance.get("/api/viewUser");
+      setUserId(response.data.user_id);
+      setUsername(response.data.username);
+      setEmail(response.data.email);
+
+      const iconIndex = response.data.user_id % icons.length;
+      setIcon(icons[iconIndex]);
     } catch (err) {
       console.error(err);
     }
+  }
+
+  useEffect(() => {
+    fetchData();
   }, []);
 
   const handleSave = async (event) => {
@@ -62,10 +59,13 @@ export default function ProfilePage() {
         username,
         email,
       });
-      console.log("User info updated!");
-      toast.success("Account updated successfully!");
+      if (response.status === 200) {
+        console.log("User info updated!");
+        toast.success("Account updated successfully!");
+      }
     } catch (err) {
       console.error(err);
+      toast.error("Failed to update account!");
     }
   };
 
@@ -78,7 +78,6 @@ export default function ProfilePage() {
         <Flex className={styles.bodyContainer}>
           <Text className={styles.headerText}>Account Setting</Text>
           <form className={styles.form} onSubmit={handleSave}>
-            {/* <Icon as={icon} className={styles.profileIcon} /> */}
             <div>{icon}</div>
             <FormControl>
               <FormLabel className={styles.formText}>Name</FormLabel>

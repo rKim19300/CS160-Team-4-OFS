@@ -13,8 +13,7 @@ const uName_max_len = 50;
 
 router.get("/viewUser", checkLoggedIn, async (req, res) => {
   try {
-    let user_id = req.user_id;
-    let userInfo = await DB.get_user_info(user_id);
+    let userInfo = req.session.user;
     return res.status(200).json(userInfo);
   } catch (err) {
     console.log(`ERROR GETTING USER INFO: ${err}`);
@@ -46,6 +45,7 @@ router.post(
       if (existingUser !== undefined && existingUser.user_id !== user_id)
         return res.status(400).send("Email already exists");
       await DB.update_user_info(user_id, username, email);
+      req.session.user = { ...req.session.user, username, email };
       return res.status(200).send("Successfully Updated");
     } catch (err) {
       console.log(`ERROR UPDATING USER INFO: ${err}`);
