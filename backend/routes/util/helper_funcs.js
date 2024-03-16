@@ -1,6 +1,9 @@
 const { DB } = require("../../database");
 
 class HelperFuncs {
+    ///////
+    // CART STUFF
+    ///////
     static async check_cart_will_be_below_weight_limit(cart_id, product_id, quantity, MAX_CART_WEIGHT) {
         let { productInfo, errMsg } = await DB.get_product_info(product_id);
         if (errMsg) return [false, errMsg];
@@ -29,6 +32,25 @@ class HelperFuncs {
             return [false, `Maximum quantity allowed in cart: ${productInfo.quantity}`];
         }
         return [true, "all good"];
+    }
+
+    static async get_cart_summary(cart_id) {
+        let cartWeight = await DB.get_cart_weight(cart_id);
+        let subtotal_cost = await DB.get_cart_subtotal_cost(cart_id);
+        let deliveryFee = cartWeight < 20 ? 0 : 10;
+        let taxAmount = subtotal_cost / 100;
+        let ordered_at = new Date().toLocaleString().replace(",", "");
+        return { cartWeight, subtotal_cost, deliveryFee, taxAmount, ordered_at };
+    }
+
+    static async check_all_cart_items_availability(cart_items) {
+        let errMsgs = [];
+        for (let cart_item of cart_items) {
+            let { product_id, quantity: cartQuantity, name } = cart_item;
+            let [isValidCartQuantity, errMsg] = await check_quantity_lte_inventory_amt(cartQuantity, product_id);
+            if (!isValidCartQuantity) errMsgs.push(`Product: ${name} -> ${errMsg}`);
+        }
+        return errMsgs;
     }
 }
 

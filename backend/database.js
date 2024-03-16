@@ -148,6 +148,10 @@ class DB {
         await db.query("INSERT INTO Products(name, description, image_url, price, weight, quantity) VALUES (?, ?, ?, ?, ?, ?)", [name, description, image_url, price, weight, quantity]);
     }
 
+    static async subtract_product_inventory_quantity(product_id, quantity) {
+        await db.query("UPDATE Products SET quantity = quantity - ? WHERE product_id = ?", [quantity, product_id]);
+    }
+
     ///////
     // CART queries
     ///////
