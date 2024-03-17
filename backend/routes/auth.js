@@ -3,6 +3,7 @@ const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const { DB } = require("../database");
 const { validateReqBody, checkLoggedIn } = require("../middleware/authMiddleware");
+const { UserType } = require("../enums/enums");
 
 const pw_min_len = 1;
 const pw_max_len = 128;
@@ -23,8 +24,21 @@ router.post("/signup",
         if (existingUser !== undefined) return res.status(400).send("Email already exists");
         let salt = await bcrypt.genSalt();
         let hashedPw = await bcrypt.hash(password, salt);
-        await DB.insert_new_user(email, username, hashedPw);
-        return res.status(200).send("Successfully signed up");
+
+        let userTypeOfRequester;
+        if (req.session.user && (req.session.user.user_type === UserType.MANAGER)) {
+            await DB.insert_new_user(email, username, hashedPw, user_type=UserType.EMPLOYEE);
+            userTypeOfRequester = UserType.MANAGER;
+        }
+        else {
+            await DB.insert_new_user(email, username, hashedPw);
+            userTypeOfRequester = UserType.CUSTOMER;
+        }
+
+        return res.status(200).json({
+            message: "Successfully signed up",
+            userTypeOfRequester: userTypeOfRequester
+        });
     } catch (err) {
         console.log(`ERROR SIGNING UP: ${err}`);
         return res.status(400).send(`Something went wrong when trying to sign up`);

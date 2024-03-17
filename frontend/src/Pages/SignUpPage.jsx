@@ -10,6 +10,8 @@ import { Text, Button, FormLabel, Stack } from "@chakra-ui/react";
 
 import styles from "./SignUpPage.module.css";
 
+import { UserType } from "../enums/enums"
+
 // Create Schema to validate user inputs using Yup
 const validationSchema = Yup.object().shape({
   userName: Yup.string().required("userName is required"),
@@ -75,11 +77,13 @@ const SignUpPage = () => {
             });
 
             // if successful, json obj of user data { email, user_type, username, user_id }
-            let responseMsg = response.data;
+            let responseMsg = response.data.message;
+            console.log(response.data.userTypeOfRequester);
 
-            // Handle successful registration
+            // Handle successful registration, route depending on manager or not
             if (response.status === 200) {
-              navigate("/customer");
+              (response.data.userTypeOfRequester === UserType.MANAGER) ?
+               navigate("/EmployeeDashboard") : navigate("/");
             } else {
               setErrMsg(responseMsg); // Set error message based on API response
             }

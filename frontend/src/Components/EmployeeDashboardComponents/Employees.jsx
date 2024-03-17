@@ -9,14 +9,13 @@ import {
     Flex,
     Stat,
     StatLabel,
-    StatNumber,
     StatHelpText,
-    StatArrow,
     IconButton
 } from "@chakra-ui/react";
 import { AddIcon } from '@chakra-ui/icons'
 import FadeInGrid from "../../CustomComponents/FadeInGrid"
 import axiosInstance from "../../axiosInstance";
+import { Link } from "react-router-dom";
 
 export default function Employees() {
 
@@ -60,12 +59,14 @@ export default function Employees() {
           </Flex>
           <br />
           <Flex alignContent={"center"} justifyContent={"center"}>
-          <IconButton
-              colorScheme='green'
-              aria-label='Call Segun'
-              size='lg'
-              icon={<AddIcon />}
-            />
+          <Link to='/SignUp'>
+            <IconButton
+                colorScheme='green'
+                aria-label='Call Segun'
+                size='lg'
+                icon={<AddIcon />}
+              />
+          </Link>
           </Flex>
           <br />
           <Divider />

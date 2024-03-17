@@ -1,4 +1,5 @@
 const sqlite3 = require("sqlite3").verbose();
+const { UserType } = require("./enums/enums");
 
 // db connection object
 const db = new sqlite3.Database("db.db", (err) => {
@@ -119,7 +120,7 @@ class DB {
         return q[0];
     }
 
-    static async insert_new_user(email, username, hashedPw, user_type=0) {
+    static async insert_new_user(email, username, hashedPw, user_type=UserType.CUSTOMER) {
         await db.query("INSERT INTO Users(email, username, password, user_type) VALUES (?, ?, ?, ?)", [email, username, hashedPw, user_type]);
     }
 

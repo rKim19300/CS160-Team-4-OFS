@@ -10,6 +10,7 @@ import {
 } from "@chakra-ui/react";
 import styles from "./SideBarEmployee.module.css";
 import Components from "../enums/EmployeeDashboardComponents.ts";
+import SignOutButton from "./SignOutButton";
 
 /**
  * @param { onComponentChange } Stores the name of the clicked component
@@ -72,9 +73,7 @@ export default function SideBarCustomer({ onComponentChange }) {
             <Button>
               <a href="/profile">Profile</a>
             </Button>
-            <Button colorScheme="red">
-              <a href="/">Sign Out</a>
-            </Button>
+            <SignOutButton />
           </Flex>
         </Flex>
       );
