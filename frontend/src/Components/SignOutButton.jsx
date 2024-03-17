@@ -7,9 +7,9 @@ export default function SignOutButton() {
         <Button 
         colorScheme="red"
         onClick={
-            async () =>{
+            async () => {
                 try {
-                    let response = await axiosInstance.get(`/api/signOut`);
+                    let response = await axiosInstance.get(`/api/logout`);
                     console.log(response);
                     if (response.status !== 200) 
                         return;

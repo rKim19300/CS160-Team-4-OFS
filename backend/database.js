@@ -129,6 +129,10 @@ class DB {
         return q[0].password;
     }
 
+    static async remove_user(user_id) {
+        await db.query("DELETE FROM Users WHERE user_id = ?", [user_id]);
+    }
+
     ///////
     // PRODUCTS queries
     ///////
@@ -282,7 +286,7 @@ class DB {
     ///////
 
     static async get_employees() {
-        let q = await db.query(`SELECT username, user_id
+        let q = await db.query(`SELECT username, user_id, email
                                 FROM Users
                                 WHERE user_type = 1`);
         return q;

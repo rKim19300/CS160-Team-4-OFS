@@ -2,7 +2,7 @@ const router = require("express").Router();
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const { DB } = require("../database");
-const { validateReqBody, checkLoggedIn } = require("../middleware/authMiddleware");
+const { validateReqBody, checkLoggedIn, checkIsManager } = require("../middleware/authMiddleware");
 const { UserType } = require("../enums/enums");
 
 const pw_min_len = 1;
@@ -66,9 +66,28 @@ router.post("/login",
     }
 });
 
-router.post("/logout", checkLoggedIn, (req, res) => {
-    req.session.destroy();
-    res.status(200).send("Successfully logged out");
+router.get('/logout', (req, res) => {
+    // Destroy the session
+    req.session.destroy(err => {
+        if (err) {
+            console.error('Logging Out:', err);
+            return res.status(500).send('Logging Out');
+        }
+    });
+});
+
+// Remove Employee
+router.post('/removeEmployee', checkIsManager, async (req, res) => {
+    try { 
+        let { user_id } = req.body;
+        console.log(user_id);
+        await DB.remove_user(user_id);
+        return res.status(200).send("Employee removal successful");
+    }
+    catch (err) {
+        console.log(`ERROR Removing Employee: ${err}`);
+        return res.status(400).send(`Something went wrong when trying to Remove employee`);
+    }
 });
 
 module.exports = router;

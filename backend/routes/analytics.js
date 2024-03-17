@@ -3,7 +3,7 @@ const { DB } = require("../database");
 const { checkLoggedIn, checkIsManager } = require("../middleware/authMiddleware");
 
 
-router.get("/weekRevenue", checkLoggedIn, checkIsManager, async (req, res) => {
+router.get("/weekRevenue", checkIsManager, async (req, res) => {
     try {
         let weekRevenue = await DB.get_week_revenue();
         return res.status(200).json(weekRevenue);
@@ -13,7 +13,7 @@ router.get("/weekRevenue", checkLoggedIn, checkIsManager, async (req, res) => {
     }
 });
 
-router.get("/monthRevenue", checkLoggedIn, checkIsManager, async (req, res) => {
+router.get("/monthRevenue", checkIsManager, async (req, res) => {
     try {
         let monthRevenue = await DB.get_month_revenue();
         return res.status(200).json(monthRevenue);
@@ -23,7 +23,7 @@ router.get("/monthRevenue", checkLoggedIn, checkIsManager, async (req, res) => {
     }
 });
 
-router.get("/yearRevenue", checkLoggedIn, checkIsManager, async (req, res) => {
+router.get("/yearRevenue", checkIsManager, async (req, res) => {
     try {
         let yearRevenue = await DB.get_year_revenue();
         return res.status(200).json(yearRevenue);
