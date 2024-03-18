@@ -47,7 +47,7 @@ class HelperFuncs {
         let errMsgs = [];
         for (let cart_item of cart_items) {
             let { product_id, quantity: cartQuantity, name } = cart_item;
-            let [isValidCartQuantity, errMsg] = await check_quantity_lte_inventory_amt(cartQuantity, product_id);
+            let [isValidCartQuantity, errMsg] = await this.check_quantity_lte_inventory_amt(cartQuantity, product_id);
             if (!isValidCartQuantity) errMsgs.push(`Product: ${name} -> ${errMsg}`);
         }
         return errMsgs;

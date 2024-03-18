@@ -6,6 +6,7 @@ const cors = require("cors");
 
 const authRoute = require("./routes/auth");
 const productsRoute = require("./routes/products");
+const ordersRoute = require("./routes/orders");
 const cartRoute = require("./routes/cart");
 const analyticsRoute = require("./routes/analytics");
 const employeesRoute = require("./routes/employees");
@@ -34,6 +35,7 @@ app.use("/api", productsRoute);
 app.use("/api", cartRoute);
 app.use("/api", analyticsRoute);
 app.use("/api", employeesRoute);
+app.use("/api", ordersRoute);
 
 const PORT = process.env.PORT || 8888;
 app.listen(PORT, () => {
