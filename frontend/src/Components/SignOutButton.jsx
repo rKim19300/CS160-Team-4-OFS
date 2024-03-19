@@ -9,7 +9,7 @@ export default function SignOutButton() {
         onClick={
             async () => {
                 try {
-                    let response = await axiosInstance.get(`/api/logout`);
+                    let response = await axiosInstance.post(`/api/logout`);
                     console.log(response);
                     if (response.status !== 200) 
                         return;

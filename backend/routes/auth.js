@@ -25,6 +25,7 @@ router.post("/signup",
         let salt = await bcrypt.genSalt();
         let hashedPw = await bcrypt.hash(password, salt);
 
+        // TODO Remove this if after you have implemented everything
         let userTypeOfRequester;
         if (req.session.user && (req.session.user.user_type === UserType.MANAGER)) {
             await DB.insert_new_user(email, username, hashedPw, user_type=UserType.EMPLOYEE);
@@ -66,14 +67,26 @@ router.post("/login",
     }
 });
 
-router.get('/logout', (req, res) => {
-    // Destroy the session
-    req.session.destroy(err => {
-        if (err) {
-            console.error('Logging Out:', err);
-            return res.status(500).send('Logging Out');
-        }
-    });
+router.post("/logout", checkLoggedIn, (req, res) => {
+    req.session.destroy();
+    res.status(200).send("Successfully logged out");
+});
+
+
+router.get('/getUserType', async (req, res) => {
+    try {
+    let userType;
+    if (req.session.user)
+        userType = req.session.user.user_type;
+        return res.status(200).json({
+            message: "Success",
+            userType: userType
+        });
+    }
+    catch (err) {
+        console.log(`SOMETHING WENT WRONG: ${err}`);
+        return res.status(400).send(`Something went wrong`);
+    }
 });
 
 // Remove Employee
@@ -81,7 +94,7 @@ router.post('/removeEmployee', checkIsManager, async (req, res) => {
     try { 
         let { user_id } = req.body;
         console.log(user_id);
-        await DB.remove_user(user_id);
+        await DB.remove_user_by_id(user_id);
         return res.status(200).send("Employee removal successful");
     }
     catch (err) {

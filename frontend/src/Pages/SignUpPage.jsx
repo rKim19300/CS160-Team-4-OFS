@@ -6,11 +6,24 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import PasswordStrengthIndicator from "./PasswordStrengthIndicator";
 
-import { Text, Button, FormLabel, Stack } from "@chakra-ui/react";
+import { 
+  Text, 
+  Button, 
+  FormLabel, 
+  Stack,
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter,
+  useDisclosure,
+  AlertDialogOverlay
+} from "@chakra-ui/react";
 
 import styles from "./SignUpPage.module.css";
 
-import { UserType } from "../enums/enums"
+import { UserType } from "../Enums/enums";
+import useUserType from "../Hooks/useUserType";
 
 // Create Schema to validate user inputs using Yup
 const validationSchema = Yup.object().shape({
@@ -32,13 +45,18 @@ const SignUpPage = () => {
   const navigate = useNavigate();
   const [errMsg, setErrMsg] = useState("");
 
+  const userTypeOnVisit = useUserType(0); // UserType of the person using the page
+
+  const { isOpen, onOpen, onClose } = useDisclosure() // Disclosure for alert dialogue
+
   return (
+
     // Header Of The Page
     <div justification="center">
       <Text className={styles.welcomeText} marginTop="10px;">
         <span style={{ color: "#28B463" }}>O</span>
         <span style={{ color: "#F39C12" }}>F</span>
-        <span style={{ color: "#F4D03F" }}>S</span> Registration Form!
+        <span style={{ color: "#F4D03F" }}>S</span> {(userTypeOnVisit === UserType.MANAGER) ? "Employee" : ""} Registration Form!
       </Text>
 
       {/* Create Formik components for validation */}
@@ -50,25 +68,17 @@ const SignUpPage = () => {
           confirmPassword: "",
         }}
         validationSchema={validationSchema}
-        // original API Call doesn't work
-        // onSubmit={async (event) => {
-        //   // this function runs when we press "Continue" button
-        //   event.preventDefault();
-        //   let response = await axiosInstance.post("/api/signup", {
-        //     userName,
-        //     email,
-        //     password,
-        //   });
-        //   let responseMsg = response.data; // if successful, json obj of user data { email, user_type, username, user_id }
-        //   if (response.status === 200) {
-        //     navigate("/customer");
-        //   } else {
-        //     setErrMsg(responseMsg);
-        //   }
-        // }}
 
         onSubmit={async (values, { setSubmitting }) => {
           try {
+
+            // If mismatch, redirect to sign-up
+            let userTypeOnSubmit = (await axiosInstance.get(`/api/getUserType`)).data.userType;
+            if ((userTypeOnSubmit !== userTypeOnVisit)) {
+              await axiosInstance.post("/api/removeItemFromCart", { email: values.email });
+              return onOpen();
+            }
+            
             // Call API
             let response = await axiosInstance.post("/api/signup", {
               username: values.userName,
@@ -78,12 +88,11 @@ const SignUpPage = () => {
 
             // if successful, json obj of user data { email, user_type, username, user_id }
             let responseMsg = response.data.message;
-            console.log(response.data.userTypeOfRequester);
 
             // Handle successful registration, route depending on manager or not
             if (response.status === 200) {
-              (response.data.userTypeOfRequester === UserType.MANAGER) ?
-               navigate("/EmployeeDashboard") : navigate("/");
+              (userTypeOnSubmit === UserType.MANAGER) ?
+              navigate("/EmployeeDashboard") : navigate("/");
             } else {
               setErrMsg(responseMsg); // Set error message based on API response
             }
@@ -189,7 +198,42 @@ const SignUpPage = () => {
           </Form>
         )}
       </Formik>
+        {/* Alert Dialogue sign-up failure */}
+        <AlertDialog 
+            isOpen={isOpen}
+            onClose={onClose}
+            isCentered={true} 
+        >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+              Something went wrong!
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              Please go back to the Sign-In Page.
+            </AlertDialogBody>
+            <AlertDialogFooter>
+                <Button colorScheme='red' onClick={
+                  async () => {
+                    try {
+                      navigate("/");
+                    }
+                    catch (err) {
+                      console.error(err);
+                    }
+                    finally {
+                      onClose();
+                    }
+                  }
+                }>
+                  Okay
+                </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </div>
+
   );
 };
 

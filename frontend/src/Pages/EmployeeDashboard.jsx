@@ -16,7 +16,7 @@ import Inventory from "../Components/EmployeeDashboardComponents/Inventory.jsx";
 import Orders from "../Components/EmployeeDashboardComponents/Orders.jsx";
 import Analytics from "../Components/EmployeeDashboardComponents/Analytics.jsx";
 import Employees from "../Components/EmployeeDashboardComponents/Employees.jsx";
-import Components from "../enums/EmployeeDashboardComponents.ts";
+import Components from "../Enums/EmployeeDashboardComponents.ts";
 
 /**
  * Main function
