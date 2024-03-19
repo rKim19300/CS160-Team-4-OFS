@@ -1,3 +1,7 @@
+import React, {
+    useState,
+    useEffect 
+  } from "react";
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
     Table,
@@ -16,11 +20,36 @@ import {
     MenuItem,
     Button,
   } from '@chakra-ui/react'  
+import axiosInstance from "../../axiosInstance";
 
-/**
- * @returns order history
- */
 export default function Orders() {
+    // Hooks for Orders
+    const [orders, setOrders] = useState(null);
+    const [errMsg, setErrMsg] = useState("");
+
+    useEffect(() => {
+      async function fetchData() {
+          try {
+              let response = await axiosInstance.get(`/api/allOrders`);
+              console.log(response);
+              let data = response.data;
+              console.log(data);
+              if (response.status !== 200) {
+                  setErrMsg(data);
+                  return;
+              }
+              setOrders(data);
+          } catch (err) {
+              console.error(err);
+          }
+      }
+      fetchData();
+    }, []);
+    
+    // Make sure necessary data is fetched
+    if (orders === null) 
+      return <div>Loading. . .</div>;
+    
     return (
         <>
         <Heading>Orders</Heading>

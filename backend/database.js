@@ -263,6 +263,12 @@ class DB {
     // TODO: FINISH THIS
   }
 
+  static async select_all_orders() {
+    let prods = await db.query("SELECT * FROM Orders");
+    return prods;
+  }
+
+
   static async add_new_order(
     user_id,
     cost,
