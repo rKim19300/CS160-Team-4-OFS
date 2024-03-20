@@ -15,6 +15,7 @@ import {
   } from '@chakra-ui/react'
 import axiosInstance from "../../axiosInstance";
 
+
 export default function Inventory() {
 
     // Hooks for Products
