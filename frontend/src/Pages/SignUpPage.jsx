@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../axiosInstance";
 
@@ -6,7 +6,19 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import PasswordStrengthIndicator from "./PasswordStrengthIndicator";
 
-import { Text, Button, FormLabel, Stack } from "@chakra-ui/react";
+import {
+  Text,
+  Button,
+  FormLabel,
+  Stack,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+  AlertDialogCloseButton,
+} from "@chakra-ui/react";
 
 import styles from "./SignUpPage.module.css";
 
@@ -30,6 +42,15 @@ const SignUpPage = () => {
   const navigate = useNavigate();
   const [errMsg, setErrMsg] = useState("");
 
+  const [status, setStatus] = useState("");
+
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false); // State for error dialog
+  const [successDialogOpen, setSuccessDialogOpen] = useState(false); // State for success dialog
+
+  // Create refs for AlertDialog
+  const errorDialogRef = useRef();
+  const successDialogRef = useRef();
+
   return (
     // Header Of The Page
     <div justification="center">
@@ -48,23 +69,6 @@ const SignUpPage = () => {
           confirmPassword: "",
         }}
         validationSchema={validationSchema}
-        // original API Call doesn't work
-        // onSubmit={async (event) => {
-        //   // this function runs when we press "Continue" button
-        //   event.preventDefault();
-        //   let response = await axiosInstance.post("/api/signup", {
-        //     userName,
-        //     email,
-        //     password,
-        //   });
-        //   let responseMsg = response.data; // if successful, json obj of user data { email, user_type, username, user_id }
-        //   if (response.status === 200) {
-        //     navigate("/customer");
-        //   } else {
-        //     setErrMsg(responseMsg);
-        //   }
-        // }}
-
         onSubmit={async (values, { setSubmitting }) => {
           try {
             // Call API
@@ -79,14 +83,21 @@ const SignUpPage = () => {
 
             // Handle successful registration
             if (response.status === 200) {
-              navigate("/customer");
+              setStatus("success");
+              console.log("status= " + status);
+              setSuccessDialogOpen(true);
+              // navigate("./");
             } else {
+              setStatus("error");
+              console.log("status= " + status);
               setErrMsg(responseMsg); // Set error message based on API response
+              setErrorDialogOpen(true);
             }
           } catch (error) {
             console.error("Error registering user:", error);
             setErrMsg("Error registering user");
             alert(errMsg);
+            setErrorDialogOpen(true); // Open error dialog
           } finally {
             setSubmitting(false);
           }
@@ -96,7 +107,7 @@ const SignUpPage = () => {
           <Form className={styles.sigUpContainer}>
             <div className={styles.emailInputContainer}>
               <FormLabel className={styles.formText} htmlFor="userName">
-                User Name:{" "}
+                Your Name:{" "}
               </FormLabel>
               <Field
                 className={styles.formBoxInput}
@@ -185,6 +196,131 @@ const SignUpPage = () => {
           </Form>
         )}
       </Formik>
+      <div>
+        {status === "success" ? (
+          <AlertDialog
+            motionPreset="slideInBottom"
+            status="success"
+            leastDestructiveRef={successDialogRef}
+            onClose={() => setSuccessDialogOpen(false)}
+            isOpen={successDialogOpen}
+            isCentered
+          >
+            <AlertDialogOverlay />
+
+            <AlertDialogContent>
+              <AlertDialogHeader>Account created!</AlertDialogHeader>
+              <AlertDialogCloseButton />
+              <AlertDialogBody>
+                Thanks for signing up to OFS. Enjoy shopping!!!
+              </AlertDialogBody>
+              <AlertDialogFooter>
+                <Button
+                  colorScheme="green"
+                  ref={successDialogRef}
+                  onClick={() => {
+                    setSuccessDialogOpen(false);
+                    navigate("./");
+                  }}
+                >
+                  Back to Log In
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        ) : (
+          <AlertDialog
+            motionPreset="slideInBottom"
+            status="error"
+            leastDestructiveRef={errorDialogRef}
+            onClose={() => setErrorDialogOpen(false)}
+            isOpen={errorDialogOpen}
+            isCentered
+          >
+            <AlertDialogOverlay />
+
+            <AlertDialogContent>
+              <AlertDialogHeader>ERROR!!!</AlertDialogHeader>
+              <AlertDialogCloseButton />
+              <AlertDialogBody>
+                {/* {errMsg} */}
+                The email you entered is already exists. Please use another
+                email or use the forget password at log in page!!!
+              </AlertDialogBody>
+              <AlertDialogFooter>
+                <Button
+                  colorScheme="green"
+                  ref={errorDialogRef}
+                  onClick={() => setErrorDialogOpen(false)}
+                >
+                  OK
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+
+        {/* <AlertDialog
+          motionPreset="slideInBottom"
+          status="error"
+          leastDestructiveRef={errorDialogRef}
+          onClose={() => setErrorDialogOpen(false)}
+          isOpen={errorDialogOpen}
+          isCentered
+        >
+          <AlertDialogOverlay />
+
+          <AlertDialogContent>
+            <AlertDialogHeader>ERROR!!!</AlertDialogHeader>
+            <AlertDialogCloseButton />
+            <AlertDialogBody>
+              {errMsg}
+              The email you entered is already exists. Please use another email
+              or use the forget password at log in page!!! {errMsg}
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button
+                colorScheme="green"
+                ref={errorDialogRef}
+                onClick={() => setErrorDialogOpen(false)}
+              >
+                OK
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <AlertDialog
+          motionPreset="slideInBottom"
+          status="success"
+          leastDestructiveRef={successDialogRef}
+          onClose={() => setSuccessDialogOpen(false)}
+          isOpen={successDialogOpen}
+          isCentered
+        >
+          <AlertDialogOverlay />
+
+          <AlertDialogContent>
+            <AlertDialogHeader>Account created!</AlertDialogHeader>
+            <AlertDialogCloseButton />
+            <AlertDialogBody>
+              Thanks for signing up to OFS. Enjoy shopping!!!
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button
+                colorScheme="green"
+                ref={successDialogRef}
+                onClick={() => {
+                  setSuccessDialogOpen(false);
+                  navigate("./");
+                }}
+              >
+                Back to Log In
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog> */}
+      </div>
     </div>
   );
 };
