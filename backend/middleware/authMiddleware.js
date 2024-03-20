@@ -51,4 +51,4 @@ const checkIsManager = (req, res, next) => {
     }
 }
 
-module.exports = { validateReqBody, checkLoggedIn, checkIsEmployee: checkIsStaff, checkIsManager };
+module.exports = { validateReqBody, checkLoggedIn, checkIsStaff, checkIsManager };
