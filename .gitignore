@@ -3,3 +3,4 @@ node_modules/
 *.exe
 **/.DS_Store
 backend/db.db
+nohup.out
