@@ -6,6 +6,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import PasswordStrengthIndicator from "./PasswordStrengthIndicator";
 
+<<<<<<< HEAD
 import {
   Text,
   Button,
@@ -18,6 +19,20 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
   AlertDialogCloseButton,
+=======
+import { 
+  Text, 
+  Button, 
+  FormLabel, 
+  Stack,
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter,
+  useDisclosure,
+  AlertDialogOverlay
+>>>>>>> da1f426d85eb3f7e04c5aeb3085654c643ce9382
 } from "@chakra-ui/react";
 
 import styles from "./SignUpPage.module.css";
@@ -38,10 +53,11 @@ const validationSchema = Yup.object().shape({
 });
 
 // Main Sign Up Function
-const SignUpPage = () => {
+const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
   const navigate = useNavigate();
   const [errMsg, setErrMsg] = useState("");
 
+<<<<<<< HEAD
   const [status, setStatus] = useState("");
 
   const [errorDialogOpen, setErrorDialogOpen] = useState(false); // State for error dialog
@@ -50,14 +66,18 @@ const SignUpPage = () => {
   // Create refs for AlertDialog
   const errorDialogRef = useRef();
   const successDialogRef = useRef();
+=======
+  const { isOpen, onOpen, onClose } = useDisclosure() // Disclosure for alert dialogue
+>>>>>>> da1f426d85eb3f7e04c5aeb3085654c643ce9382
 
   return (
+
     // Header Of The Page
     <div justification="center">
       <Text className={styles.welcomeText} marginTop="10px;">
         <span style={{ color: "#28B463" }}>O</span>
         <span style={{ color: "#F39C12" }}>F</span>
-        <span style={{ color: "#F4D03F" }}>S</span> Registration Form!
+        <span style={{ color: "#F4D03F" }}>S</span> {(createEmployee) ? "Employee" : ""} Registration Form!
       </Text>
 
       {/* Create Formik components for validation */}
@@ -69,24 +89,44 @@ const SignUpPage = () => {
           confirmPassword: "",
         }}
         validationSchema={validationSchema}
+<<<<<<< HEAD
+=======
+
+>>>>>>> da1f426d85eb3f7e04c5aeb3085654c643ce9382
         onSubmit={async (values, { setSubmitting }) => {
           try {
+            
+            // Check if creating employee or customer
+            let apiCall = (createEmployee) ? "/api/createEmployee" : "/api/signup";
+
             // Call API
+<<<<<<< HEAD
             let response = await axiosInstance.post("/api/signup", {
               userName: values.userName,
+=======
+            let response = await axiosInstance.post(apiCall, {
+              username: values.userName,
+>>>>>>> da1f426d85eb3f7e04c5aeb3085654c643ce9382
               email: values.email,
               password: values.password,
             });
 
             // if successful, json obj of user data { email, user_type, username, user_id }
-            let responseMsg = response.data;
+            let responseMsg = response.data.message;
 
-            // Handle successful registration
+            // Handle successful registration, route depending on manager or not
             if (response.status === 200) {
+<<<<<<< HEAD
               setStatus("success");
               console.log("status= " + status);
               setSuccessDialogOpen(true);
               // navigate("./");
+=======
+              onSignUpSuccess(); // Tell caller signUp was a success
+              if (!createEmployee) navigate("/");   
+            } else if (response.status === 401) {
+              return onOpen(); // Employee registration fail
+>>>>>>> da1f426d85eb3f7e04c5aeb3085654c643ce9382
             } else {
               setStatus("error");
               console.log("status= " + status);
@@ -196,6 +236,7 @@ const SignUpPage = () => {
           </Form>
         )}
       </Formik>
+<<<<<<< HEAD
       <div>
         {status === "success" ? (
           <AlertDialog
@@ -321,7 +362,44 @@ const SignUpPage = () => {
           </AlertDialogContent>
         </AlertDialog> */}
       </div>
+=======
+        {/* Alert Dialogue for employee sign-up failure */}
+        <AlertDialog 
+            isOpen={isOpen}
+            onClose={onClose}
+            isCentered={true} 
+        >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+              Something went wrong!
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              Please go back to the Sign-In Page.
+            </AlertDialogBody>
+            <AlertDialogFooter>
+                <Button colorScheme='red' onClick={
+                  async () => {
+                    try {
+                      navigate("/");
+                    }
+                    catch (err) {
+                      console.error(err);
+                    }
+                    finally {
+                      onClose();
+                    }
+                  }
+                }>
+                  Okay
+                </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+>>>>>>> da1f426d85eb3f7e04c5aeb3085654c643ce9382
     </div>
+
   );
 };
 

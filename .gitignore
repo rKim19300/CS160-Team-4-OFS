@@ -1,3 +1,6 @@
 node_modules/
 .env
 *.exe
+**/.DS_Store
+backend/db.db
+nohup.out
