@@ -1,4 +1,5 @@
 const sqlite3 = require("sqlite3").verbose();
+const { UserType } = require("./enums/enums");
 
 // db connection object
 const db = new sqlite3.Database("db.db", (err) => {
@@ -125,12 +126,12 @@ class DB {
     return q[0];
   }
 
-  static async insert_new_user(email, username, hashedPw, user_type = 0) {
-    await db.query(
-      "INSERT INTO Users(email, username, password, user_type) VALUES (?, ?, ?, ?)",
+  static async insert_new_user(email, username, hashedPw, user_type=UserType.CUSTOMER) {
+      await db.query("INSERT INTO Users(email, username, password, user_type) VALUES (?, ?, ?, ?)", 
       [email, username, hashedPw, user_type]
-    );
+      );
   }
+
 
   static async get_stored_password(email) {
     let q = await db.query("SELECT password FROM Users WHERE email = ?", [
@@ -138,7 +139,7 @@ class DB {
     ]);
     return q[0].password;
   }
-
+  
   ///////
   // USER queries
   ///////
@@ -148,6 +149,19 @@ class DB {
       [username, email, user_id]
     );
   }
+
+  static async remove_user_by_id(user_id) {
+      await db.query("DELETE FROM Users WHERE user_id = ?", [user_id]);
+  }
+
+  ///////
+  // PRODUCTS queries
+  ///////
+  static async select_all_products() {
+      let prods = await db.query("SELECT * FROM Products");
+      return prods;
+  }
+
 
   ///////
   // PRODUCTS queries
@@ -359,10 +373,10 @@ class DB {
   ///////
 
   static async get_employees() {
-    let q = await db.query(`SELECT username, user_id
-                                FROM Users
-                                WHERE user_type = 1`);
-    return q;
+      let q = await db.query(`SELECT username, user_id, email
+                              FROM Users
+                              WHERE user_type = 1`);
+  return q;
   }
 }
 

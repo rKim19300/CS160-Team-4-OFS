@@ -6,7 +6,19 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import PasswordStrengthIndicator from "./PasswordStrengthIndicator";
 
-import { Text, Button, FormLabel, Stack } from "@chakra-ui/react";
+import { 
+  Text, 
+  Button, 
+  FormLabel, 
+  Stack,
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter,
+  useDisclosure,
+  AlertDialogOverlay
+} from "@chakra-ui/react";
 
 import styles from "./SignUpPage.module.css";
 
@@ -26,17 +38,20 @@ const validationSchema = Yup.object().shape({
 });
 
 // Main Sign Up Function
-const SignUpPage = () => {
+const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
   const navigate = useNavigate();
   const [errMsg, setErrMsg] = useState("");
 
+  const { isOpen, onOpen, onClose } = useDisclosure() // Disclosure for alert dialogue
+
   return (
+
     // Header Of The Page
     <div justification="center">
       <Text className={styles.welcomeText} marginTop="10px;">
         <span style={{ color: "#28B463" }}>O</span>
         <span style={{ color: "#F39C12" }}>F</span>
-        <span style={{ color: "#F4D03F" }}>S</span> Registration Form!
+        <span style={{ color: "#F4D03F" }}>S</span> {(createEmployee) ? "Employee" : ""} Registration Form!
       </Text>
 
       {/* Create Formik components for validation */}
@@ -48,38 +63,29 @@ const SignUpPage = () => {
           confirmPassword: "",
         }}
         validationSchema={validationSchema}
-        // original API Call doesn't work
-        // onSubmit={async (event) => {
-        //   // this function runs when we press "Continue" button
-        //   event.preventDefault();
-        //   let response = await axiosInstance.post("/api/signup", {
-        //     userName,
-        //     email,
-        //     password,
-        //   });
-        //   let responseMsg = response.data; // if successful, json obj of user data { email, user_type, username, user_id }
-        //   if (response.status === 200) {
-        //     navigate("/customer");
-        //   } else {
-        //     setErrMsg(responseMsg);
-        //   }
-        // }}
 
         onSubmit={async (values, { setSubmitting }) => {
           try {
+            
+            // Check if creating employee or customer
+            let apiCall = (createEmployee) ? "/api/createEmployee" : "/api/signup";
+
             // Call API
-            let response = await axiosInstance.post("/api/signup", {
+            let response = await axiosInstance.post(apiCall, {
               username: values.userName,
               email: values.email,
               password: values.password,
             });
 
             // if successful, json obj of user data { email, user_type, username, user_id }
-            let responseMsg = response.data;
+            let responseMsg = response.data.message;
 
-            // Handle successful registration
+            // Handle successful registration, route depending on manager or not
             if (response.status === 200) {
-              navigate("/customer");
+              onSignUpSuccess(); // Tell caller signUp was a success
+              if (!createEmployee) navigate("/");   
+            } else if (response.status === 401) {
+              return onOpen(); // Employee registration fail
             } else {
               setErrMsg(responseMsg); // Set error message based on API response
             }
@@ -185,7 +191,42 @@ const SignUpPage = () => {
           </Form>
         )}
       </Formik>
+        {/* Alert Dialogue for employee sign-up failure */}
+        <AlertDialog 
+            isOpen={isOpen}
+            onClose={onClose}
+            isCentered={true} 
+        >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+              Something went wrong!
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              Please go back to the Sign-In Page.
+            </AlertDialogBody>
+            <AlertDialogFooter>
+                <Button colorScheme='red' onClick={
+                  async () => {
+                    try {
+                      navigate("/");
+                    }
+                    catch (err) {
+                      console.error(err);
+                    }
+                    finally {
+                      onClose();
+                    }
+                  }
+                }>
+                  Okay
+                </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </div>
+
   );
 };
 
