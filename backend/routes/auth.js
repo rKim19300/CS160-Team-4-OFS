@@ -79,21 +79,4 @@ router.post("/logout", checkLoggedIn, (req, res) => {
     res.status(200).send("Successfully logged out");
 });
 
-
-router.get('/getUserType', async (req, res) => {
-    try {
-    let userType;
-    if (req.session.user)
-        userType = req.session.user.user_type;
-        return res.status(200).json({
-            message: "Success",
-            userType: userType
-        });
-    }
-    catch (err) {
-        console.log(`SOMETHING WENT WRONG: ${err}`);
-        return res.status(400).send(`Something went wrong`);
-    }
-});
-
 module.exports = router;

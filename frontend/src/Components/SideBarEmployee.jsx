@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { 
     Flex, 
     Button, 
@@ -12,16 +12,29 @@ import styles from "./SideBarEmployee.module.css";
 import Components from "../Enums/EmployeeDashboardComponents.ts";
 import SignOutButton from "./SignOutButton";
 import { UserType } from "../Enums/enums";
-import useUserType from "../Hooks/useUserType";
+import axiosInstance from "../axiosInstance";
 
 /**
  * @param { onComponentChange } Stores the name of the clicked component
  *                              which is sent to the main page. 
  * @returns                     The employee sidebar
  */
-export default function SideBarCustomer({ onComponentChange }) {
+export default function SideBarEmployee({ onComponentChange }) {
 
-    const userType = useUserType();
+    // Get userType
+    const [ userType, setUserType ] = useState(0);
+
+    async function fetchUserType() {
+        try {
+          let response = await axiosInstance.get("/api/viewUser");
+          setUserType(response.data.user_type);
+
+        } catch (err) {
+          console.error(err);
+        }
+    }
+
+    useEffect(() => {fetchUserType();}, []);
 
     return (
         <Flex className={styles.container}>
