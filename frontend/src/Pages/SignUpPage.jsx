@@ -37,12 +37,21 @@ const validationSchema = Yup.object().shape({
     .required("Confirm Password is required"),
 });
 
-// Main Sign Up Function
+/**
+ * Main Sign Up Function
+ * 
+ * @param { createEmployee }  Optional prop, if set to true, will create an employee 
+ *                            instead of a customer
+ * @param { onSignUpSuccess } Optional prop, if sign up successful, allows caller to 
+ *                            execute a function
+ * @returns                   The signup page
+ */
 const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
+  const authFail = 401;
   const navigate = useNavigate();
   const [errMsg, setErrMsg] = useState("");
 
-  const { isOpen, onOpen, onClose } = useDisclosure() // Disclosure for alert dialogue
+  const { isOpen, onOpen, onClose } = useDisclosure() // Disclosure for manager auth failure
 
   return (
 
@@ -82,10 +91,11 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
 
             // Handle successful registration, route depending on manager or not
             if (response.status === 200) {
-              onSignUpSuccess(); // Tell caller signUp was a success
-              if (!createEmployee) navigate("/");   
-            } else if (response.status === 401) {
-              return onOpen(); // Employee registration fail
+              onSignUpSuccess();   // Tell caller signUp was a success
+              if (!createEmployee) // If creating customer, navigate to login
+                navigate("/");   
+            } else if (response.status === authFail && createEmployee) {
+              onOpen(); // Open mployee registration fail pop-up
             } else {
               setErrMsg(responseMsg); // Set error message based on API response
             }

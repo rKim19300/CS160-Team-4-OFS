@@ -133,13 +133,17 @@ export default function Employees() {
                 overflowY="auto" 
                 overflowX="auto"
               >
+                {/* modal for Employee sign-up */}
                 <ModalBody>
                   <Box>
-                    <SignUpPage createEmployee={true} onSignUpSuccess={async () => {
-                      await fetchData();
-                      await onRegisterClose();
-                      await reset();
-                    }}
+                    <SignUpPage
+                      createEmployee={true} 
+                      onSignUpSuccess={
+                        async () => {
+                          await fetchData();
+                          await onRegisterClose();
+                          await reset();
+                        }}
                     />
                   </Box>
                 </ModalBody>
