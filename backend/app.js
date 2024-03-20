@@ -6,6 +6,7 @@ const cors = require("cors");
 
 const authRoute = require("./routes/auth");
 const productsRoute = require("./routes/products");
+const ordersRoute = require("./routes/orders");
 const cartRoute = require("./routes/cart");
 const analyticsRoute = require("./routes/analytics");
 const employeesRoute = require("./routes/employees");
@@ -36,6 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", authRoute);
 app.use("/api", productsRoute);
+app.use("/api", ordersRoute);
 app.use("/api", cartRoute);
 app.use("/api", analyticsRoute);
 app.use("/api", employeesRoute);

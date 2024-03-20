@@ -218,6 +218,11 @@ class DB {
     // TODO: FINISH THIS
   }
 
+  static async select_all_orders() {
+    let prods = await db.query("SELECT * FROM Orders");
+    return prods;
+  }
+
   static async add_new_order(user_id, cost, weight, address, delivery_fee, created_at, cart_id) {
     // inserts the order data into the `Orders` table and the `Order_items` table
     await db.query("INSERT INTO Orders(user_id, cost, weight, address, delivery_fee, created_at) VALUES (?, ?, ?, ?, ?, ?)", [user_id, cost, weight, address, delivery_fee, created_at]);
