@@ -127,7 +127,6 @@ class DB {
       await db.query("INSERT INTO Users(email, username, password, user_type) VALUES (?, ?, ?, ?)", [email, username, hashedPw, user_type]);
   }
 
-
   static async get_stored_password(email) {
     let q = await db.query("SELECT password FROM Users WHERE email = ?", [email]);
     return q[0].password;
@@ -219,8 +218,8 @@ class DB {
   }
 
   static async select_all_orders() {
-    let prods = await db.query("SELECT * FROM Orders");
-    return prods;
+    let orders = await db.query("SELECT * FROM Orders");
+    return orders;
   }
 
   static async add_new_order(user_id, cost, weight, address, delivery_fee, created_at, cart_id) {

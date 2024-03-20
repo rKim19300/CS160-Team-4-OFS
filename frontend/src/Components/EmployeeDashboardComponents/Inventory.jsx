@@ -61,15 +61,15 @@ export default function Inventory() {
                 </Tr>
                 </Thead>
                 <Tbody>
-                    {products.map(Object => {
+                    {products.map(product => {
                         return (
-                            <tr>
-                                <td>{ Object.product_id }</td>
-                                <td>{ Object.name }</td>
-                                <td>{ Object.price }</td>
-                                <td>{ Object.quantity }</td>
-                                <td>{ Object.weight }</td>
-                            </tr>
+                            <Tr>
+                                <Td>{ product.product_id }</Td>
+                                <Td>{ product.name }</Td>
+                                <Td>{ product.price }</Td>
+                                <Td>{ product.quantity }</Td>
+                                <Td>{ product.weight }</Td>
+                            </Tr>
                             )})}
                 </Tbody>
             </Table>
