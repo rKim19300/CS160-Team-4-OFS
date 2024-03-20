@@ -138,7 +138,10 @@ class DB {
 
     static async get_product_info(product_id) {
         let q = await db.query("SELECT * FROM Products WHERE product_id = ?", [product_id]);
-        return q[0];
+        if (q.length === 0) {
+            return { productInfo: null, errMsg: `Product with id ${product_id} does not exist` };
+        }
+        return { productInfo: q[0], errMsg: null };
     }
 
     static async add_new_product(name, description, image_url, price, weight, quantity) {
@@ -165,7 +168,7 @@ class DB {
     }
 
     static async get_cart_items(cart_id) {
-        let q = await db.query("SELECT p.product_id, p.name, p.description, p.price, p.weight, ci.quantity FROM Cart_items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
+        let q = await db.query("SELECT p.product_id, p.name, p.description, p.price, p.weight, p.image_url, ci.quantity FROM Cart_items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
         return q;
     }
 
@@ -175,16 +178,21 @@ class DB {
 
     static async get_cart_weight(cart_id) {
         let q = await db.query("SELECT SUM(p.weight * ci.quantity) FROM Cart_Items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
-        return q[0];
+        return q[0]["SUM(p.weight * ci.quantity)"] || 0;
     }
 
-    static async get_cart_cost(cart_id) {
+    static async get_cart_subtotal_cost(cart_id) {
         let q = await db.query("SELECT SUM(p.price * ci.quantity) FROM Cart_Items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
-        return q[0];
+        return q[0]["SUM(p.price * ci.quantity)"] || 0;
     }
 
     static async delete_all_cart_items(cart_id) {
         await db.query("DELETE FROM Cart_items WHERE cart_id = ?", [cart_id]);
+    }
+
+    static async get_cart_item_quantity(cart_id, product_id) {
+        let q = await db.query("SELECT quantity FROM Cart_items WHERE cart_id = ? AND product_id = ?", [cart_id, product_id]);
+        return q.length > 0 ? q[0]["quantity"] : 0;
     }
 
     ///////
@@ -202,6 +210,81 @@ class DB {
             let { product_id, quantity } = cart_item;
             await db.query("INSERT INTO Order_items(product_id, quantity) VALUES (?, ?)", [product_id, quantity]);
         }
+    }
+    
+    ///////
+    // ANALYTICS queries
+    ///////
+
+    // Gets the revenue from the past 7 days
+    /**
+     * 
+     * @returns A single object mapping weekdays to revenue
+     */
+    static async get_week_revenue() {
+        let q = await db.query(`SELECT
+                                    SUM(CASE WHEN strftime('%w', created_at) = '0' THEN (cost + delivery_fee) ELSE 0 END) AS Sunday,
+                                    SUM(CASE WHEN strftime('%w', created_at) = '1' THEN (cost + delivery_fee) ELSE 0 END) AS Monday,
+                                    SUM(CASE WHEN strftime('%w', created_at) = '2' THEN (cost + delivery_fee) ELSE 0 END) AS Tuesday,
+                                    SUM(CASE WHEN strftime('%w', created_at) = '3' THEN (cost + delivery_fee) ELSE 0 END) AS Wednesday,
+                                    SUM(CASE WHEN strftime('%w', created_at) = '4' THEN (cost + delivery_fee) ELSE 0 END) AS Thursday,
+                                    SUM(CASE WHEN strftime('%w', created_at) = '5' THEN (cost + delivery_fee) ELSE 0 END) AS Friday,
+                                    SUM(CASE WHEN strftime('%w', created_at) = '6' THEN (cost + delivery_fee) ELSE 0 END) AS Saturday
+                                FROM Orders
+                                WHERE created_at BETWEEN datetime('now' , '-8 days') AND datetime('now' , '-1 days')`);
+        return q[0];
+    }
+
+    // Get the revenue from the past 12 months
+    // TODO only grab from completed orders
+    /**
+     * 
+     * @returns A single object mapping month names to revenue
+     */
+    static async get_month_revenue() {
+        let q = await db.query(`SELECT
+                                    SUM(CASE WHEN strftime('%m', created_at) = '01' THEN (cost + delivery_fee) ELSE 0 END) AS January,
+                                    SUM(CASE WHEN strftime('%m', created_at) = '02' THEN (cost + delivery_fee) ELSE 0 END) AS February,
+                                    SUM(CASE WHEN strftime('%m', created_at) = '03' THEN (cost + delivery_fee) ELSE 0 END) AS March,
+                                    SUM(CASE WHEN strftime('%m', created_at) = '04' THEN (cost + delivery_fee) ELSE 0 END) AS April,
+                                    SUM(CASE WHEN strftime('%m', created_at) = '05' THEN (cost + delivery_fee) ELSE 0 END) AS May,
+                                    SUM(CASE WHEN strftime('%m', created_at) = '06' THEN (cost + delivery_fee) ELSE 0 END) AS June,
+                                    SUM(CASE WHEN strftime('%m', created_at) = '07' THEN (cost + delivery_fee) ELSE 0 END) AS July, 
+                                    SUM(CASE WHEN strftime('%m', created_at) = '08' THEN (cost + delivery_fee) ELSE 0 END) AS August,
+                                    SUM(CASE WHEN strftime('%m', created_at) = '09' THEN (cost + delivery_fee) ELSE 0 END) AS September, 
+                                    SUM(CASE WHEN strftime('%m', created_at) = '10' THEN (cost + delivery_fee) ELSE 0 END) AS October,
+                                    SUM(CASE WHEN strftime('%m', created_at) = '11' THEN (cost + delivery_fee) ELSE 0 END) AS November, 
+                                    SUM(CASE WHEN strftime('%m', created_at) = '12' THEN (cost + delivery_fee) ELSE 0 END) AS December  
+                                FROM Orders
+                                WHERE created_at > datetime('now' , '-12 months')`);
+        return q[0];
+    }
+
+    // Get the revenue by year starting from 2022
+    // TODO only grab from completed orders
+    /**
+     * 
+     * 
+     * @returns an array of year => revenue
+     */
+    static async get_year_revenue() {
+        let q = await db.query(`SELECT
+                                    strftime('%Y', created_at) AS year,
+                                    SUM(cost + delivery_fee) AS revenue
+                                FROM Orders
+                                GROUP BY year`);
+        return q;
+    }
+
+    ///////
+    // EMPLOYEES queries
+    ///////
+
+    static async get_employees() {
+        let q = await db.query(`SELECT username, user_id
+                                FROM Users
+                                WHERE user_type = 1`);
+        return q;
     }
 }
 
