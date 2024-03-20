@@ -32,8 +32,8 @@ const checkLoggedIn = (req, res, next) => {
     }
 }
 
-const checkIsEmployee = (req, res, next) => {
-    if (req.session.user && (req.session.user.user_type === UserType.EMPLOYEE)) {
+const checkIsStaff = (req, res, next) => {
+    if (req.session.user && (req.session.user.user_type >= UserType.EMPLOYEE)) {
         req.user_id = req.session.user.user_id;
         next();
     } else {
@@ -47,9 +47,8 @@ const checkIsManager = (req, res, next) => {
         req.user_id = req.session.user.user_id;
         next();
     } else {
-        res.status(401).send("You are not an employee");
+        res.status(401).send("You are not a manager");
     }
-
 }
 
-module.exports = { validateReqBody, checkLoggedIn, checkIsEmployee, checkIsManager };
+module.exports = { validateReqBody, checkLoggedIn, checkIsEmployee: checkIsStaff, checkIsManager };

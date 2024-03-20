@@ -133,10 +133,6 @@ class DB {
         await db.query("DELETE FROM Users WHERE user_id = ?", [user_id]);
     }
 
-    static async remove_user_by_email(email) {
-        await db.query("DELETE FROM Users WHERE email = ?", [email]);
-    }
-
     ///////
     // PRODUCTS queries
     ///////

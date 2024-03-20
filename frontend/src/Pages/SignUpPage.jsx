@@ -22,9 +22,6 @@ import {
 
 import styles from "./SignUpPage.module.css";
 
-import { UserType } from "../Enums/enums";
-import useUserType from "../Hooks/useUserType";
-
 // Create Schema to validate user inputs using Yup
 const validationSchema = Yup.object().shape({
   userName: Yup.string().required("userName is required"),
@@ -41,11 +38,9 @@ const validationSchema = Yup.object().shape({
 });
 
 // Main Sign Up Function
-const SignUpPage = () => {
+const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
   const navigate = useNavigate();
   const [errMsg, setErrMsg] = useState("");
-
-  const userTypeOnVisit = useUserType(0); // UserType of the person using the page
 
   const { isOpen, onOpen, onClose } = useDisclosure() // Disclosure for alert dialogue
 
@@ -56,7 +51,7 @@ const SignUpPage = () => {
       <Text className={styles.welcomeText} marginTop="10px;">
         <span style={{ color: "#28B463" }}>O</span>
         <span style={{ color: "#F39C12" }}>F</span>
-        <span style={{ color: "#F4D03F" }}>S</span> {(userTypeOnVisit === UserType.MANAGER) ? "Employee" : ""} Registration Form!
+        <span style={{ color: "#F4D03F" }}>S</span> {(createEmployee) ? "Employee" : ""} Registration Form!
       </Text>
 
       {/* Create Formik components for validation */}
@@ -71,16 +66,12 @@ const SignUpPage = () => {
 
         onSubmit={async (values, { setSubmitting }) => {
           try {
-
-            // If mismatch, redirect to sign-up
-            let userTypeOnSubmit = (await axiosInstance.get(`/api/getUserType`)).data.userType;
-            if ((userTypeOnSubmit !== userTypeOnVisit)) {
-              await axiosInstance.post("/api/removeItemFromCart", { email: values.email });
-              return onOpen();
-            }
             
+            // Check if creating employee or customer
+            let apiCall = (createEmployee) ? "/api/createEmployee" : "/api/signup";
+
             // Call API
-            let response = await axiosInstance.post("/api/signup", {
+            let response = await axiosInstance.post(apiCall, {
               username: values.userName,
               email: values.email,
               password: values.password,
@@ -91,8 +82,10 @@ const SignUpPage = () => {
 
             // Handle successful registration, route depending on manager or not
             if (response.status === 200) {
-              (userTypeOnSubmit === UserType.MANAGER) ?
-              navigate("/EmployeeDashboard") : navigate("/");
+              onSignUpSuccess(); // Tell caller signUp was a success
+              if (!createEmployee) navigate("/");   
+            } else if (response.status === 401) {
+              return onOpen(); // Employee registration fail
             } else {
               setErrMsg(responseMsg); // Set error message based on API response
             }
@@ -198,7 +191,7 @@ const SignUpPage = () => {
           </Form>
         )}
       </Formik>
-        {/* Alert Dialogue sign-up failure */}
+        {/* Alert Dialogue for employee sign-up failure */}
         <AlertDialog 
             isOpen={isOpen}
             onClose={onClose}

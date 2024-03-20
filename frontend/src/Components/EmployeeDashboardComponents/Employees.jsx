@@ -25,25 +25,40 @@ import {
     AlertDialogFooter,
     useDisclosure,
     AlertDialogOverlay,
-    Center
+    Center,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+    ModalCloseButton
 } from "@chakra-ui/react";
 import { AddIcon, ChevronDownIcon } from '@chakra-ui/icons'
 import FadeInGrid from "../../CustomComponents/FadeInGrid"
 import axiosInstance from "../../axiosInstance";
-import { Link } from "react-router-dom";
+import SignUpPage from "../../Pages/SignUpPage";
+
 
 export default function Employees() {
+
+    const { 
+      isOpen: isRegisterOpen, 
+      onOpen: onRegisterOpen, 
+      onClose: onRegisterClose } = useDisclosure();
+    const cancelRegisterRef = React.useRef();
 
     // Hooks for Employees
     const [employees, setEmployees] = useState(null);
     const [errMsg, setErrMsg] = useState("");
 
-    // Hooks for to rerender the FadeInGrid
+    // Hooks to rerender the FadeInGrid
     const [seed, setSeed] = useState(1);
     const reset = () => {
          setSeed(Math.random());
     }
 
+    // Function that fetches employee data
     async function fetchData() {
       try {
           let response = await axiosInstance.get(`/api/employees`);
@@ -60,6 +75,7 @@ export default function Employees() {
       }
     }
 
+    // Fetch employee data upon entering page
     useEffect(() => {
       try {
         fetchData();
@@ -84,14 +100,14 @@ export default function Employees() {
           </Flex>
           <br />
           <Flex alignContent={"center"} justifyContent={"center"}>
-          <Link to='/SignUp'>
-            <IconButton
-                colorScheme='green'
-                aria-label='Call Segun'
-                size='lg'
-                icon={<AddIcon />}
-              />
-          </Link>
+            {/* Open a model when adding an employee */}
+          <IconButton
+              colorScheme='green'
+              aria-label='Call Segun'
+              size='lg'
+              icon={<AddIcon />}
+              onClick={onRegisterOpen}
+            />
           </Flex>
           <br />
           <Divider />
@@ -103,16 +119,48 @@ export default function Employees() {
             ))}
             </FadeInGrid>
           </Flex>
+            {/* Modal for employee sign-up */}
+            <Modal 
+              isOpen={isRegisterOpen} 
+              onClose={onRegisterClose} 
+              isCentered={true}
+              finalFocusRefRef={cancelRegisterRef}
+            >
+              <ModalOverlay backdropFilter="blur(8px)"/>
+              <ModalContent 
+                maxWidth="140vh" 
+                maxHeight="70vh" 
+                overflowY="auto" 
+                overflowX="auto"
+              >
+                <ModalBody>
+                  <Box>
+                    <SignUpPage createEmployee={true} onSignUpSuccess={async () => {
+                      await fetchData();
+                      await onRegisterClose();
+                      await reset();
+                    }}
+                    />
+                  </Box>
+                </ModalBody>
+              </ModalContent>
+            </Modal>
         </>
     );
 }
 
+/**
+ * 
+ * @param {*} employee   The employee data queried from the database
+ * @param {*} fetchData  Function to refresh the employee data
+ * @param {*} reset      Function to refresh the fade-in grid 
+ * @returns              A card displaying employee name, email, and ID
+ */
 function EmployeeGridCard({ employee, fetchData, reset }) {
 
   // Hooks for the deletion employee pop-up
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const cancelRef = React.useRef()
-  
+  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
+  const cancelDeleteRef = useRef();
 
   return (
     <Box>
@@ -135,7 +183,7 @@ function EmployeeGridCard({ employee, fetchData, reset }) {
             <Menu alignContent='center'>
               <MenuButton as={Button} rightIcon={<ChevronDownIcon />} width='0px' height='0px'/>
               <MenuList>
-                <MenuItem onClick={onOpen} fontSize="small" color='red.500'>
+                <MenuItem onClick={onDeleteOpen} fontSize="small" color='red.500'>
                   Remove
                 </MenuItem>
               </MenuList>
@@ -145,9 +193,9 @@ function EmployeeGridCard({ employee, fetchData, reset }) {
       </Card>
       {/* Alert dialogue for employee deletion */}
       <AlertDialog
-          isOpen={isOpen}
-          leastDestructiveRef={cancelRef}
-          onClose={onClose}
+          isOpen={isDeleteOpen}
+          leastDestructiveRef={cancelDeleteRef}
+          onClose={onDeleteClose}
           isCentered={true}
         >
           <AlertDialogOverlay>
@@ -179,7 +227,7 @@ function EmployeeGridCard({ employee, fetchData, reset }) {
                     }
                     finally {
                       fetchData();
-                      onClose();
+                      onDeleteClose();
                       reset();
                     }
                   } 
@@ -187,7 +235,7 @@ function EmployeeGridCard({ employee, fetchData, reset }) {
                   >
                     Delete
                   </Button>
-                  <Button colorScheme='green' ref={cancelRef} onClick={onClose} ml={3}>
+                  <Button colorScheme='green' ref={cancelDeleteRef} onClick={onDeleteClose} ml={3}>
                     Cancel
                   </Button>
               </AlertDialogFooter>

@@ -24,22 +24,29 @@ router.post("/signup",
         if (existingUser !== undefined) return res.status(400).send("Email already exists");
         let salt = await bcrypt.genSalt();
         let hashedPw = await bcrypt.hash(password, salt);
+        await DB.insert_new_user(email, username, hashedPw);
+        return res.status(200).send("Successfully signed up");
+    } catch (err) {
+        console.log(`ERROR SIGNING UP: ${err}`);
+        return res.status(400).send(`Something went wrong when trying to sign up`);
+    }
+});
 
-        // TODO Remove this if after you have implemented everything
-        let userTypeOfRequester;
-        if (req.session.user && (req.session.user.user_type === UserType.MANAGER)) {
-            await DB.insert_new_user(email, username, hashedPw, user_type=UserType.EMPLOYEE);
-            userTypeOfRequester = UserType.MANAGER;
-        }
-        else {
-            await DB.insert_new_user(email, username, hashedPw);
-            userTypeOfRequester = UserType.CUSTOMER;
-        }
-
-        return res.status(200).json({
-            message: "Successfully signed up",
-            userTypeOfRequester: userTypeOfRequester
-        });
+router.post("/createEmployee", checkIsManager,
+    validateReqBody([
+        body("username").isLength({ min: uName_min_len, max: uName_max_len }).withMessage(`Username must be between ${uName_min_len} and ${uName_max_len} characters`),
+        body("password").isLength({ min: pw_min_len, max: pw_max_len }).withMessage(`Password must be between ${pw_min_len} and ${pw_max_len} characters`),
+        body("email").isLength({ max: email_max_len }).isEmail().withMessage("Invalid email"),
+    ]),
+    async (req, res) => {
+    try {
+        let { username, password, email } = req.body;
+        let existingUser = await DB.get_user_from_email(email);
+        if (existingUser !== undefined) return res.status(400).send("Email already exists");
+        let salt = await bcrypt.genSalt();
+        let hashedPw = await bcrypt.hash(password, salt);
+        await DB.insert_new_user(email, username, hashedPw, user_type=UserType.EMPLOYEE);
+        return res.status(200).send("Successfully signed up");
     } catch (err) {
         console.log(`ERROR SIGNING UP: ${err}`);
         return res.status(400).send(`Something went wrong when trying to sign up`);
@@ -86,20 +93,6 @@ router.get('/getUserType', async (req, res) => {
     catch (err) {
         console.log(`SOMETHING WENT WRONG: ${err}`);
         return res.status(400).send(`Something went wrong`);
-    }
-});
-
-// Remove Employee
-router.post('/removeEmployee', checkIsManager, async (req, res) => {
-    try { 
-        let { user_id } = req.body;
-        console.log(user_id);
-        await DB.remove_user_by_id(user_id);
-        return res.status(200).send("Employee removal successful");
-    }
-    catch (err) {
-        console.log(`ERROR Removing Employee: ${err}`);
-        return res.status(400).send(`Something went wrong when trying to Remove employee`);
     }
 });
 
