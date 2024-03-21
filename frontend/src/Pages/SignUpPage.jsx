@@ -6,33 +6,19 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import PasswordStrengthIndicator from "./PasswordStrengthIndicator";
 
-<<<<<<< HEAD
 import {
   Text,
   Button,
   FormLabel,
   Stack,
   AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
   AlertDialogBody,
   AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogContent,
   AlertDialogOverlay,
   AlertDialogCloseButton,
-=======
-import { 
-  Text, 
-  Button, 
-  FormLabel, 
-  Stack,
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogBody,
-  AlertDialogFooter,
-  useDisclosure,
-  AlertDialogOverlay
->>>>>>> da1f426d85eb3f7e04c5aeb3085654c643ce9382
+  useDisclosure
 } from "@chakra-ui/react";
 
 import styles from "./SignUpPage.module.css";
@@ -57,7 +43,6 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
   const navigate = useNavigate();
   const [errMsg, setErrMsg] = useState("");
 
-<<<<<<< HEAD
   const [status, setStatus] = useState("");
 
   const [errorDialogOpen, setErrorDialogOpen] = useState(false); // State for error dialog
@@ -66,9 +51,7 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
   // Create refs for AlertDialog
   const errorDialogRef = useRef();
   const successDialogRef = useRef();
-=======
   const { isOpen, onOpen, onClose } = useDisclosure() // Disclosure for alert dialogue
->>>>>>> da1f426d85eb3f7e04c5aeb3085654c643ce9382
 
   return (
 
@@ -89,10 +72,6 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
           confirmPassword: "",
         }}
         validationSchema={validationSchema}
-<<<<<<< HEAD
-=======
-
->>>>>>> da1f426d85eb3f7e04c5aeb3085654c643ce9382
         onSubmit={async (values, { setSubmitting }) => {
           try {
             
@@ -100,13 +79,8 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
             let apiCall = (createEmployee) ? "/api/createEmployee" : "/api/signup";
 
             // Call API
-<<<<<<< HEAD
-            let response = await axiosInstance.post("/api/signup", {
-              userName: values.userName,
-=======
             let response = await axiosInstance.post(apiCall, {
               username: values.userName,
->>>>>>> da1f426d85eb3f7e04c5aeb3085654c643ce9382
               email: values.email,
               password: values.password,
             });
@@ -116,17 +90,14 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
 
             // Handle successful registration, route depending on manager or not
             if (response.status === 200) {
-<<<<<<< HEAD
               setStatus("success");
               console.log("status= " + status);
               setSuccessDialogOpen(true);
               // navigate("./");
-=======
               onSignUpSuccess(); // Tell caller signUp was a success
               if (!createEmployee) navigate("/");   
             } else if (response.status === 401) {
               return onOpen(); // Employee registration fail
->>>>>>> da1f426d85eb3f7e04c5aeb3085654c643ce9382
             } else {
               setStatus("error");
               console.log("status= " + status);
@@ -236,7 +207,6 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
           </Form>
         )}
       </Formik>
-<<<<<<< HEAD
       <div>
         {status === "success" ? (
           <AlertDialog
@@ -362,7 +332,6 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
           </AlertDialogContent>
         </AlertDialog> */}
       </div>
-=======
         {/* Alert Dialogue for employee sign-up failure */}
         <AlertDialog 
             isOpen={isOpen}
@@ -397,7 +366,6 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
->>>>>>> da1f426d85eb3f7e04c5aeb3085654c643ce9382
     </div>
 
   );
