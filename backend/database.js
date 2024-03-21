@@ -133,9 +133,7 @@ class DB {
   }
 
   static async get_stored_password(email) {
-    let q = await db.query("SELECT password FROM Users WHERE email = ?", [
-      email,
-    ]);
+    let q = await db.query("SELECT password FROM Users WHERE email = ?", [email]);
     return q[0].password;
   }
 
@@ -149,158 +147,109 @@ class DB {
     );
   }
 
-  ///////
-  // PRODUCTS queries
-  ///////
-  static async select_all_products() {
-    let prods = await db.query("SELECT * FROM Products");
-    return prods;
-  }
-
-  static async get_product_info(product_id) {
-    let q = await db.query("SELECT * FROM Products WHERE product_id = ?", [
-      product_id,
-    ]);
-    if (q.length === 0) {
-      return {
-        productInfo: null,
-        errMsg: `Product with id ${product_id} does not exist`,
-      };
+    ///////
+    // PRODUCTS queries
+    ///////
+    static async select_all_products() {
+        let prods = await db.query("SELECT * FROM Products");
+        return prods;
     }
-    return { productInfo: q[0], errMsg: null };
-  }
 
-  static async add_new_product(
-    name,
-    description,
-    image_url,
-    price,
-    weight,
-    quantity
-  ) {
-    await db.query(
-      "INSERT INTO Products(name, description, image_url, price, weight, quantity) VALUES (?, ?, ?, ?, ?, ?)",
-      [name, description, image_url, price, weight, quantity]
-    );
-  }
-
-  ///////
-  // CART queries
-  ///////
-  static async get_cart_id(user_id) {
-    let q = await db.query("SELECT cart_id FROM Cart WHERE user_id = ?", [
-      user_id,
-    ]);
-    if (q.length !== 0) return q[0]["cart_id"];
-    await db.query("INSERT INTO Cart(user_id) VALUES (?)", [user_id]);
-    let res = await db.query("SELECT cart_id FROM Cart WHERE user_id = ?", [
-      user_id,
-    ]);
-    return res[0]["cart_id"];
-  }
-
-  static async insert_item_into_cart(cart_id, product_id, quantity) {
-    await db.query(
-      "INSERT INTO Cart_items(cart_id, product_id, quantity) VALUES (?, ?, ?) ON CONFLICT(cart_id, product_id) DO UPDATE SET quantity = quantity + ?",
-      [cart_id, product_id, quantity, quantity]
-    );
-  }
-
-  static async remove_item_from_cart(cart_id, product_id) {
-    await db.query(
-      "DELETE FROM Cart_items WHERE cart_id = ? AND product_id = ?",
-      [cart_id, product_id]
-    );
-  }
-
-  static async get_cart_items(cart_id) {
-    let q = await db.query(
-      "SELECT p.product_id, p.name, p.description, p.price, p.weight, p.image_url, ci.quantity FROM Cart_items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?",
-      [cart_id]
-    );
-    return q;
-  }
-
-  static async modify_cart_item_quantity(cart_id, product_id, quantity) {
-    await db.query(
-      "UPDATE Cart_Items SET quantity = ? WHERE cart_id = ? AND product_id = ?",
-      [quantity, cart_id, product_id]
-    );
-  }
-
-  static async get_cart_weight(cart_id) {
-    let q = await db.query(
-      "SELECT SUM(p.weight * ci.quantity) FROM Cart_Items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?",
-      [cart_id]
-    );
-    return q[0]["SUM(p.weight * ci.quantity)"] || 0;
-  }
-
-  static async get_cart_subtotal_cost(cart_id) {
-    let q = await db.query(
-      "SELECT SUM(p.price * ci.quantity) FROM Cart_Items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?",
-      [cart_id]
-    );
-    return q[0]["SUM(p.price * ci.quantity)"] || 0;
-  }
-
-  static async delete_all_cart_items(cart_id) {
-    await db.query("DELETE FROM Cart_items WHERE cart_id = ?", [cart_id]);
-  }
-
-  static async get_cart_item_quantity(cart_id, product_id) {
-    let q = await db.query(
-      "SELECT quantity FROM Cart_items WHERE cart_id = ? AND product_id = ?",
-      [cart_id, product_id]
-    );
-    return q.length > 0 ? q[0]["quantity"] : 0;
-  }
-
-  ///////
-  // ORDER queries
-  ///////
-  static async get_user_order_history(user_id) {
-    // TODO: FINISH THIS
-  }
-
-  static async add_new_order(
-    user_id,
-    cost,
-    weight,
-    address,
-    delivery_fee,
-    created_at,
-    cart_id
-  ) {
-    // inserts the order data into the `Orders` table and the `Order_items` table
-    await db.query(
-      "INSERT INTO Orders(user_id, cost, weight, address, delivery_fee, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-      [user_id, cost, weight, address, delivery_fee, created_at]
-    );
-    let cart_items = await db.query(
-      "SELECT product_id, quantity FROM Cart_items WHERE cart_id = ?",
-      [cart_id]
-    );
-    for (let cart_item of cart_items) {
-      let { product_id, quantity } = cart_item;
-      await db.query(
-        "INSERT INTO Order_items(product_id, quantity) VALUES (?, ?)",
-        [product_id, quantity]
-      );
+    static async get_product_info(product_id) {
+        let q = await db.query("SELECT * FROM Products WHERE product_id = ?", [product_id]);
+        if (q.length === 0) {
+            return { productInfo: null, errMsg: `Product with id ${product_id} does not exist` };
+        }
+        return { productInfo: q[0], errMsg: null };
     }
-  }
 
-  ///////
-  // ANALYTICS queries
-  ///////
+    static async add_new_product(name, description, image_url, price, weight, quantity) {
+        await db.query("INSERT INTO Products(name, description, image_url, price, weight, quantity) VALUES (?, ?, ?, ?, ?, ?)", [name, description, image_url, price, weight, quantity]);
+    }
 
-  // Gets the revenue from the past 7 days
-  /**
-   *
-   * @returns A single object mapping weekdays to revenue
-   */
-  static async get_week_revenue() {
-    let q = await db.query(`SELECT
+    static async subtract_product_inventory_quantity(product_id, quantity) {
+        await db.query("UPDATE Products SET quantity = quantity - ? WHERE product_id = ?", [quantity, product_id]);
+    }
+
+    ///////
+    // CART queries
+    ///////
+    static async get_cart_id(user_id) {
+        let q = await db.query("SELECT cart_id FROM Cart WHERE user_id = ?", [user_id]);
+        if (q.length !== 0) return q[0]["cart_id"];
+        await db.query("INSERT INTO Cart(user_id) VALUES (?)", [user_id]);
+        let res = await db.query("SELECT cart_id FROM Cart WHERE user_id = ?", [user_id]); 
+        return res[0]["cart_id"];
+    }
+
+    static async insert_item_into_cart(cart_id, product_id, quantity) {
+        await db.query("INSERT INTO Cart_items(cart_id, product_id, quantity) VALUES (?, ?, ?) ON CONFLICT(cart_id, product_id) DO UPDATE SET quantity = quantity + ?", [cart_id, product_id, quantity, quantity]);
+    }
+
+    static async remove_item_from_cart(cart_id, product_id) {
+        await db.query("DELETE FROM Cart_items WHERE cart_id = ? AND product_id = ?", [cart_id, product_id]);
+    }
+
+    static async get_cart_items(cart_id) {
+        let q = await db.query("SELECT p.product_id, p.name, p.description, p.price, p.weight, p.image_url, ci.quantity FROM Cart_items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
+        return q;
+    }
+
+    static async modify_cart_item_quantity(cart_id, product_id, quantity) {
+        await db.query("UPDATE Cart_Items SET quantity = ? WHERE cart_id = ? AND product_id = ?", [quantity, cart_id, product_id]);
+    }
+
+    static async get_cart_weight(cart_id) {
+        let q = await db.query("SELECT SUM(p.weight * ci.quantity) FROM Cart_Items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
+        return parseFloat(q[0]["SUM(p.weight * ci.quantity)"]) || 0;
+    }
+
+    static async get_cart_subtotal_cost(cart_id) {
+        let q = await db.query("SELECT SUM(p.price * ci.quantity) FROM Cart_Items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
+        return parseFloat(q[0]["SUM(p.price * ci.quantity)"]) || 0;
+    }
+
+    static async delete_all_cart_items(cart_id) {
+        await db.query("DELETE FROM Cart_items WHERE cart_id = ?", [cart_id]);
+    }
+
+    static async get_cart_item_quantity(cart_id, product_id) {
+        let q = await db.query("SELECT quantity FROM Cart_items WHERE cart_id = ? AND product_id = ?", [cart_id, product_id]);
+        return q.length > 0 ? parseInt(q[0]["quantity"]) : 0;
+    }
+
+    ///////
+    // ORDER queries
+    ///////
+    static async get_user_order_history(user_id) {
+        // TODO: FINISH THIS
+    }
+
+    static async add_new_order(user_id, cost, weight, address, delivery_fee, created_at, cart_id) {
+        // inserts the order data into the `Orders` table and the `Order_items` table
+        await db.query("INSERT INTO Orders(user_id, cost, weight, address, delivery_fee, created_at) VALUES (?, ?, ?, ?, ?, ?)", [user_id, cost, weight, address, delivery_fee, created_at]);
+        // retrieve the last inserted order_id
+        let lastInsertedOrder = await db.query("SELECT last_insert_rowid() as order_id");
+        // extract the order_id
+        let order_id = lastInsertedOrder[0].order_id;
+        let cart_items = await db.query("SELECT product_id, quantity FROM Cart_items WHERE cart_id = ?", [cart_id]);
+        for (let cart_item of cart_items) {
+            let { product_id, quantity } = cart_item;
+            await db.query("INSERT INTO Order_items(order_id, product_id, quantity) VALUES (?, ?, ?)", [order_id, product_id, quantity]);
+        }
+    }
+    
+    ///////
+    // ANALYTICS queries
+    ///////
+
+    // Gets the revenue from the past 7 days
+    /**
+     * 
+     * @returns A single object mapping weekdays to revenue
+     */
+    static async get_week_revenue() {
+        let q = await db.query(`SELECT
                                     SUM(CASE WHEN strftime('%w', created_at) = '0' THEN (cost + delivery_fee) ELSE 0 END) AS Sunday,
                                     SUM(CASE WHEN strftime('%w', created_at) = '1' THEN (cost + delivery_fee) ELSE 0 END) AS Monday,
                                     SUM(CASE WHEN strftime('%w', created_at) = '2' THEN (cost + delivery_fee) ELSE 0 END) AS Tuesday,
