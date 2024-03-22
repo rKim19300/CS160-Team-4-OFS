@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { DB } = require("../database");
-const { checkLoggedIn, checkIsEmployee } = require("../middleware/authMiddleware");
+const { checkLoggedIn, checkIsStaff } = require("../middleware/authMiddleware");
 
 router.get("/allProducts", async (req, res) => {
     try {
@@ -15,8 +15,8 @@ router.get("/allProducts", async (req, res) => {
 router.get("/productInfo/:prodID", checkLoggedIn, async (req, res) => {
     try {
         let product_id = req.params.prodID;
-        let productInfo = await DB.get_product_info(product_id);
-        if (productInfo === undefined) return res.status(400).send(`Product with id ${product_id} does not exist`);
+        let { productInfo, errMsg } = await DB.get_product_info(product_id);
+        if (errMsg) return res.status(400).send(errMsg);
         return res.status(200).json(productInfo);
     } catch (err) {
         console.log(`ERROR WHEN GETTING PRODUCT INFO: ${err}`);
@@ -32,7 +32,7 @@ router.get("/productInfo/:prodID", checkLoggedIn, async (req, res) => {
 //
 // });
 
-router.post("/addProduct", checkIsEmployee, async (req, res) => {
+router.post("/addProduct", checkIsStaff, async (req, res) => {
     try {
         let { name, description, image_url, price, weight, quantity } = req.body;
         await DB.add_new_product(name, description, image_url, price, weight, quantity);

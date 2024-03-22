@@ -1,8 +1,9 @@
-import React, {useState, useEffect, useRef} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axiosInstance from "../axiosInstance";
 import NavBarCustomer from "../Components/NavBarCustomer";
 import SideBarCustomer from "../Components/SideBarCustomer";
 import {
+    useDisclosure,
     Flex,
     HStack,
     Text,
@@ -14,14 +15,25 @@ import {
     NumberInputStepper,
     NumberIncrementStepper,
     NumberDecrementStepper,
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogContent,
+    AlertDialogOverlay,
+    AlertDialogCloseButton
 } from "@chakra-ui/react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 export default function ProductPage() {
     let { id } = useParams();
     const [productInfo, setProductInfo] = useState(null);
     const [errMsg, setErrMsg] = useState("");
+    const [addCartErrMsg, setAddCartErrMsg] = useState("");
     const quantityRef = useRef(1); // Ref to hold the quantity
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const cancelRef = useRef();
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function fetchData() {
@@ -49,8 +61,13 @@ export default function ProductPage() {
                 quantity: quantityRef.current.value // Access value using ref
             });
             let data = response.data;
+            if (response.status !== 200) {
+                setAddCartErrMsg(data);
+                return;
+            }
+            setAddCartErrMsg("");
             console.log(data);
-            // TODO: do something to inform the user that the item was added to their cart
+            onOpen(); // opens up alert box telling them that they added the item to their cart
         } catch (err) {
             console.error(err);
         }
@@ -88,6 +105,34 @@ export default function ProductPage() {
                                 </NumberInputStepper>
                             </NumberInput>
                             <Button type="button" colorScheme="green" mt={3} width="300px" onClick={addToCart}>Add To Cart</Button>
+                            {addCartErrMsg && (
+                                <Text color="red">{addCartErrMsg}</Text>
+                            )}
+
+                            <AlertDialog
+                                motionPreset='slideInBottom'
+                                leastDestructiveRef={cancelRef}
+                                onClose={onClose}
+                                isOpen={isOpen}
+                                isCentered
+                            >
+                                <AlertDialogOverlay />
+
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>Successfully added to cart</AlertDialogHeader>
+                                    <AlertDialogCloseButton />
+                                    <AlertDialogBody>
+                                        {quantityRef.current.value}x{productInfo.name} was placed in your cart
+                                    </AlertDialogBody>
+                                    <AlertDialogFooter>
+                                        {/* <Button colorScheme="green" ref={cancelRef} onClick={onClose}> */}
+                                        <Button colorScheme="green" ref={cancelRef} onClick={() => navigate("/customer")}>
+                                            OK
+                                        </Button>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+
                         </Box>
                     </HStack>
                 </Flex>

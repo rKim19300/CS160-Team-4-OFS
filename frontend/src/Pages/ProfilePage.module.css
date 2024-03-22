@@ -1,0 +1,41 @@
+.container {
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh;
+}
+
+.bodyContainer {
+  padding: 16px 48px;
+  flex-direction: column;
+  width: 100%;
+}
+
+.profileIcon {
+  width: 100px !important;
+  height: 100px !important;
+  color: #505050;
+}
+
+.form {
+  align-items: center;
+  margin: 32px auto;
+  display: flex;
+  flex-direction: column;
+  width: 40%;
+}
+
+.headerText {
+  font-size: 28px;
+  font-weight: bold;
+  color: #303030;
+}
+
+.formText {
+  font-size: 14px;
+  padding-top: 8px;
+}
+
+.button {
+  margin: 24px 0px;
+  width: 100%;
+}

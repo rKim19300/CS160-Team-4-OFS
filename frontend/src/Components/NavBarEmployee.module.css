@@ -1,0 +1,40 @@
+.container {
+    background-color: #9ecfbd;
+    padding: 0px 24px;
+    height: 12vh;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10000;
+  }
+  
+  .leftSide {
+    height: 100%;
+    align-items: center;
+  }
+  
+  .linkWrapper {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+  
+  .logoImg {
+    height: 100%;
+    width: auto;
+  }
+  
+  .searchBarContainer {
+    margin-left: 24px;
+  }
+  
+  .searchIcon {
+    height: 1.75rem;
+  }
+  
+  .cartButton {
+    border-radius: 20px !important;
+    margin-left: 24px;
+  }
