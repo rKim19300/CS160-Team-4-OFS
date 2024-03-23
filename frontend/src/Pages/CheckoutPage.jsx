@@ -46,6 +46,8 @@ const handleSubmit = () => {
   console.log("Form submitted");
 };
 
+let addressInfo = {};
+
 export default function CheckoutPage({ variant }) {
   const { activeStep, setActiveStep } = useSteps({
     index: 0,
@@ -65,39 +67,28 @@ export default function CheckoutPage({ variant }) {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const handleConfirm = () => {
+  const [errMsg, setErrMsg] = useState(null);
+  const handleConfirm = async () => {
+    let response = await axiosInstance.post("/api/placeOrder", {
+      "street_address": Object.values(addressInfo).join(", ").replace(/\s\s+/g, ' ')
+    });
+    if (response.status !== 200) {
+      // setErrMsg(response.data);
+      console.log(response.data);
+      return;
+    }
     console.log("Order has been placed");
     setActiveStep(steps.length - 1);
   };
 
-  const [cartItems, setCartItems] = useState(null);
-  const [deliveryFee, setDeliveryFee] = useState(0);
-  const [cartSubtotal, setCartSubtotal] = useState(0);
-  const [taxAmount, setTaxAmount] = useState(0);
-
-  // fetch the user's cart info from the backend
-  async function fetchCartData() {
-    let response = await axiosInstance.get("/api/viewCart");
-    setCartItems(response.data.cartItems);
-    setDeliveryFee(response.data.summary.deliveryFee);
-    setCartSubtotal(response.data.summary.cartSubtotalCost);
-    setTaxAmount(response.data.summary.taxAmount);
-  }
-
-  useEffect(() => {
-    try {
-      fetchCartData();
-    } catch (err) {
-      console.error(err);
-    }
-  }, []);
+  console.log(addressInfo);
 
   const renderStepContent = (stepIndex) => {
     switch (stepIndex) {
       case 0:
-        return <Step1Component />;
+        return <Step1Component handleNext={handleNext} />;
       case 1:
-        return <Step2Component />;
+        return <Step2Component handleNext={handleNext} />;
       case 2:
         return <Step3Component />;
       case 3:
@@ -142,7 +133,9 @@ export default function CheckoutPage({ variant }) {
           )}
           {!isLastStep && !isConfirmationStep && (
             <Button
-              onClick={handleNext}
+              form={ activeStep === 0 ? "addressForm" : "paymentForm"}
+              type="submit"
+              // onClick={handleNext}
               className={styles.nextButton}
               colorScheme="green"
             >
@@ -161,7 +154,20 @@ export default function CheckoutPage({ variant }) {
   );
 }
 
-function Step1Component() {
+function Step1Component({ handleNext }) {
+  const submitForm = (e) => {
+    // set the addressInfo 
+    addressInfo = {
+      "addressLine1": e.target.addressLine1.value,
+      "addressLine2": e.target.addressLine2.value,
+      "city": e.target.city.value,
+      "state": e.target.state.value,
+      "zipCode": e.target.zipCode.value
+    }
+    // set the "activeStep" state of the parent component by calling handleNext
+    handleNext();
+  }
+
   return (
     <Flex className={styles.formContainer}>
       <Flex alignItems="center" gap="12px">
@@ -169,29 +175,29 @@ function Step1Component() {
         <Icon as={FaCarRear} />
       </Flex>
 
-      <form onSubmit={handleSubmit}>
+      <form id="addressForm" onSubmit={submitForm}>
         <FormControl>
           <FormLabel className={styles.formText}>Address Line 1</FormLabel>
-          <Input type="text" fontSize="16px" required />
+          <Input type="text" fontSize="16px" required name="addressLine1" />
 
           <FormLabel className={styles.formText}>Address Line 2</FormLabel>
-          <Input type="text" fontSize="16px" />
+          <Input type="text" fontSize="16px" name="addressLine2" />
         </FormControl>
 
         <Flex justifyContent="space-between" paddingTop="8px">
           <Flex flexDirection="column">
             <FormLabel className={styles.formText}>City</FormLabel>
-            <Input type="text" fontSize="16px" required />
+            <Input type="text" fontSize="16px" required name="city" />
           </Flex>
 
           <Flex flexDirection="column">
             <FormLabel className={styles.formText}>State</FormLabel>
-            <Input type="text" fontSize="16px" required />
+            <Input type="text" fontSize="16px" required name="state" />
           </Flex>
 
           <Flex flexDirection="column">
             <FormLabel className={styles.formText}>Zip Code</FormLabel>
-            <Input type="number" fontSize="16px" required />
+            <Input type="number" fontSize="16px" required name="zipCode" />
           </Flex>
         </Flex>
       </form>
@@ -199,14 +205,21 @@ function Step1Component() {
   );
 }
 
-function Step2Component() {
+function Step2Component({ handleNext }) {
+  const submitForm = (e) => {
+    // do payment input checks here
+
+    // update "activeStep" state in parent component
+    handleNext();
+  }
+
   return (
     <Flex className={styles.formContainer}>
       <Flex alignItems="center" gap="12px">
         <Text className={styles.titleText}>Payment Information</Text>
         <Icon as={FaCcVisa} />
       </Flex>
-      <form onSubmit={handleSubmit}>
+      <form id="paymentForm" onSubmit={submitForm}>
         <FormControl>
           <FormLabel className={styles.formText}>Name on Card</FormLabel>
           <Input type="text" fontSize="16px" required />

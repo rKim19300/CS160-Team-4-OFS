@@ -9,7 +9,7 @@ import {
     Box
 } from "@chakra-ui/react";
 import styles from "./SideBarEmployee.module.css";
-import Components from "../enums/EmployeeDashboardComponents.ts";
+import Components from "../Enums/EmployeeDashboardComponents.ts";
 
 /**
  * @param { onComponentChange } Stores the name of the clicked component

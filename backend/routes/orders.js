@@ -1,9 +1,15 @@
 const router = require("express").Router();
 const { DB } = require("../database");
-const { checkLoggedIn, checkIsEmployee } = require("../middleware/authMiddleware");
+const { body } = require("express-validator");
+const { checkLoggedIn, checkIsEmployee, validateReqBody } = require("../middleware/authMiddleware");
 const { HelperFuncs } = require("./util/helper_funcs");
 
-router.post("/placeOrder", checkLoggedIn, async (req, res) => {
+router.post("/placeOrder",
+    checkLoggedIn,
+    validateReqBody([
+        body("street_address").notEmpty().withMessage("Missing required street address")
+    ]),
+    async (req, res) => {
     try {
         let { street_address } = req.body;
         let cart_id = await DB.get_cart_id(req.user_id);

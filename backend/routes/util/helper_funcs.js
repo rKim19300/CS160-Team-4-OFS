@@ -18,6 +18,7 @@ class HelperFuncs {
     static async check_quantity_lte_inventory_amt(quantity, product_id) {
         let { productInfo, errMsg } = await DB.get_product_info(product_id);
         if (errMsg) return [false, errMsg];
+        if (productInfo.quantity === 0) return [false, "Out of stock"];
         if (quantity > productInfo.quantity) {
             return [false, `Maximum quantity allowed in cart: ${productInfo.quantity}`];
         }
@@ -28,6 +29,7 @@ class HelperFuncs {
         let cart_item_quantity = await DB.get_cart_item_quantity(cart_id, product_id);
         let { productInfo, errMsg } = await DB.get_product_info(product_id);
         if (errMsg) return [false, errMsg];
+        if (productInfo.quantity === 0) return [false, "Out of stock"];
         if (cart_item_quantity + quantity > productInfo.quantity) {
             return [false, `Maximum quantity allowed in cart: ${productInfo.quantity}`];
         }
@@ -48,7 +50,7 @@ class HelperFuncs {
         for (let cart_item of cart_items) {
             let { product_id, quantity: cartQuantity, name } = cart_item;
             let [isValidCartQuantity, errMsg] = await this.check_quantity_lte_inventory_amt(cartQuantity, product_id);
-            if (!isValidCartQuantity) errMsgs.push(`Product: ${name} -> ${errMsg}`);
+            if (!isValidCartQuantity) errMsgs.push(`${name} -> ${errMsg}`);
         }
         return errMsgs;
     }
