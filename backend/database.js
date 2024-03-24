@@ -184,6 +184,13 @@ class DB {
     );
   }
 
+  static async update_product_info(product_id, name, price, weight, quantity) {
+    await db.query(
+      "UPDATE Products SET name = ?, price = ?, weight = ?, quantity = ?, WHERE product_id = ?",
+      [name, price, weight, quantity, product_id]
+    );
+  }
+
   ///////
   // CART queries
   ///////

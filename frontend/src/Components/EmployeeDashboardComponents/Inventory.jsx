@@ -12,6 +12,7 @@ import {
     TableCaption,
     TableContainer,
     Heading,
+    Button,
   } from '@chakra-ui/react'
 import axiosInstance from "../../axiosInstance";
 
@@ -69,6 +70,9 @@ export default function Inventory() {
                                 <td>{ Object.price }</td>
                                 <td>{ Object.quantity }</td>
                                 <td>{ Object.weight }</td>
+                                <Button colorScheme="green">
+                                    <a href="/changeProduct">Edit</a>
+                                </Button>
                             </tr>
                             )})}
                 </Tbody>
