@@ -21,7 +21,7 @@ function App() {
           <Route path="/productInfo/:id" element={<ProductPage />} />
           <Route path="/EmployeeDashboard" element={<EmployeeDashboard />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/changeProduct" element={<ChangeProductPage />} />
+          <Route path="/changeProduct/:id" element={<ChangeProductPage />} />
         </Routes>
       </BrowserRouter>
     </ChakraProvider>

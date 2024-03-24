@@ -13,8 +13,10 @@ import {
     TableContainer,
     Heading,
     Button,
+    Text,
   } from '@chakra-ui/react'
 import axiosInstance from "../../axiosInstance";
+import { Link } from "react-router-dom";
 
 
 export default function Inventory() {
@@ -62,17 +64,17 @@ export default function Inventory() {
                 </Tr>
                 </Thead>
                 <Tbody>
-                    {products.map(Object => {
+                    {products.map(product => {
                         return (
                             <tr>
-                                <td>{ Object.product_id }</td>
-                                <td>{ Object.name }</td>
-                                <td>{ Object.price }</td>
-                                <td>{ Object.quantity }</td>
-                                <td>{ Object.weight }</td>
-                                <Button colorScheme="green">
-                                    <a href="/changeProduct">Edit</a>
-                                </Button>
+                                <td>{ product.product_id }</td>
+                                <td>{ product.name }</td>
+                                <td>{ product.price }</td>
+                                <td>{ product.quantity }</td>
+                                <td>{ product.weight }</td>
+                                <Link to={`/changeProduct/${product.product_id}`}>
+                                    <u>Edit</u>
+                                </Link>
                             </tr>
                             )})}
                 </Tbody>
