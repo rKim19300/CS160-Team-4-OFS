@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../axiosInstance";
 import {
@@ -9,6 +9,13 @@ import {
   FormLabel,
   Input,
   Button,
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogOverlay,
+  AlertDialogCloseButton,
 } from "@chakra-ui/react";
 import styles from "./LogInPage.module.css";
 import { ArrowBackIcon } from "@chakra-ui/icons";
@@ -18,6 +25,8 @@ export default function LogInPage() {
   const [password, setPassword] = useState("");
   const [errMsg, setErrMsg] = useState("");
   const navigate = useNavigate();
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false); // State for error dialog
+  const errorDialogRef = useRef(); // Ref for error dialog
 
   const handleSubmit = async (event) => {
     // this function runs when we press "Continue" button
@@ -28,6 +37,7 @@ export default function LogInPage() {
       navigate("/customer");
     } else {
       setErrMsg(responseMsg);
+      setErrorDialogOpen(true);
     }
   };
 
@@ -84,6 +94,34 @@ export default function LogInPage() {
           </a>
         </Flex>
       </Flex>
+      {/* AlertDialog for error: Email already existed */}
+      <AlertDialog
+        motionPreset="slideInBottom"
+        status="error"
+        leastDestructiveRef={errorDialogRef}
+        onClose={() => setErrorDialogOpen(false)}
+        isOpen={errorDialogOpen}
+        isCentered
+      >
+        <AlertDialogOverlay />
+        <AlertDialogContent>
+          <AlertDialogHeader>ERROR!!!</AlertDialogHeader>
+          <AlertDialogCloseButton />
+          <AlertDialogBody>
+            {errMsg}! The email or password you entered did not match our
+            records. Please check both and try again.
+          </AlertDialogBody>
+          <AlertDialogFooter>
+            <Button
+              colorScheme="red"
+              ref={errorDialogRef}
+              onClick={() => setErrorDialogOpen(false)}
+            >
+              OK
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Flex>
   );
 }
