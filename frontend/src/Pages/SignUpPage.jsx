@@ -18,7 +18,7 @@ import {
   AlertDialogFooter,
   AlertDialogOverlay,
   AlertDialogCloseButton,
-  useDisclosure
+  useDisclosure,
 } from "@chakra-ui/react";
 
 import styles from "./SignUpPage.module.css";
@@ -39,28 +39,27 @@ const validationSchema = Yup.object().shape({
 });
 
 // Main Sign Up Function
-const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
+const SignUpPage = ({ createEmployee = false, onSignUpSuccess = () => {} }) => {
   const navigate = useNavigate();
   const [errMsg, setErrMsg] = useState("");
 
   const [status, setStatus] = useState("");
-
   const [errorDialogOpen, setErrorDialogOpen] = useState(false); // State for error dialog
   const [successDialogOpen, setSuccessDialogOpen] = useState(false); // State for success dialog
 
   // Create refs for AlertDialog
   const errorDialogRef = useRef();
   const successDialogRef = useRef();
-  const { isOpen, onOpen, onClose } = useDisclosure() // Disclosure for alert dialogue
+  const { isOpen, onOpen, onClose } = useDisclosure(); // Disclosure for alert dialogue
 
   return (
-
     // Header Of The Page
     <div justification="center">
       <Text className={styles.welcomeText} marginTop="10px;">
         <span style={{ color: "#28B463" }}>O</span>
         <span style={{ color: "#F39C12" }}>F</span>
-        <span style={{ color: "#F4D03F" }}>S</span> {(createEmployee) ? "Employee" : ""} Registration Form!
+        <span style={{ color: "#F4D03F" }}>S</span>{" "}
+        {createEmployee ? "Employee" : ""} Registration Form!
       </Text>
 
       {/* Create Formik components for validation */}
@@ -74,9 +73,10 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
         validationSchema={validationSchema}
         onSubmit={async (values, { setSubmitting }) => {
           try {
-            
             // Check if creating employee or customer
-            let apiCall = (createEmployee) ? "/api/createEmployee" : "/api/signup";
+            let apiCall = createEmployee
+              ? "/api/createEmployee"
+              : "/api/signup";
 
             // Call API
             let response = await axiosInstance.post(apiCall, {
@@ -90,17 +90,20 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
 
             // Handle successful registration, route depending on manager or not
             if (response.status === 200) {
-              setStatus("success");
-              console.log("status= " + status);
-              setSuccessDialogOpen(true);
+              // setStatus("success");
+              // console.log("status= " + status);
+
               // navigate("./");
               onSignUpSuccess(); // Tell caller signUp was a success
-              if (!createEmployee) navigate("/");   
+              if (!createEmployee) {
+                setSuccessDialogOpen(true);
+                // navigate("/");
+              }
             } else if (response.status === 401) {
               return onOpen(); // Employee registration fail
             } else {
-              setStatus("error");
-              console.log("status= " + status);
+              // setStatus("error");
+              // console.log("status= " + status);
               setErrMsg(responseMsg); // Set error message based on API response
               setErrorDialogOpen(true);
             }
@@ -208,7 +211,7 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
         )}
       </Formik>
       <div>
-        {status === "success" ? (
+        {/* {status === "success" ? (
           <AlertDialog
             motionPreset="slideInBottom"
             status="success"
@@ -254,7 +257,7 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
               <AlertDialogHeader>ERROR!!!</AlertDialogHeader>
               <AlertDialogCloseButton />
               <AlertDialogBody>
-                {/* {errMsg} */}
+                {errMsg}
                 The email you entered is already exists. Please use another
                 email or use the forget password at log in page!!!
               </AlertDialogBody>
@@ -269,9 +272,9 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-        )}
+        )} */}
 
-        {/* <AlertDialog
+        <AlertDialog
           motionPreset="slideInBottom"
           status="error"
           leastDestructiveRef={errorDialogRef}
@@ -291,7 +294,7 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
             </AlertDialogBody>
             <AlertDialogFooter>
               <Button
-                colorScheme="green"
+                colorScheme="red"
                 ref={errorDialogRef}
                 onClick={() => setErrorDialogOpen(false)}
               >
@@ -323,51 +326,45 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
                 ref={successDialogRef}
                 onClick={() => {
                   setSuccessDialogOpen(false);
-                  navigate("./");
+                  navigate("/");
                 }}
               >
-                Back to Log In
+                OK
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
-        </AlertDialog> */}
+        </AlertDialog>
       </div>
-        {/* Alert Dialogue for employee sign-up failure */}
-        <AlertDialog 
-            isOpen={isOpen}
-            onClose={onClose}
-            isCentered={true} 
-        >
+      {/* Alert Dialogue for employee sign-up failure */}
+      <AlertDialog isOpen={isOpen} onClose={onClose} isCentered={true}>
         <AlertDialogOverlay>
           <AlertDialogContent>
-            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
               Something went wrong!
             </AlertDialogHeader>
             <AlertDialogBody>
               Please go back to the Sign-In Page.
             </AlertDialogBody>
             <AlertDialogFooter>
-                <Button colorScheme='red' onClick={
-                  async () => {
-                    try {
-                      navigate("/");
-                    }
-                    catch (err) {
-                      console.error(err);
-                    }
-                    finally {
-                      onClose();
-                    }
+              <Button
+                colorScheme="red"
+                onClick={async () => {
+                  try {
+                    navigate("/");
+                  } catch (err) {
+                    console.error(err);
+                  } finally {
+                    onClose();
                   }
-                }>
-                  Okay
-                </Button>
+                }}
+              >
+                Okay
+              </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
     </div>
-
   );
 };
 
