@@ -90,20 +90,13 @@ const SignUpPage = ({ createEmployee = false, onSignUpSuccess = () => {} }) => {
 
             // Handle successful registration, route depending on manager or not
             if (response.status === 200) {
-              // setStatus("success");
-              // console.log("status= " + status);
-
-              // navigate("./");
               onSignUpSuccess(); // Tell caller signUp was a success
               if (!createEmployee) {
                 setSuccessDialogOpen(true);
-                // navigate("/");
               }
             } else if (response.status === 401) {
               return onOpen(); // Employee registration fail
             } else {
-              // setStatus("error");
-              // console.log("status= " + status);
               setErrMsg(responseMsg); // Set error message based on API response
               setErrorDialogOpen(true);
             }
@@ -211,69 +204,7 @@ const SignUpPage = ({ createEmployee = false, onSignUpSuccess = () => {} }) => {
         )}
       </Formik>
       <div>
-        {/* {status === "success" ? (
-          <AlertDialog
-            motionPreset="slideInBottom"
-            status="success"
-            leastDestructiveRef={successDialogRef}
-            onClose={() => setSuccessDialogOpen(false)}
-            isOpen={successDialogOpen}
-            isCentered
-          >
-            <AlertDialogOverlay />
-
-            <AlertDialogContent>
-              <AlertDialogHeader>Account created!</AlertDialogHeader>
-              <AlertDialogCloseButton />
-              <AlertDialogBody>
-                Thanks for signing up to OFS. Enjoy shopping!!!
-              </AlertDialogBody>
-              <AlertDialogFooter>
-                <Button
-                  colorScheme="green"
-                  ref={successDialogRef}
-                  onClick={() => {
-                    setSuccessDialogOpen(false);
-                    navigate("./");
-                  }}
-                >
-                  Back to Log In
-                </Button>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        ) : (
-          <AlertDialog
-            motionPreset="slideInBottom"
-            status="error"
-            leastDestructiveRef={errorDialogRef}
-            onClose={() => setErrorDialogOpen(false)}
-            isOpen={errorDialogOpen}
-            isCentered
-          >
-            <AlertDialogOverlay />
-
-            <AlertDialogContent>
-              <AlertDialogHeader>ERROR!!!</AlertDialogHeader>
-              <AlertDialogCloseButton />
-              <AlertDialogBody>
-                {errMsg}
-                The email you entered is already exists. Please use another
-                email or use the forget password at log in page!!!
-              </AlertDialogBody>
-              <AlertDialogFooter>
-                <Button
-                  colorScheme="green"
-                  ref={errorDialogRef}
-                  onClick={() => setErrorDialogOpen(false)}
-                >
-                  OK
-                </Button>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        )} */}
-
+        {/* AlertDialog for error: Email already existed */}
         <AlertDialog
           motionPreset="slideInBottom"
           status="error"
@@ -283,14 +214,13 @@ const SignUpPage = ({ createEmployee = false, onSignUpSuccess = () => {} }) => {
           isCentered
         >
           <AlertDialogOverlay />
-
           <AlertDialogContent>
             <AlertDialogHeader>ERROR!!!</AlertDialogHeader>
             <AlertDialogCloseButton />
             <AlertDialogBody>
               {errMsg}
               The email you entered is already exists. Please use another email
-              or use the forget password at log in page!!! {errMsg}
+              !!! {errMsg}
             </AlertDialogBody>
             <AlertDialogFooter>
               <Button
@@ -304,6 +234,7 @@ const SignUpPage = ({ createEmployee = false, onSignUpSuccess = () => {} }) => {
           </AlertDialogContent>
         </AlertDialog>
 
+        {/* AlertDialog for successfully registered */}
         <AlertDialog
           motionPreset="slideInBottom"
           status="success"
@@ -335,6 +266,7 @@ const SignUpPage = ({ createEmployee = false, onSignUpSuccess = () => {} }) => {
           </AlertDialogContent>
         </AlertDialog>
       </div>
+
       {/* Alert Dialogue for employee sign-up failure */}
       <AlertDialog isOpen={isOpen} onClose={onClose} isCentered={true}>
         <AlertDialogOverlay>
