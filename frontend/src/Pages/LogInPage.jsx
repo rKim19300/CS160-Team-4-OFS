@@ -83,7 +83,6 @@ export default function LogInPage() {
             </Text>
           </a>
 
-          {/* TODO: create account page href="/createAccount" */}
           <a href="./SignUp">
             <Text
               className={styles.bottomText}
@@ -94,7 +93,7 @@ export default function LogInPage() {
           </a>
         </Flex>
       </Flex>
-      {/* AlertDialog for error: Email already existed */}
+      {/* AlertDialog for error: Email or Password mismatch Data base */}
       <AlertDialog
         motionPreset="slideInBottom"
         status="error"
