@@ -24,9 +24,27 @@ router.get("/productInfo/:prodID", checkLoggedIn, async (req, res) => {
     }
 });
 
-// router.post("/updateProduct/:prodID", checkIsEmployee, async (req, res) => {
-//
-// });
+const name_min_len = 1;
+const price_min_len = 4;
+
+router.post(
+    "/updateProduct/:prodID", 
+    checkIsEmployee, 
+    async (req, res) => {
+        try {
+            let product_id = req.product_id;
+            let { name, price, weight, quantity } = req.body;
+            await DB.update_product_info(product_id, name, price, weight, quantity);
+            req.session.product = { ...req.session.product, name, price, weight, quantity };
+            return res.status(200).send("Successfully Updated");
+        } catch (err) {
+            console.log(`ERROR UPDATING PRODUCT INFO: ${err}`);
+            return res
+                .status(400)
+                .send("Something went wrong when trying to update product info");
+        }
+});
+
 //
 // router.post("/removeProduct/:prodID", checkIsEmployee, async (req, res) => {
 //

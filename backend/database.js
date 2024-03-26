@@ -163,6 +163,13 @@ class DB {
     await db.query("INSERT INTO Products(name, description, image_url, price, weight, quantity) VALUES (?, ?, ?, ?, ?, ?)", [name, description, image_url, price, weight, quantity]);
   }
 
+  static async update_product_info(product_id, name, price, weight, quantity) {
+    await db.query(
+      "UPDATE Products SET name = ?, price = ?, weight = ?, quantity = ?, WHERE product_id = ?",
+      [name, price, weight, quantity, product_id]
+    );
+  }
+
   ///////
   // CART queries
   ///////
