@@ -127,7 +127,6 @@ class DB {
       await db.query("INSERT INTO Users(email, username, password, user_type) VALUES (?, ?, ?, ?)", [email, username, hashedPw, user_type]);
   }
 
-
   static async get_stored_password(email) {
     let q = await db.query("SELECT password FROM Users WHERE email = ?", [email]);
     return q[0].password;
@@ -162,6 +161,13 @@ class DB {
 
   static async add_new_product(name, description, image_url, price, weight, quantity) {
     await db.query("INSERT INTO Products(name, description, image_url, price, weight, quantity) VALUES (?, ?, ?, ?, ?, ?)", [name, description, image_url, price, weight, quantity]);
+  }
+
+  static async update_product_info(product_id, name, price, weight, quantity) {
+    await db.query(
+      "UPDATE Products SET name = ?, price = ?, weight = ?, quantity = ?, WHERE product_id = ?",
+      [name, price, weight, quantity, product_id]
+    );
   }
 
   ///////
@@ -216,6 +222,11 @@ class DB {
   ///////
   static async get_user_order_history(user_id) {
     // TODO: FINISH THIS
+  }
+
+  static async select_all_orders() {
+    let orders = await db.query("SELECT * FROM Orders");
+    return orders;
   }
 
   static async add_new_order(user_id, cost, weight, address, delivery_fee, created_at, cart_id) {

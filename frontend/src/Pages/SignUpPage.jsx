@@ -38,19 +38,26 @@ const validationSchema = Yup.object().shape({
     .required("Confirm Password is required"),
 });
 
-// Main Sign Up Function
-const SignUpPage = ({ createEmployee = false, onSignUpSuccess = () => {} }) => {
+/**
+ * Main Sign Up Function
+ * 
+ * @param { createEmployee }  Optional prop, if set to true, will create an employee 
+ *                            instead of a customer
+ * @param { onSignUpSuccess } Optional prop, if sign up successful, allows caller to 
+ *                            execute a function
+ * @returns                   The signup page
+ */
+const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
   const navigate = useNavigate();
   const [errMsg, setErrMsg] = useState("");
 
-  const [status, setStatus] = useState("");
+  const { isOpen, onOpen, onClose } = useDisclosure() // Disclosure for manager auth failure
   const [errorDialogOpen, setErrorDialogOpen] = useState(false); // State for error dialog
   const [successDialogOpen, setSuccessDialogOpen] = useState(false); // State for success dialog
 
   // Create refs for AlertDialog
   const errorDialogRef = useRef();
   const successDialogRef = useRef();
-  const { isOpen, onOpen, onClose } = useDisclosure(); // Disclosure for alert dialogue
 
   return (
     // Header Of The Page
@@ -90,22 +97,25 @@ const SignUpPage = ({ createEmployee = false, onSignUpSuccess = () => {} }) => {
 
             // Handle successful registration, route depending on manager or not
             if (response.status === 200) {
-              onSignUpSuccess(); // Tell caller signUp was a success
-              if (!createEmployee) {
-                setSuccessDialogOpen(true);
-              }
-            } else if (response.status === 401) {
-              return onOpen(); // Employee registration fail
-            } else {
+              onSignUpSuccess();   // Tell caller signUp was a success
+              if (!createEmployee) // If creating customer, navigate to login
+                navigate("/");   
+            } 
+            else if (response.status === 401 && createEmployee) {
+              onOpen(); // Open mployee registration fail pop-up
+            } 
+            else {
               setErrMsg(responseMsg); // Set error message based on API response
               setErrorDialogOpen(true);
             }
-          } catch (error) {
+          } 
+          catch (error) {
             console.error("Error registering user:", error);
             setErrMsg("Error registering user");
             alert(errMsg);
             setErrorDialogOpen(true); // Open error dialog
-          } finally {
+          } 
+          finally {
             setSubmitting(false);
           }
         }}
