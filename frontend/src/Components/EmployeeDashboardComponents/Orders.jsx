@@ -65,13 +65,13 @@ export default function Orders() {
                 </Tr>
                 </Thead>
                 <Tbody>
-                    {orders.map(Object => {
+                    {orders.map(order => {
                         return (
-                            <tr>
-                                <td>{ Object.order_id }</td>
-                                <td>{ Object.user_id }</td>
-                                <td>{ Object.created_at }</td>
-                                <td>{ Object.cost }</td>
+                            <Tr>
+                                <Td>{ order.order_id }</Td>
+                                <Td>{ order.user_id }</Td>
+                                <Td>{ order.created_at }</Td>
+                                <Td>{ order.cost }</Td>
                                 <Td>
                                     <Menu>
                                     <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
@@ -83,7 +83,7 @@ export default function Orders() {
                                     </MenuList>
                                     </Menu>
                                 </Td>
-                            </tr>
+                            </Tr>
                             )})}
                 </Tbody>
             </Table>

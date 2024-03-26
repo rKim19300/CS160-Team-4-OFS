@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { DB } = require("../database");
-const { checkLoggedIn, checkIsEmployee } = require("../middleware/authMiddleware");
+const { checkLoggedIn, checkIsStaff } = require("../middleware/authMiddleware");
 
 router.get("/allProducts", async (req, res) => {
     try {
@@ -50,7 +50,7 @@ router.post(
 //
 // });
 
-router.post("/addProduct", checkIsEmployee, async (req, res) => {
+router.post("/addProduct", checkIsStaff, async (req, res) => {
     try {
         let { name, description, image_url, price, weight, quantity } = req.body;
         await DB.add_new_product(name, description, image_url, price, weight, quantity);

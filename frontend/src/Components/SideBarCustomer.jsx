@@ -1,6 +1,7 @@
 import React from "react";
 import { Flex, Button } from "@chakra-ui/react";
 import styles from "./SideBarCustomer.module.css";
+import SignOutButton from "./SignOutButton";
 
 const categories = [
   {
@@ -64,9 +65,7 @@ export default function SideBarCustomer({ handleChangeCategory }) {
         <Button>
           <a href="/profile">Profile</a>
         </Button>
-        <Button colorScheme="red">
-          <a href="/">Sign Out</a>
-        </Button>
+        <SignOutButton />
       </Flex>
     </Flex>
   );

@@ -66,16 +66,16 @@ export default function Inventory() {
                 <Tbody>
                     {products.map(product => {
                         return (
-                            <tr>
-                                <td>{ product.product_id }</td>
-                                <td>{ product.name }</td>
-                                <td>{ product.price }</td>
-                                <td>{ product.quantity }</td>
-                                <td>{ product.weight }</td>
+                            <Tr>
+                                <Td>{ product.product_id }</Td>
+                                <Td>{ product.name }</Td>
+                                <Td>{ product.price }</Td>
+                                <Td>{ product.quantity }</Td>
+                                <Td>{ product.weight }</Td>
                                 <Link to={`/changeProduct/${product.product_id}`}>
                                     <u>Edit</u>
                                 </Link>
-                            </tr>
+                            </Tr>
                             )})}
                 </Tbody>
             </Table>
