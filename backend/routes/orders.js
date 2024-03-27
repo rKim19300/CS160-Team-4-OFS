@@ -27,7 +27,14 @@ router.post("/placeOrder",
         }
         // lastly, clear the users cart
         await DB.delete_all_cart_items(cart_id);
-        return res.status(200).send("Successfully placed order");
+        return res.status(200).json({
+            "items": cart_items,
+            "summary": {
+                subtotal_cost,
+                deliveryFee,
+                taxAmount
+            }
+        });
     } catch (err) {
         console.log(`ERROR WHEN PLACING AN ORDER: ${err}`);
         return res.status(400).send("Something went wrong when trying to place the order");

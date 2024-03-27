@@ -47,6 +47,8 @@ const handleSubmit = () => {
 };
 
 let addressInfo = {};
+let orderItems = [];
+let orderTotal = {};
 
 export default function CheckoutPage({ variant }) {
   const { activeStep, setActiveStep } = useSteps({
@@ -74,9 +76,10 @@ export default function CheckoutPage({ variant }) {
     });
     if (response.status !== 200) {
       // setErrMsg(response.data);
-      console.log(response.data);
       return;
     }
+    orderItems = response.data.items;
+    orderTotal = response.data.summary;
     console.log("Order has been placed");
     setActiveStep(steps.length - 1);
   };
@@ -393,13 +396,6 @@ function CartItem({ product, removeItemFromCart, modifyCartItemQuantity }) {
   );
 }
 
-const orderItemExample = {
-  name: "Apple",
-  quantity: 2,
-  price: 2.99,
-  image_url: "",
-};
-
 function Step4Component() {
   return (
     <Flex className={styles.formContainer}>
@@ -418,14 +414,15 @@ function Step4Component() {
         <Divider />
 
         {/* Order Items goes here  */}
-        <OrderItem item={orderItemExample} />
+        {orderItems.map((orderItem, idx) => (
+          <OrderItem key={idx} item={orderItem} />
+        ))}
       </Flex>
 
-      {/* Using dummyTotal  */}
       <PriceSummary
-        subtotal={dummyTotal.subtotal}
-        deliveryFee={dummyTotal.deliveryFee}
-        taxAmount={dummyTotal.taxAmount}
+        subtotal={orderTotal.subtotal_cost}
+        deliveryFee={orderTotal.deliveryFee}
+        taxAmount={orderTotal.taxAmount}
       />
       <Text className={styles.warningText}>
         Paid by card ending in <span>1234</span>
@@ -448,17 +445,11 @@ function OrderItem({ item }) {
       </Flex>
 
       <Flex className={styles.bottomSection}>
-        <Text className={styles.priceText}>${item.price}</Text>
+        <Text className={styles.priceText}>${item.price.toFixed(2)}</Text>
       </Flex>
     </Flex>
   );
 }
-
-const dummyTotal = {
-  subtotal: 10.99,
-  deliveryFee: 2,
-  taxAmount: 1,
-};
 
 function PriceSummary({ subtotal, deliveryFee, taxAmount }) {
   return (
