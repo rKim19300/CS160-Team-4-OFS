@@ -42,11 +42,9 @@ const steps = [
   { title: "Confirm", description: "Place Order" },
   { title: "Order Confirmation", description: "" },
 ];
-const handleSubmit = () => {
-  console.log("Form submitted");
-};
 
 let addressInfo = {};
+let paymentInfo = {};
 let orderItems = [];
 let orderTotal = {};
 
@@ -69,13 +67,14 @@ export default function CheckoutPage({ variant }) {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const [errMsg, setErrMsg] = useState(null);
+  // TODO: display the confirmation error
+  const [confirmErr, setConfirmErr] = useState(null);
   const handleConfirm = async () => {
     let response = await axiosInstance.post("/api/placeOrder", {
       "street_address": Object.values(addressInfo).join(", ").replace(/\s\s+/g, ' ')
     });
     if (response.status !== 200) {
-      // setErrMsg(response.data);
+      setConfirmErr(response.data);
       return;
     }
     orderItems = response.data.items;
@@ -83,8 +82,6 @@ export default function CheckoutPage({ variant }) {
     console.log("Order has been placed");
     setActiveStep(steps.length - 1);
   };
-
-  console.log(addressInfo);
 
   const renderStepContent = (stepIndex) => {
     switch (stepIndex) {
@@ -158,15 +155,16 @@ export default function CheckoutPage({ variant }) {
 }
 
 function Step1Component({ handleNext }) {
+  const [addressLine1, setAddressLine1] = useState(addressInfo["addressLine1"] || "");
+  const [addressLine2, setAddressLine2] = useState(addressInfo["addressLine2"] || "");
+  const [city, setCity] = useState(addressInfo["city"] || "");
+  const [state, setState] = useState(addressInfo["state"] || "");
+  const [zipCode, setZipCode] = useState(addressInfo["zipCode"] || "");
+
   const submitForm = (e) => {
+    e.preventDefault();
     // set the addressInfo 
-    addressInfo = {
-      "addressLine1": e.target.addressLine1.value,
-      "addressLine2": e.target.addressLine2.value,
-      "city": e.target.city.value,
-      "state": e.target.state.value,
-      "zipCode": e.target.zipCode.value
-    }
+    addressInfo = { addressLine1, addressLine2, city, state, zipCode };
     // set the "activeStep" state of the parent component by calling handleNext
     handleNext();
   }
@@ -181,26 +179,26 @@ function Step1Component({ handleNext }) {
       <form id="addressForm" onSubmit={submitForm}>
         <FormControl>
           <FormLabel className={styles.formText}>Address Line 1</FormLabel>
-          <Input type="text" fontSize="16px" required name="addressLine1" />
+          <Input type="text" fontSize="16px" required name="addressLine1" value={addressLine1} onChange={e => setAddressLine1(e.target.value)} />
 
           <FormLabel className={styles.formText}>Address Line 2</FormLabel>
-          <Input type="text" fontSize="16px" name="addressLine2" />
+          <Input type="text" fontSize="16px" name="addressLine2" value={addressLine2} onChange={e => setAddressLine2(e.target.value)} />
         </FormControl>
 
         <Flex justifyContent="space-between" paddingTop="8px">
           <Flex flexDirection="column">
             <FormLabel className={styles.formText}>City</FormLabel>
-            <Input type="text" fontSize="16px" required name="city" />
+            <Input type="text" fontSize="16px" required name="city" value={city} onChange={e => setCity(e.target.value)} />
           </Flex>
 
           <Flex flexDirection="column">
             <FormLabel className={styles.formText}>State</FormLabel>
-            <Input type="text" fontSize="16px" required name="state" />
+            <Input type="text" fontSize="16px" required name="state" value={state} onChange={e => setState(e.target.value)} />
           </Flex>
 
           <Flex flexDirection="column">
             <FormLabel className={styles.formText}>Zip Code</FormLabel>
-            <Input type="number" fontSize="16px" required name="zipCode" />
+            <Input type="number" fontSize="16px" required name="zipCode" value={zipCode} onChange={e => setZipCode(e.target.value)} />
           </Flex>
         </Flex>
       </form>
@@ -209,9 +207,17 @@ function Step1Component({ handleNext }) {
 }
 
 function Step2Component({ handleNext }) {
+  const [nameOnCard, setNameOnCard] = useState(paymentInfo["nameOnCard"] || "");
+  const [cardNumber, setCardNumber] = useState(paymentInfo["cardNumber"] || "");
+  const [exp, setExp] = useState(paymentInfo["exp"] || "");
+  const [cvv, setCvv] = useState(paymentInfo["cvv"] || "");
+  const [zipCode, setZipCode] = useState(paymentInfo["zipCode"] || "");
+
   const submitForm = (e) => {
+    e.preventDefault();
     // do payment input checks here
 
+    paymentInfo = { nameOnCard, cardNumber, exp, cvv, zipCode }
     // update "activeStep" state in parent component
     handleNext();
   }
@@ -225,26 +231,26 @@ function Step2Component({ handleNext }) {
       <form id="paymentForm" onSubmit={submitForm}>
         <FormControl>
           <FormLabel className={styles.formText}>Name on Card</FormLabel>
-          <Input type="text" fontSize="16px" required />
+          <Input type="text" fontSize="16px" required name="nameOnCard" value={nameOnCard} onChange={e => setNameOnCard(e.target.value)} />
 
           <FormLabel className={styles.formText}>Card Number</FormLabel>
-          <Input type="number" fontSize="16px" required />
+          <Input type="number" fontSize="16px" required name="cardNumber" value={cardNumber} onChange={e => setCardNumber(e.target.value)} />
         </FormControl>
 
         <Flex justifyContent="space-between" paddingTop="8px">
           <Flex flexDirection="column">
             <FormLabel className={styles.formText}>Expiry Date</FormLabel>
-            <Input type="text" fontSize="16px" required />
+            <Input type="text" fontSize="16px" required name="exp" value={exp} onChange={e => setExp(e.target.value)} />
           </Flex>
 
           <Flex flexDirection="column">
             <FormLabel className={styles.formText}>CVV</FormLabel>
-            <Input type="number" fontSize="16px" required />
+            <Input type="number" fontSize="16px" required name="cvv" value={cvv} onChange={e => setCvv(e.target.value)} />
           </Flex>
 
           <Flex flexDirection="column">
             <FormLabel className={styles.formText}>Zip Code</FormLabel>
-            <Input type="number" fontSize="16px" required />
+            <Input type="number" fontSize="16px" required name="zipCode" value={zipCode} onChange={e => setZipCode(e.target.value)} />
           </Flex>
         </Flex>
       </form>
@@ -425,7 +431,7 @@ function Step4Component() {
         taxAmount={orderTotal.taxAmount}
       />
       <Text className={styles.warningText}>
-        Paid by card ending in <span>1234</span>
+        Paid by card ending in <span>{paymentInfo["cardNumber"].slice(-4)}</span>
       </Text>
     </Flex>
   );
