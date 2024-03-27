@@ -71,7 +71,7 @@ export default function CheckoutPage({ variant }) {
   const [confirmErr, setConfirmErr] = useState(null);
   const handleConfirm = async () => {
     let response = await axiosInstance.post("/api/placeOrder", {
-      "street_address": Object.values(addressInfo).join(", ").replace(/\s\s+/g, ' ')
+      "street_address": Object.values(addressInfo).map(v => v.trim()).filter(v => v !== "").join(", ").replace(/\s\s+/g, ' ')
     });
     if (response.status !== 200) {
       setConfirmErr(response.data);
