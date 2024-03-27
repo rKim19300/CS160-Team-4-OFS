@@ -74,6 +74,13 @@ async function addCategories() {
     await DB.add_new_category("Nuts");
 }
 
+async function setProductCategories() {
+    // product_id (int), category_ids (list of ints)
+    await DB.set_product_categories(1, [3]);
+    await DB.set_product_categories(2, [3]);
+    await DB.set_product_categories(3, [5, 6, 8]);
+}
+
 async function addUsers() {
     // email, username, hashedPw, userType (optional, will default to 0 which is a customer)
     await DB.insert_new_user(
@@ -298,6 +305,7 @@ async function addOrders() {
 (async () => {
     await addUsers();
     await addCategories();
+    await setProductCategories();
     await addProducts();
     await addOrders();
 })();

@@ -147,9 +147,9 @@ class DB {
     ///////
     static async select_all_products() {
         let prods = await db.query("SELECT * FROM Products");
-        prods.forEach(prod => {
-            prod["categories"] = this.get_product_categories(prod.product_id);
-        });
+        for (let prod of prods) {
+            prod["categories"] = await this.get_product_categories(prod.product_id);
+        }
         return prods;
     }
 
@@ -158,7 +158,7 @@ class DB {
         if (q.length === 0) {
             return { productInfo: null, errMsg: `Product with id ${product_id} does not exist` };
         }
-        q[0]["categories"] = this.get_product_categories(product_id);
+        q[0]["categories"] = await this.get_product_categories(product_id);
         return { productInfo: q[0], errMsg: null };
     }
 
