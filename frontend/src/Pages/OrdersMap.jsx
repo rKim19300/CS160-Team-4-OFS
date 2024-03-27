@@ -59,7 +59,7 @@ export default function OrdersMap() {
                 return;
             }
             setAddressValid(data);
-            console.log(data.result);
+            console.log(data);
         }
         catch (err) {
             console.error(err);
@@ -67,6 +67,7 @@ export default function OrdersMap() {
     }
 
     // Calculate the Distance of the route
+    // TODO move the direction generation to the backend
     const fetchDirections = (origin, destination, waypoints) => {
         const directionsService = new window.google.maps.DirectionsService();
     

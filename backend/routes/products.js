@@ -21,7 +21,7 @@ router.get("/productInfo/:prodID", checkLoggedIn, async (req, res) => {
     } catch (err) {
         console.log(`ERROR WHEN GETTING PRODUCT INFO: ${err}`);
         return res.status(400).send("Something went wrong when getting product info");
-    }
+    } 
 });
 
 // router.post("/updateProduct/:prodID", checkIsEmployee, async (req, res) => {
