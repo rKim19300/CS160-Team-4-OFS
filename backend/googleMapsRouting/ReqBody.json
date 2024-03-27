@@ -5,8 +5,8 @@
   "destination":{
       "address": "1 Washington Sq, San Jose, CA 95192"
   },
-  "intermediates": [],
-  "travelMode": "DRIVE",
+  "intermediates": ["200 E Santa Clara St, San Jose, CA 95113"],
+  "travelMode": "DRIVING",
   "routingPreference": "TRAFFIC_AWARE",
   "departureTime": "2022-10-15T15:01:23.045123456Z",
   "computeAlternativeRoutes": false,

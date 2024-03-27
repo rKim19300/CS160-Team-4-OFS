@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { DB } = require("../database");
-const { checkLoggedIn, checkIsEmployee } = require("../middleware/authMiddleware");
+const { checkLoggedIn, checkIsStaff } = require("../middleware/authMiddleware");
 
 router.post("/placeOrder", checkLoggedIn, async (req, res) => {
     try {

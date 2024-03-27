@@ -1,7 +1,9 @@
 const express = require("express");
 const app = express();
 const session = require("express-session");
-const dotenv = require("dotenv").config();
+require("dotenv").config({
+  path: '../.env'
+});
 const cors = require("cors");
 
 const authRoute = require("./routes/auth");
@@ -11,6 +13,7 @@ const cartRoute = require("./routes/cart");
 const analyticsRoute = require("./routes/analytics");
 const employeesRoute = require("./routes/employees");
 const userRoute = require("./routes/user");
+const mapsRoute = require("./routes/maps");
 
 // set up the express session config
 let TWO_HOURS_IN_MS = 2 * 60 * 60 * 1000;
@@ -42,6 +45,7 @@ app.use("/api", cartRoute);
 app.use("/api", analyticsRoute);
 app.use("/api", employeesRoute);
 app.use("/api", userRoute);
+app.use("/api", mapsRoute);
 
 const PORT = process.env.PORT || 8888;
 app.listen(PORT, () => {

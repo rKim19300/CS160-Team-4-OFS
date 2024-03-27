@@ -11,7 +11,7 @@ import {
 import styles from "./SideBarEmployee.module.css";
 import Components from "../Enums/EmployeeDashboardComponents.ts";
 import SignOutButton from "./SignOutButton";
-import { UserType } from "../Enums/enums";
+import { UserType } from "../Enums/enums.js";
 import axiosInstance from "../axiosInstance";
 
 /**
