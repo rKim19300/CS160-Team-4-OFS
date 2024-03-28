@@ -24,40 +24,52 @@ router.get("/productInfo/:prodID", checkLoggedIn, async (req, res) => {
     }
 });
 
-const name_min_len = 1;
-const price_min_len = 4;
-
-router.post(
-    "/updateProduct/:prodID", 
-    checkIsStaff, 
-    async (req, res) => {
-        try {
-            let product_id = req.product_id;
-            let { name, price, weight, quantity } = req.body;
-            await DB.update_product_info(product_id, name, price, weight, quantity);
-            req.session.product = { ...req.session.product, name, price, weight, quantity };
-            return res.status(200).send("Successfully Updated");
-        } catch (err) {
-            console.log(`ERROR UPDATING PRODUCT INFO: ${err}`);
-            return res
-                .status(400)
-                .send("Something went wrong when trying to update product info");
-        }
+router.get("/allCategories", async (req, res) => {
+    try {
+        let all_categories = await DB.get_all_categories();
+        return res.status(200).json(all_categories);
+    } catch (err) {
+        console.log(`ERROR WHEN FETCHING ALL CATEGORIES: ${err}`);
+        return res.status(400).send("Something went wrong when fetching all product categories");
+    }
 });
 
-//
-// router.post("/removeProduct/:prodID", checkIsEmployee, async (req, res) => {
-//
-// });
+router.post("/addCategory", checkIsStaff, async (req, res) => {
+    try {
+        let { category_name } = req.body;
+        await DB.add_new_category(category_name);
+        return res.status(200).send("Successfully added new category");
+    } catch (err) {
+        console.log(`ERROR WHEN ADDING A CATEGORY: ${err}`);
+        return res.status(400).send("Something went wrong when fetching all product categories");
+    }
+});
 
 router.post("/addProduct", checkIsStaff, async (req, res) => {
     try {
-        let { name, description, image_url, price, weight, quantity } = req.body;
+        let { name, description, image_url, price, weight, quantity, category_ids } = req.body;
         await DB.add_new_product(name, description, image_url, price, weight, quantity);
+        await DB.set_product_categories(product_id, category_ids);
         return res.status(200).send("Successfully inserted product into database");
     } catch (err) {
         console.log(`ERROR WHEN ADDING PRODUCT: ${err}`);
         return res.status(400).send("Something went wrong when adding a product");
+    }
+});
+
+router.post("/updateProduct/:prodID", checkIsStaff, async (req, res) => {
+    try {
+        let product_id = req.params.prodID;
+        // Makes sure product_id actually exists
+        let { errMsg } = await DB.get_product_info(product_id);
+        if (errMsg) return res.status(400).send(errMsg);
+        let { name, description, image_url, price, weight, quantity, category_ids } = req.body;
+        await DB.update_product_info(product_id, name, description, image_url, price, weight, quantity);
+        await DB.set_product_categories(product_id, category_ids);
+        return res.status(200).send("Successfully updated product info");
+    } catch (err) {
+        console.log(`ERROR WHEN UPDATING PRODUCT: ${err}`);
+        return res.status(400).send("Something went wrong when updating the product");
     }
 });
 

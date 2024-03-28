@@ -147,6 +147,9 @@ class DB {
     ///////
     static async select_all_products() {
         let prods = await db.query("SELECT * FROM Products");
+        for (let prod of prods) {
+            prod["categories"] = await this.get_product_categories(prod.product_id);
+        }
         return prods;
     }
 
@@ -155,6 +158,7 @@ class DB {
         if (q.length === 0) {
             return { productInfo: null, errMsg: `Product with id ${product_id} does not exist` };
         }
+        q[0]["categories"] = await this.get_product_categories(product_id);
         return { productInfo: q[0], errMsg: null };
     }
 
@@ -162,8 +166,37 @@ class DB {
         await db.query("INSERT INTO Products(name, description, image_url, price, weight, quantity) VALUES (?, ?, ?, ?, ?, ?)", [name, description, image_url, price, weight, quantity]);
     }
 
+    static async update_product_info(product_id, name, description, image_url, price, weight, quantity) {
+        await db.query("UPDATE Products SET name = ?, description = ?, image_url = ?, price = ?, weight = ?, quantity = ? WHERE product_id = ?", [name, description, image_url, price, weight, quantity]);
+    }
+  
     static async subtract_product_inventory_quantity(product_id, quantity) {
         await db.query("UPDATE Products SET quantity = quantity - ? WHERE product_id = ?", [quantity, product_id]);
+    }
+
+    ///////
+    // PRODUCT CATEGORIES queries
+    ///////
+    static async add_new_category(name) {
+        await db.query("INSERT INTO Categories(name) VALUES (?)", [name]);
+    }
+
+    static async get_all_categories() {
+        let q = await db.query("SELECT * FROM Categories");
+        return q;
+    }
+
+    static async set_product_categories(product_id, category_ids) {
+        if (category_ids.length < 1) return;
+        await db.query("DELETE FROM Product_to_categories WHERE product_id = ?", [product_id]);
+        for (let category_id of category_ids) {
+            await db.query("INSERT INTO Product_to_categories(product_id, category_id) VALUES (?, ?)", [product_id, category_id]);
+        }
+    }
+
+    static async get_product_categories(product_id) {
+        let q = await db.query("SELECT c.category_id, c.name FROM Product_to_categories AS ptc INNER JOIN Categories AS c ON ptc.category_id = c.category_id WHERE ptc.product_id = ?", [product_id]);
+        return q;
     }
 
     ///////
@@ -173,7 +206,7 @@ class DB {
         let q = await db.query("SELECT cart_id FROM Cart WHERE user_id = ?", [user_id]);
         if (q.length !== 0) return q[0]["cart_id"];
         await db.query("INSERT INTO Cart(user_id) VALUES (?)", [user_id]);
-        let res = await db.query("SELECT cart_id FROM Cart WHERE user_id = ?", [user_id]); 
+        let res = await db.query("SELECT cart_id FROM Cart WHERE user_id = ?", [user_id]);
         return res[0]["cart_id"];
     }
 
@@ -193,7 +226,7 @@ class DB {
     static async modify_cart_item_quantity(cart_id, product_id, quantity) {
         await db.query("UPDATE Cart_Items SET quantity = ? WHERE cart_id = ? AND product_id = ?", [quantity, cart_id, product_id]);
     }
-
+  
     static async get_cart_weight(cart_id) {
         let q = await db.query("SELECT SUM(p.weight * ci.quantity) FROM Cart_Items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
         return parseFloat(q[0]["SUM(p.weight * ci.quantity)"]) || 0;
@@ -207,7 +240,7 @@ class DB {
     static async delete_all_cart_items(cart_id) {
         await db.query("DELETE FROM Cart_items WHERE cart_id = ?", [cart_id]);
     }
-
+  
     static async get_cart_item_quantity(cart_id, product_id) {
         let q = await db.query("SELECT quantity FROM Cart_items WHERE cart_id = ? AND product_id = ?", [cart_id, product_id]);
         return q.length > 0 ? parseInt(q[0]["quantity"]) : 0;
@@ -245,7 +278,7 @@ class DB {
 
     // Gets the revenue from the past 7 days
     /**
-    * 
+    *
     * @returns A single object mapping weekdays to revenue
     */
     static async get_week_revenue() {
