@@ -15,7 +15,7 @@ def get_user_cookie(email, password):
     r = requests.post(f"{API_BASE_URL}/api/login", data=data, headers=HEADERS)
     return r.cookies["connect.sid"]
 
-COOKIES = {"connect.sid": get_user_cookie("bob@bob.com", "bob")}
+COOKIES = {"connect.sid": get_user_cookie("admin@admin.com", "admin")}
 
 class TestCartEndpoints(unittest.TestCase):
     def test_addNonExistentItemToCart(self):
@@ -29,7 +29,6 @@ class TestCartEndpoints(unittest.TestCase):
             "quantity": 13
         })
         r = requests.post(f"{API_BASE_URL}/api/addItemToCart", data=data, headers=HEADERS, cookies=COOKIES)
-        print(r.text)
         # check to make sure that the response is what we're expecting
         self.assertEqual(r.status_code, 400)
 
@@ -45,7 +44,6 @@ class TestCartEndpoints(unittest.TestCase):
             "quantity": 13
         })
         r = requests.post(f"{API_BASE_URL}/api/addItemToCart", data=data, headers=HEADERS, cookies=COOKIES)
-        print(r.text)
         # check to make sure that the response is what we're expecting
         self.assertEqual(r.status_code, 200)
 
@@ -57,7 +55,6 @@ class TestCartEndpoints(unittest.TestCase):
             - List of objects, each obj is an item in the user's cart
         '''
         r = requests.get(f"{API_BASE_URL}/api/viewCart", headers=HEADERS, cookies=COOKIES)
-        print(r.json())
         self.assertTrue(len(r.json()) > 0)
         self.assertEqual(r.status_code, 200)
 

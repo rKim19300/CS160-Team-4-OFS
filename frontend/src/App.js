@@ -8,6 +8,8 @@ import CustomerPage from "./Pages/CustomerPage";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import EmployeeDashboard from "./Pages/EmployeeDashboard";
 import ProfilePage from "./Pages/ProfilePage";
+import CheckoutPage from "./Pages/CheckoutPage";
+import ChangeProductPage from "./Pages/ChangeProductPage";
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
           <Route path="/productInfo/:id" element={<ProductPage />} />
           <Route path="/EmployeeDashboard" element={<EmployeeDashboard />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/changeProduct/:id" element={<ChangeProductPage />} />
         </Routes>
       </BrowserRouter>
     </ChakraProvider>

@@ -12,8 +12,11 @@ import {
     TableCaption,
     TableContainer,
     Heading,
+    Button,
+    Text,
   } from '@chakra-ui/react'
 import axiosInstance from "../../axiosInstance";
+import { Link } from "react-router-dom";
 
 
 export default function Inventory() {
@@ -69,6 +72,9 @@ export default function Inventory() {
                                 <Td>{ product.price }</Td>
                                 <Td>{ product.quantity }</Td>
                                 <Td>{ product.weight }</Td>
+                                <Link to={`/changeProduct/${product.product_id}`}>
+                                    <u>Edit</u>
+                                </Link>
                             </Tr>
                             )})}
                 </Tbody>

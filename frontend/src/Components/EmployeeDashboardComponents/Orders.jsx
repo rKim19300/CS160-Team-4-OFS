@@ -71,7 +71,7 @@ export default function Orders() {
                                 <Td>{ order.order_id }</Td>
                                 <Td>{ order.user_id }</Td>
                                 <Td>{ order.created_at }</Td>
-                                <Td>{ order.cost }</Td>
+                                <Td>${ order.cost.toFixed(2) }</Td>
                                 <Td>
                                     <Menu>
                                     <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
