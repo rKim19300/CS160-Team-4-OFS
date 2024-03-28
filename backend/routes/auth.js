@@ -2,7 +2,8 @@ const router = require("express").Router();
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const { DB } = require("../database");
-const { validateReqBody, checkLoggedIn } = require("../middleware/authMiddleware");
+const { validateReqBody, checkLoggedIn, checkIsManager } = require("../middleware/authMiddleware");
+const { UserType } = require("../enums/enums");
 
 const pw_min_len = 1;
 const pw_max_len = 128;
@@ -24,6 +25,27 @@ router.post("/signup",
         let salt = await bcrypt.genSalt();
         let hashedPw = await bcrypt.hash(password, salt);
         await DB.insert_new_user(email, username, hashedPw);
+        return res.status(200).send("Successfully signed up");
+    } catch (err) {
+        console.log(`ERROR SIGNING UP: ${err}`);
+        return res.status(400).send(`Something went wrong when trying to sign up`);
+    }
+});
+
+router.post("/createEmployee", checkIsManager,
+    validateReqBody([
+        body("username").isLength({ min: uName_min_len, max: uName_max_len }).withMessage(`Username must be between ${uName_min_len} and ${uName_max_len} characters`),
+        body("password").isLength({ min: pw_min_len, max: pw_max_len }).withMessage(`Password must be between ${pw_min_len} and ${pw_max_len} characters`),
+        body("email").isLength({ max: email_max_len }).isEmail().withMessage("Invalid email"),
+    ]),
+    async (req, res) => {
+    try {
+        let { username, password, email } = req.body;
+        let existingUser = await DB.get_user_from_email(email);
+        if (existingUser !== undefined) return res.status(400).send("Email already exists");
+        let salt = await bcrypt.genSalt();
+        let hashedPw = await bcrypt.hash(password, salt);
+        await DB.insert_new_user(email, username, hashedPw, user_type=UserType.EMPLOYEE);
         return res.status(200).send("Successfully signed up");
     } catch (err) {
         console.log(`ERROR SIGNING UP: ${err}`);

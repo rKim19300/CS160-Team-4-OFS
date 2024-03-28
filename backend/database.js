@@ -1,4 +1,5 @@
 const sqlite3 = require("sqlite3").verbose();
+const { UserType } = require("./enums/enums");
 
 // db connection object
 const db = new sqlite3.Database("db.db", (err) => {
@@ -114,38 +115,33 @@ function setup_tables() {
 }
 
 class DB {
-  ///////
-  // AUTH queries
-  ///////
-  static async get_user_from_email(email) {
-    let q = await db.query(
-      "SELECT user_id, email, username, user_type FROM Users WHERE email = ?",
-      [email]
-    );
-    return q[0];
-  }
+    ///////
+    // AUTH queries
+    ///////
+    static async get_user_from_email(email) {
+        let q = await db.query("SELECT user_id, email, username, user_type FROM Users WHERE email = ?", [email]);
+        return q[0];
+    }
 
-  static async insert_new_user(email, username, hashedPw, user_type = 0) {
-    await db.query(
-      "INSERT INTO Users(email, username, password, user_type) VALUES (?, ?, ?, ?)",
-      [email, username, hashedPw, user_type]
-    );
-  }
+    static async insert_new_user(email, username, hashedPw, user_type=UserType.CUSTOMER) {
+        await db.query("INSERT INTO Users(email, username, password, user_type) VALUES (?, ?, ?, ?)", [email, username, hashedPw, user_type]);
+    }
 
-  static async get_stored_password(email) {
-    let q = await db.query("SELECT password FROM Users WHERE email = ?", [email]);
-    return q[0].password;
-  }
+    static async get_stored_password(email) {
+        let q = await db.query("SELECT password FROM Users WHERE email = ?", [email]);
+        return q[0].password;
+    }
+  
+    ///////
+    // USER queries
+    ///////
+    static async update_user_info(user_id, username, email) {
+        await db.query("UPDATE Users SET username = ?, email = ? WHERE user_id = ?", [username, email, user_id]);
+    }
 
-  ///////
-  // USER queries
-  ///////
-  static async update_user_info(user_id, username, email) {
-    await db.query(
-      "UPDATE Users SET username = ?, email = ? WHERE user_id = ?",
-      [username, email, user_id]
-    );
-  }
+    static async remove_user_by_id(user_id) {
+        await db.query("DELETE FROM Users WHERE user_id = ?", [user_id]);
+    }
 
     ///////
     // PRODUCTS queries
@@ -216,11 +212,15 @@ class DB {
     static async get_cart_item_quantity(cart_id, product_id) {
         let q = await db.query("SELECT quantity FROM Cart_items WHERE cart_id = ? AND product_id = ?", [cart_id, product_id]);
         return q.length > 0 ? parseInt(q[0]["quantity"]) : 0;
-    }
 
     ///////
     // ORDER queries
     ///////
+    static async select_all_orders() {
+        let orders = await db.query("SELECT * FROM Orders");
+        return orders;
+    }
+      
     static async get_user_order_history(user_id) {
         // TODO: FINISH THIS
     }
@@ -308,10 +308,10 @@ class DB {
   ///////
 
   static async get_employees() {
-    let q = await db.query(`SELECT username, user_id
-                                FROM Users
-                                WHERE user_type = 1`);
-    return q;
+      let q = await db.query(`SELECT username, user_id, email
+                              FROM Users
+                              WHERE user_type = 1`);
+  return q;
   }
 }
 

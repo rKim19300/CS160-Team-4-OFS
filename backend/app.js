@@ -37,6 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", authRoute);
 app.use("/api", productsRoute);
+app.use("/api", ordersRoute);
 app.use("/api", cartRoute);
 app.use("/api", ordersRoute);
 app.use("/api", analyticsRoute);

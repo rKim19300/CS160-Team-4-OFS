@@ -51,4 +51,14 @@ router.get("/viewMyOrders", checkLoggedIn, async (req, res) => {
     }
 });
 
+router.get("/allOrders", async (req, res) => {
+    try {
+        let allOrders = await DB.select_all_orders();
+        return res.status(200).json(allOrders);
+    } catch (err) {
+        console.log(`ERROR WHEN FETCHING ALL ORDERS: ${err}`);
+        return res.status(400).send("Something went wrong when fetching store orders");
+    }
+});
+
 module.exports = router;
