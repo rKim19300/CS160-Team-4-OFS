@@ -22,7 +22,6 @@ router.post(
         if (!isBelowWeightLimit) return res.status(400).send(msg1);
         let [isCartLTEinventoryAmt, msg2] = await HelperFuncs.check_cart_quantity_will_be_lte_inventory_amt(cart_id, product_id, quantity);
         if (!isCartLTEinventoryAmt) return res.status(400).send(msg2);
-
         await DB.insert_item_into_cart(cart_id, product_id, quantity);
         return res.status(200).send("Successfully added item to cart");
     } catch (err) {
@@ -71,14 +70,13 @@ router.get("/viewCart", checkLoggedIn, async (req, res) => {
     try {
         let cart_id = await DB.get_cart_id(req.user_id);
         let cartItems = await DB.get_cart_items(cart_id);
-        let cartWeight = await DB.get_cart_weight(cart_id);
-        let cartSubtotalCost = await DB.get_cart_subtotal_cost(cart_id);
+        let { cartWeight, subtotal_cost, deliveryFee, taxAmount } = await HelperFuncs.get_cart_summary(cart_id);
         return res.status(200).json({
             cartItems,
             "summary": {
-                cartSubtotalCost,
-                "deliveryFee": cartWeight > 20 ? 10 : 0,
-                "taxAmount": (cartSubtotalCost / 100)
+                "cartSubtotalCost": subtotal_cost,
+                deliveryFee,
+                taxAmount
             }
         });
     } catch (err) {

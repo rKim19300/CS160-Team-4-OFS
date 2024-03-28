@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../axiosInstance";
-import { GoogleMap, useLoadScript, DirectionsRenderer, Marker } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, DirectionsRenderer, MarkerF } from '@react-google-maps/api';
 
 import {
     Flex,
@@ -11,7 +11,9 @@ import {
     FormLabel,
     Input,
     Button,
-    Box
+    Box,
+    HStack,
+    Spacer
 } from "@chakra-ui/react";
 import styles from "./OrdersMap.module.css";
 import { ArrowBackIcon } from "@chakra-ui/icons";
@@ -21,14 +23,16 @@ const metersToMilesConversion = 1609;
 export default function OrdersMap() {
     const containerStyle = {
         width: '100%',
-        height: '600px',
+        height: '475px',
     };
 
     // Hard coded SJSU ("store") address
-    const center = { 
+    const store = { 
         lat: 37.33518596879412, 
         lng: -121.88107208071463
     };
+    const [robot1, setRobot1] = useState({lat: 37.320353656705855, lng: -121.87615293846709});
+    const [robot2, setRobot2] = useState({lat: 37.32285106535895, lng: -121.89976185528579});
 
     const [map, setMap] = useState( /** @type google.maps.Map */(null));
 
@@ -48,7 +52,7 @@ export default function OrdersMap() {
     const validateAddress = async () => {
         try{
             let response = await axiosInstance.post("/api/validateAddress", {
-                address: '1 Washington Sq',
+                address: '1 Washion Sq',
                 city: 'San Jose',
                 state: 'CA',
                 zipCode: '95192'
@@ -123,13 +127,13 @@ export default function OrdersMap() {
         <>
             <Flex className={styles.container}>
                 <Text className={styles.orderText}>
-                    Your order is on the way!
+                    
                 </Text>
             </Flex>
             <Flex className={styles.MapContainer}>
                 <GoogleMap
                     mapContainerStyle={containerStyle}
-                    center={center}
+                    center={store}
                     zoom={10}
                     onLoad={(map) => {setMap(map)}}
                     options={{
@@ -138,13 +142,36 @@ export default function OrdersMap() {
                         fullscreenControl: false
                     }}
                 >
-                {directions && <DirectionsRenderer directions={directions} />}
-                    <Marker position={center}/>
+                    <MarkerF position={store}/>
+                    <MarkerF position={robot1}/>
+                    <MarkerF position={robot2}/>
+                    {directions && <DirectionsRenderer directions={directions} />}
                 </GoogleMap>
+                <br />
+                <HStack justifyContent="space-between">
+                    <Box>
+                        <Button colorScheme="red">
+                            Send Orders
+                        </Button>
+                    </Box>
+                    <Spacer/>
+                    <Box>
+                        <Button onClick={() => {map.panTo(store)}}>
+                            Store
+                        </Button>
+                    </Box>
+                    <Box>
+                        <Button label={"Robot1"} onClick={() => {map.panTo(robot1)}}>
+                            Robot1
+                        </Button>
+                    </Box>
+                    <Box>
+                        <Button onClick={() => {map.panTo(robot2)}}>
+                            Robot2
+                        </Button>
+                    </Box>
+                </HStack>
             </Flex>
-            <Box>
-                <Button onClick={() => {map.panTo(center)}} />
-            </Box>
         </>
     );
 }

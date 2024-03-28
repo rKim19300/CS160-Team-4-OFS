@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import EmployeeDashboard from "./Pages/EmployeeDashboard";
 import ProfilePage from "./Pages/ProfilePage";
 import OrdersMap from "./Pages/OrdersMap";
+import CheckoutPage from "./Pages/CheckoutPage";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/EmployeeDashboard" element={<EmployeeDashboard />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/OrdersMap" element={<OrdersMap />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
         </Routes>
       </BrowserRouter>
     </ChakraProvider>

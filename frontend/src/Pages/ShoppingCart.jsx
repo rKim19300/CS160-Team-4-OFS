@@ -47,15 +47,24 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
   }, []);
 
   async function removeItemFromCart(product_id) {
-    let response = await axiosInstance.post("/api/removeItemFromCart", { product_id });
+    let response = await axiosInstance.post("/api/removeItemFromCart", {
+      product_id,
+    });
     if (response.status === 200) {
       fetchCartData();
     }
   }
 
-  async function modifyCartItemQuantity(product_id, quantity, setCartItemErrMsg) {
+  async function modifyCartItemQuantity(
+    product_id,
+    quantity,
+    setCartItemErrMsg
+  ) {
     console.log(quantity);
-    let response = await axiosInstance.post("/api/modifyCartItemQuantity", { product_id, quantity });
+    let response = await axiosInstance.post("/api/modifyCartItemQuantity", {
+      product_id,
+      quantity,
+    });
     if (response.status === 200) {
       fetchCartData();
       setCartItemErrMsg("");
@@ -90,7 +99,12 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
               <Text>Your cart is empty</Text>
             ) : (
               cartItems.map((product) => (
-                <CartItem key={product.product_id} product={product} removeItemFromCart={removeItemFromCart} modifyCartItemQuantity={modifyCartItemQuantity} />
+                <CartItem
+                  key={product.product_id}
+                  product={product}
+                  removeItemFromCart={removeItemFromCart}
+                  modifyCartItemQuantity={modifyCartItemQuantity}
+                />
               ))
             )}
           </DrawerBody>
@@ -98,11 +112,15 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
           <DrawerFooter className={styles.drawerFooter}>
             <Flex justifyContent="space-between" width="100%">
               <Text className={styles.bottomText}>Subtotal</Text>
-              <Text className={styles.bottomText}>${cartSubtotal.toFixed(2)}</Text>
+              <Text className={styles.bottomText}>
+                ${cartSubtotal.toFixed(2)}
+              </Text>
             </Flex>
             <Flex justifyContent="space-between" width="100%">
               <Text className={styles.bottomText}>Delivery Fee</Text>
-              <Text className={styles.bottomText}>${deliveryFee.toFixed(2)}</Text>
+              <Text className={styles.bottomText}>
+                ${deliveryFee.toFixed(2)}
+              </Text>
             </Flex>
             <Flex justifyContent="space-between" width="100%">
               <Text className={styles.bottomText}>Tax & Services</Text>
@@ -111,11 +129,15 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
             <Divider marginY="8px" />
             <Flex justifyContent="space-between" width="100%">
               <Text className={styles.bottomText}>Total</Text>
-              <Text className={styles.bottomText}>${(cartSubtotal+deliveryFee+taxAmount).toFixed(2)}</Text>
+              <Text className={styles.bottomText}>
+                ${(cartSubtotal + deliveryFee + taxAmount).toFixed(2)}
+              </Text>
             </Flex>
-            <Button className={styles.checkoutButton} colorScheme="green">
-              Checkout
-            </Button>
+            <a href="/checkout">
+              <Button className={styles.checkoutButton} colorScheme="green">
+                Checkout
+              </Button>
+            </a>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
@@ -131,16 +153,24 @@ function CartItem({ product, removeItemFromCart, modifyCartItemQuantity }) {
     <Flex className={styles.outsideContainer}>
       <Flex className={styles.topSection}>
         <Flex alignItems="center" gap="8px">
-          <img
-            className={styles.itemImg}
-            src={product.image_url}
-          />
+          <img className={styles.itemImg} src={product.image_url} />
           <Text>{product.name}</Text>
         </Flex>
 
-        <NumberInput size="xs" maxW={16}
-        defaultValue={product.quantity} min={1} clampValueOnBlur={false}
-        onBlur={() => modifyCartItemQuantity(product.product_id, quantityRef.current.value, setCartItemErrMsg)}>
+        <NumberInput
+          size="xs"
+          maxW={16}
+          defaultValue={product.quantity}
+          min={1}
+          clampValueOnBlur={false}
+          onBlur={() =>
+            modifyCartItemQuantity(
+              product.product_id,
+              quantityRef.current.value,
+              setCartItemErrMsg
+            )
+          }
+        >
           <NumberInputField ref={quantityRef} height="100%" />
           <NumberInputStepper>
             <NumberIncrementStepper />
@@ -150,7 +180,9 @@ function CartItem({ product, removeItemFromCart, modifyCartItemQuantity }) {
       </Flex>
 
       <Flex className={styles.bottomSection}>
-        <Text className={styles.priceText}>${(product.price * product.quantity).toFixed(2)}</Text>
+        <Text className={styles.priceText}>
+          ${(product.price * product.quantity).toFixed(2)}
+        </Text>
         <Button
           className={styles.removeButton}
           leftIcon={<FaTrashCan />}
@@ -161,9 +193,11 @@ function CartItem({ product, removeItemFromCart, modifyCartItemQuantity }) {
           Remove
         </Button>
       </Flex>
-    {cartItemErrMsg && (
-      <Text fontSize="sm" color="red">{cartItemErrMsg}</Text>
-    )}
+      {cartItemErrMsg && (
+        <Text fontSize="sm" color="red">
+          {cartItemErrMsg}
+        </Text>
+      )}
     </Flex>
   );
 }

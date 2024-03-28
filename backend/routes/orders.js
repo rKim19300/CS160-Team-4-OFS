@@ -1,37 +1,40 @@
 const router = require("express").Router();
 const { DB } = require("../database");
-const { checkLoggedIn, checkIsStaff } = require("../middleware/authMiddleware");
+const { body } = require("express-validator");
+const { checkLoggedIn, checkIsStaff, validateReqBody } = require("../middleware/authMiddleware");
+const { HelperFuncs } = require("./util/helper_funcs");
 
-router.post("/placeOrder", checkLoggedIn, async (req, res) => {
+router.post("/placeOrder",
+    checkLoggedIn,
+    validateReqBody([
+        body("street_address").notEmpty().withMessage("Missing required street address")
+    ]),
+    async (req, res) => {
     try {
-        // TODO: FINISH THIS
-        // Don't forget that when an order is placed, we need to subtract from product inventory
-        let { addressInfo } = req.body;
-        // iterate over all items in cart and make sure the quantity is within the quantity in inventory
+        let { street_address } = req.body;
         let cart_id = await DB.get_cart_id(req.user_id);
-
-        // Don't forget to check product inventory before finalizing order.
-        // TODO: WILL PROBABLY NEED TO CHANGE THIS
-        // let cart_items = await DB.get_cart_items(cart_id);
-        // let errMsgs = [];
-        // for (let ci of cart_items) {
-        //     let { product_id, quantity: cartQuantity, name } = ci;
-        //     let productInfo = await DB.get_product_info(product_id);
-        //     if (cartQuantity > productInfo["quantity"]) {
-        //         errMsgs.push(`${name} current has an inventory count of ${productInfo["quantity"]}, which is less than ${cartQuantity}`);
-        //     }
-        // }
-        // if (errMsgs.length > 0) return res.status(400).json(errMsgs);
-
-        let order_weight = await DB.get_cart_weight(cart_id);
-        let subtotal_cost = await DB.get_cart_subtotal_cost(cart_id);
-        let delivery_fee = order_weight < 20 ? 0 : 10;
-        let taxAmount = subtotal_cost / 100;
-        let ordered_at = new Date().toLocaleString().replace(",", "");
-        await DB.add_new_order(req.user_id, subtotal_cost+delivery_fee+taxAmount, order_weight, ADDRESS, delivery_fee, ordered_at, cart_id);
+        let cart_items = await DB.get_cart_items(cart_id);
+        if (cart_items.length === 0) return res.status(400).send("There are no items in your cart. Cannot place an order");
+        // Compare users cart to product inventory before finalizing order (since inventory can change from when they originally placed the item in their cart).
+        let errMsgs = await HelperFuncs.check_all_cart_items_availability(cart_items);
+        if (errMsgs.length > 0) return res.status(400).json(errMsgs);
+        let { cartWeight, subtotal_cost, deliveryFee, taxAmount, ordered_at } = await HelperFuncs.get_cart_summary(cart_id);
+        await DB.add_new_order(req.user_id, subtotal_cost+deliveryFee+taxAmount, cartWeight, street_address, deliveryFee, ordered_at, cart_id);
+        // make sure to update product inventory. This means subtract from `Products` table the amount of each product that was in the users cart
+        for (let cart_item of cart_items) {
+            let { product_id, quantity: cartQuantity, name } = cart_item;
+            await DB.subtract_product_inventory_quantity(product_id, cartQuantity);
+        }
+        // lastly, clear the users cart
         await DB.delete_all_cart_items(cart_id);
-        // make sure to update product inventory
-        
+        return res.status(200).json({
+            "items": cart_items,
+            "summary": {
+                subtotal_cost,
+                deliveryFee,
+                taxAmount
+            }
+        });
     } catch (err) {
         console.log(`ERROR WHEN PLACING AN ORDER: ${err}`);
         return res.status(400).send("Something went wrong when trying to place the order");
