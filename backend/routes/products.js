@@ -29,7 +29,7 @@ const price_min_len = 4;
 
 router.post(
     "/updateProduct/:prodID", 
-    checkIsEmployee, 
+    checkIsStaff, 
     async (req, res) => {
         try {
             let product_id = req.product_id;

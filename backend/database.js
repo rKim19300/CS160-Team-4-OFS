@@ -211,6 +211,7 @@ class DB {
     static async get_cart_item_quantity(cart_id, product_id) {
         let q = await db.query("SELECT quantity FROM Cart_items WHERE cart_id = ? AND product_id = ?", [cart_id, product_id]);
         return q.length > 0 ? parseInt(q[0]["quantity"]) : 0;
+    }
 
     ///////
     // ORDER queries
