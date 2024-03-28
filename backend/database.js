@@ -3,30 +3,29 @@ const { UserType } = require("./enums/enums");
 
 // db connection object
 const db = new sqlite3.Database("db.db", (err) => {
-  if (err) {
-    return console.error(`Error while connecting to database: ${err.message}`);
-  }
-  console.log("Successfully connected to database");
-  setup_tables();
+    if (err) {
+        return console.error(`Error while connecting to database: ${err.message}`);
+    }
+    console.log("Successfully connected to database");
+    setup_tables();
 });
 
 // create a .query() method that allows us to run commands using async/await syntax
 db.query = function (sql, params) {
-  let that = this;
-  return new Promise((resolve, reject) => {
-    that.all(sql, params, (err, rows) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(rows);
-      }
+    let that = this;
+    return new Promise((resolve, reject) => {
+        that.all(sql, params, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
     });
-  });
 };
 
 function setup_tables() {
-  db.exec(
-    `
+    db.exec(`
         CREATE TABLE IF NOT EXISTS Users (
             user_id         INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
             email           VARCHAR(100) UNIQUE NOT NULL,
@@ -108,10 +107,10 @@ function setup_tables() {
             FOREIGN KEY (order_id) REFERENCES Orders(order_id)
         );
     `,
-    (err) => {
-      if (err) console.log(`Error while trying to setup the DB tables: ${err}`);
-    }
-  );
+        (err) => {
+            if (err) console.log(`Error while trying to setup the DB tables: ${err}`);
+        }
+    );
 }
 
 class DB {
@@ -131,7 +130,7 @@ class DB {
         let q = await db.query("SELECT password FROM Users WHERE email = ?", [email]);
         return q[0].password;
     }
-  
+
     ///////
     // USER queries
     ///////
@@ -220,7 +219,7 @@ class DB {
         let orders = await db.query("SELECT * FROM Orders");
         return orders;
     }
-      
+
     static async get_user_order_history(user_id) {
         // TODO: FINISH THIS
     }
@@ -238,81 +237,80 @@ class DB {
             await db.query("INSERT INTO Order_items(order_id, product_id, quantity) VALUES (?, ?, ?)", [order_id, product_id, quantity]);
         }
     }
-    
+
     ///////
     // ANALYTICS queries
     ///////
 
     // Gets the revenue from the past 7 days
     /**
-     * 
-     * @returns A single object mapping weekdays to revenue
-     */
+    * 
+    * @returns A single object mapping weekdays to revenue
+    */
     static async get_week_revenue() {
         let q = await db.query(`SELECT
-                                    SUM(CASE WHEN strftime('%w', created_at) = '0' THEN (cost + delivery_fee) ELSE 0 END) AS Sunday,
-                                    SUM(CASE WHEN strftime('%w', created_at) = '1' THEN (cost + delivery_fee) ELSE 0 END) AS Monday,
-                                    SUM(CASE WHEN strftime('%w', created_at) = '2' THEN (cost + delivery_fee) ELSE 0 END) AS Tuesday,
-                                    SUM(CASE WHEN strftime('%w', created_at) = '3' THEN (cost + delivery_fee) ELSE 0 END) AS Wednesday,
-                                    SUM(CASE WHEN strftime('%w', created_at) = '4' THEN (cost + delivery_fee) ELSE 0 END) AS Thursday,
-                                    SUM(CASE WHEN strftime('%w', created_at) = '5' THEN (cost + delivery_fee) ELSE 0 END) AS Friday,
-                                    SUM(CASE WHEN strftime('%w', created_at) = '6' THEN (cost + delivery_fee) ELSE 0 END) AS Saturday
-                                FROM Orders
-                                WHERE created_at BETWEEN datetime('now' , '-8 days') AND datetime('now' , '-1 days')`);
-    return q[0];
-  }
+            SUM(CASE WHEN strftime('%w', created_at) = '0' THEN (cost + delivery_fee) ELSE 0 END) AS Sunday,
+            SUM(CASE WHEN strftime('%w', created_at) = '1' THEN (cost + delivery_fee) ELSE 0 END) AS Monday,
+            SUM(CASE WHEN strftime('%w', created_at) = '2' THEN (cost + delivery_fee) ELSE 0 END) AS Tuesday,
+            SUM(CASE WHEN strftime('%w', created_at) = '3' THEN (cost + delivery_fee) ELSE 0 END) AS Wednesday,
+            SUM(CASE WHEN strftime('%w', created_at) = '4' THEN (cost + delivery_fee) ELSE 0 END) AS Thursday,
+            SUM(CASE WHEN strftime('%w', created_at) = '5' THEN (cost + delivery_fee) ELSE 0 END) AS Friday,
+            SUM(CASE WHEN strftime('%w', created_at) = '6' THEN (cost + delivery_fee) ELSE 0 END) AS Saturday
+            FROM Orders
+            WHERE created_at BETWEEN datetime('now' , '-8 days') AND datetime('now' , '-1 days')`);
+        return q[0];
+    }
 
-  // Get the revenue from the past 12 months
-  // TODO only grab from completed orders
-  /**
-   *
-   * @returns A single object mapping month names to revenue
-   */
-  static async get_month_revenue() {
-    let q = await db.query(`SELECT
-                                    SUM(CASE WHEN strftime('%m', created_at) = '01' THEN (cost + delivery_fee) ELSE 0 END) AS January,
-                                    SUM(CASE WHEN strftime('%m', created_at) = '02' THEN (cost + delivery_fee) ELSE 0 END) AS February,
-                                    SUM(CASE WHEN strftime('%m', created_at) = '03' THEN (cost + delivery_fee) ELSE 0 END) AS March,
-                                    SUM(CASE WHEN strftime('%m', created_at) = '04' THEN (cost + delivery_fee) ELSE 0 END) AS April,
-                                    SUM(CASE WHEN strftime('%m', created_at) = '05' THEN (cost + delivery_fee) ELSE 0 END) AS May,
-                                    SUM(CASE WHEN strftime('%m', created_at) = '06' THEN (cost + delivery_fee) ELSE 0 END) AS June,
-                                    SUM(CASE WHEN strftime('%m', created_at) = '07' THEN (cost + delivery_fee) ELSE 0 END) AS July, 
-                                    SUM(CASE WHEN strftime('%m', created_at) = '08' THEN (cost + delivery_fee) ELSE 0 END) AS August,
-                                    SUM(CASE WHEN strftime('%m', created_at) = '09' THEN (cost + delivery_fee) ELSE 0 END) AS September, 
-                                    SUM(CASE WHEN strftime('%m', created_at) = '10' THEN (cost + delivery_fee) ELSE 0 END) AS October,
-                                    SUM(CASE WHEN strftime('%m', created_at) = '11' THEN (cost + delivery_fee) ELSE 0 END) AS November, 
-                                    SUM(CASE WHEN strftime('%m', created_at) = '12' THEN (cost + delivery_fee) ELSE 0 END) AS December  
-                                FROM Orders
-                                WHERE created_at > datetime('now' , '-12 months')`);
-    return q[0];
-  }
+    // Get the revenue from the past 12 months
+    // TODO only grab from completed orders
+    /**
+    *
+    * @returns A single object mapping month names to revenue
+    */
+    static async get_month_revenue() {
+        let q = await db.query(`SELECT
+            SUM(CASE WHEN strftime('%m', created_at) = '01' THEN (cost + delivery_fee) ELSE 0 END) AS January,
+            SUM(CASE WHEN strftime('%m', created_at) = '02' THEN (cost + delivery_fee) ELSE 0 END) AS February,
+            SUM(CASE WHEN strftime('%m', created_at) = '03' THEN (cost + delivery_fee) ELSE 0 END) AS March,
+            SUM(CASE WHEN strftime('%m', created_at) = '04' THEN (cost + delivery_fee) ELSE 0 END) AS April,
+            SUM(CASE WHEN strftime('%m', created_at) = '05' THEN (cost + delivery_fee) ELSE 0 END) AS May,
+            SUM(CASE WHEN strftime('%m', created_at) = '06' THEN (cost + delivery_fee) ELSE 0 END) AS June,
+            SUM(CASE WHEN strftime('%m', created_at) = '07' THEN (cost + delivery_fee) ELSE 0 END) AS July, 
+            SUM(CASE WHEN strftime('%m', created_at) = '08' THEN (cost + delivery_fee) ELSE 0 END) AS August,
+            SUM(CASE WHEN strftime('%m', created_at) = '09' THEN (cost + delivery_fee) ELSE 0 END) AS September, 
+            SUM(CASE WHEN strftime('%m', created_at) = '10' THEN (cost + delivery_fee) ELSE 0 END) AS October,
+            SUM(CASE WHEN strftime('%m', created_at) = '11' THEN (cost + delivery_fee) ELSE 0 END) AS November, 
+            SUM(CASE WHEN strftime('%m', created_at) = '12' THEN (cost + delivery_fee) ELSE 0 END) AS December  
+            FROM Orders
+            WHERE created_at > datetime('now' , '-12 months')`);
+        return q[0];
+    }
 
-  // Get the revenue by year starting from 2022
-  // TODO only grab from completed orders
-  /**
-   *
-   *
-   * @returns an array of year => revenue
-   */
-  static async get_year_revenue() {
-    let q = await db.query(`SELECT
-                                    strftime('%Y', created_at) AS year,
-                                    SUM(cost + delivery_fee) AS revenue
-                                FROM Orders
-                                GROUP BY year`);
-    return q;
-  }
+    // Get the revenue by year starting from 2022
+    // TODO only grab from completed orders
+    /**
+    *
+    *
+    * @returns an array of year => revenue
+    */
+    static async get_year_revenue() {
+        let q = await db.query(`SELECT
+            strftime('%Y', created_at) AS year,
+            SUM(cost + delivery_fee) AS revenue
+            FROM Orders
+            GROUP BY year`);
+        return q;
+    }
 
-  ///////
-  // EMPLOYEES queries
-  ///////
-
-  static async get_employees() {
-      let q = await db.query(`SELECT username, user_id, email
-                              FROM Users
-                              WHERE user_type = 1`);
-  return q;
-  }
+    ///////
+    // EMPLOYEES queries
+    ///////
+    static async get_employees() {
+        let q = await db.query(`SELECT username, user_id, email
+            FROM Users
+            WHERE user_type = 1`);
+        return q;
+    }
 }
 
 // exporting the DB commands class
