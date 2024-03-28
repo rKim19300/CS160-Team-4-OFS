@@ -39,6 +39,7 @@ app.use("/api", authRoute);
 app.use("/api", productsRoute);
 app.use("/api", ordersRoute);
 app.use("/api", cartRoute);
+app.use("/api", ordersRoute);
 app.use("/api", analyticsRoute);
 app.use("/api", employeesRoute);
 app.use("/api", userRoute);

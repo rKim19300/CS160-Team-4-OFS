@@ -1,0 +1,90 @@
+.container {
+  flex-direction: column;
+}
+
+.contentContainer {
+  flex-direction: column;
+  width: 70%;
+  margin: 48px auto;
+}
+
+.stepperButton {
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 48px;
+}
+
+.formContainer {
+  flex-direction: column;
+  width: 70%;
+  box-sizing: border-box;
+  padding: 36px 36px;
+  border-radius: 24px;
+  box-shadow: 0 11px 34px 0 rgba(0, 0, 0, 0.2);
+  margin: auto;
+  margin-top: 48px;
+}
+
+.titleText {
+  font-weight: bold;
+  font-size: 24px;
+}
+
+.formText {
+  font-size: 14px;
+  padding-top: 8px;
+}
+
+/* Cart Item */
+.outsideContainer {
+  margin: 16px 0;
+  flex-direction: column;
+  padding: 12px 12px 4px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+}
+.topSection {
+  justify-content: space-between;
+}
+
+.itemImg {
+  width: 36px;
+  height: 36px;
+}
+
+.removeContainer {
+  padding-top: 16px;
+  gap: 4px;
+  align-items: center;
+  justify-content: end;
+}
+
+.removeButton {
+  color: red;
+  font-weight: bold;
+  margin-left: auto;
+  margin-top: 6px;
+  padding: 0 4px;
+}
+
+.priceText {
+  font-size: 14px;
+}
+
+.bottomSection {
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+}
+
+.warningText {
+  padding-top: 16px;
+  font-size: 13px;
+  color: #505050;
+}
+
+/* Confirmation Page */
+.orderSummaryContainer {
+  flex-direction: column;
+  margin-top: 16px;
+}
