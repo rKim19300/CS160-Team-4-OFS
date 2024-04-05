@@ -5,5 +5,9 @@ const UserType = Object.freeze({
     MANAGER: 2
 }); 
 
+const SocketRoom = Object.freeze({ 
+    STAFF_ROOM: 'staff-room', 
+    CUSTOMER_ROOM: 'customer-room'
+});
 
-module.exports = { UserType };
+module.exports = { UserType, SocketRoom };

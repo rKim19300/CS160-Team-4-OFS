@@ -1,10 +1,12 @@
 const express = require("express");
 const app = express();
 const session = require("express-session");
+const socketIO = require("socket.io");
 require("dotenv").config({
   path: '../.env'
 });
 const cors = require("cors");
+const socketUtils = require("./utils/socketUtils");
 
 const authRoute = require("./routes/auth");
 const productsRoute = require("./routes/products");
@@ -17,14 +19,13 @@ const mapsRoute = require("./routes/maps");
 
 // set up the express session config
 let TWO_HOURS_IN_MS = 2 * 60 * 60 * 1000;
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "sessionSecret",
-    cookie: { maxAge: TWO_HOURS_IN_MS },
-    resave: false,
-    saveUninitialized: false,
-  })
-);
+const sessionMiddleware = session({
+  secret: process.env.SESSION_SECRET || "sessionSecret",
+  cookie: { maxAge: TWO_HOURS_IN_MS },
+  resave: false,
+  saveUninitialized: false,
+});
+app.use(sessionMiddleware);
 
 // CORS middleware
 app.use(
@@ -49,6 +50,21 @@ app.use("/api", userRoute);
 app.use("/api", mapsRoute);
 
 const PORT = process.env.PORT || 8888;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server up and running on port ${PORT}`);
 });
+
+// register socket.io to server
+const io = socketIO(server, {
+  cors: {
+      origin: process.env.FRONTEND_URL || "http://localhost:3000",
+      credentials: true,
+  },
+});
+
+// Create namespaces
+
+
+// Register with middleware and make socket avaiable everywhere
+io.engine.use(sessionMiddleware);
+app.set('io', io); 

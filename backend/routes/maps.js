@@ -1,9 +1,66 @@
 const router = require("express").Router();
 const fetch = (...args) =>
 	import('node-fetch').then(({default: fetch}) => fetch(...args));
-const { checkLoggedIn } = require("../middleware/authMiddleware");
-const queryHelper = require('../googleMapsRouting/queryHelper');
+const { checkLoggedIn, checkIsStaff } = require("../middleware/authMiddleware");
+const { 
+	check_is_within_allowable_distance,
+	generateRouteData,
+	decodePolyline
+ } = require('../googleMapsRouting/queryHelper');
 
+
+let robot1OnRoute = false;
+
+router.get('/generateRouteData', checkIsStaff, async (req, res) => {
+	try {
+		let data = await generateRouteData([
+			"1085 E Brokaw Rd #30, San Jose, CA 95131",
+			"2044 McKee Rd, San Jose, CA 95116",
+			"601 N 4th St, San Jose, CA 95112"
+		]);
+		console.log(data);
+		res.status(200).json(data); 
+	}
+	catch (err) {
+		res.status(500).json(`Oops! Something went wrong on our end.`);
+	}
+
+});
+
+router.get('/sendRobot', checkIsStaff, async (req, res) => {
+	try {
+
+		// Generate the route
+		let data = await generateRouteData([
+			"1085 E Brokaw Rd #30, San Jose, CA 95131",
+			"2044 McKee Rd, San Jose, CA 95116",
+			"601 N 4th St, San Jose, CA 95112"
+		]);
+
+		// Decode the paths
+		decodedPaths = [];
+		for (let i = 0; i < 4; i++) {
+			result.push(await decodePolyline(data.routes[0].legs[i].polyline.encodedPolyline));
+		}
+		res.status(200).json(decodedPaths);
+	}
+	catch (err) {
+		res.status(520).json("Either the data is invalid, or something went wrong.");
+		console.error(`ERROR WHEN SENDING ROBOTS: ${err}`);
+	}
+});
+
+// Used to test the decodePolyline() function
+router.post('/decodePolyline', checkIsStaff, async (req, res) => {
+	try {
+		let { encodedPolyline } = req.body;
+		let data = await decodePolyline(encodedPolyline);
+		res.status(200).json(data);
+	}
+	catch {
+		res.status(520).json("Either the data is invalid, or something went wrong.");
+	}
+})
 
 /**
  * Validates the address
@@ -47,6 +104,8 @@ router.post(`/validateAddress`, checkLoggedIn, async (req, res) => {
 			res.status(500).json(`Oops! Something went wrong on our end.`);
 	}
 });
+
+
 
 
 module.exports = router;

@@ -1,8 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../axiosInstance";
-import { GoogleMap, useLoadScript, DirectionsRenderer, MarkerF } from '@react-google-maps/api';
-
+import io from "socket.io-client";
+import { 
+    GoogleMap, 
+    useLoadScript,
+    DirectionsRenderer,
+    MarkerF,
+    PolylineF
+} from '@react-google-maps/api';
 import {
     Flex,
     Text,
@@ -19,8 +25,15 @@ import styles from "./OrdersMap.module.css";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 
 const metersToMilesConversion = 1609;
+const socket = io.connect("http://localhost:8888");
+//const staffSocket = io.connect("http://localhost:8888/staff");
 
 export default function OrdersMap() {
+
+    socket.on("connection", (socketIO) => {
+        console.log("Connected");
+    });
+
     const containerStyle = {
         width: '100%',
         height: '475px',
@@ -31,12 +44,14 @@ export default function OrdersMap() {
         lat: 37.33518596879412, 
         lng: -121.88107208071463
     };
-    const [robot1, setRobot1] = useState({lat: 37.320353656705855, lng: -121.87615293846709});
-    const [robot2, setRobot2] = useState({lat: 37.32285106535895, lng: -121.89976185528579});
+    const [robot1, setRobot1] = useState(store);
+    const [robot2, setRobot2] = useState(store);
 
     const [map, setMap] = useState( /** @type google.maps.Map */(null));
 
     const [directions, setDirections] = useState(null);
+    const [ decodedPath, setDecodedPath ] = useState(null);
+    const [ decodedPaths, setDecodedPaths ] = useState(null);
 
     // Of the whole route
     const [distance, setDistance] = useState(0); // In miles
@@ -49,79 +64,63 @@ export default function OrdersMap() {
 
     });
 
-    const validateAddress = async () => {
-        try{
-            let response = await axiosInstance.post("/api/validateAddress", {
-                address: '1 Washion Sq',
-                city: 'San Jose',
-                state: 'CA',
-                zipCode: '95192'
-            });
-            let data = response.data;
-            if (response.status !== 200) {
-                console.error("Something went wrong");
-                return;
-            }
-            setAddressValid(data);
-            console.log(data);
+    const sendRobot = async () => {
+        let response = await axiosInstance.get('/api/sendRobot');
+        if (response.status !== 200) {
+            console.error("Something went wrong when sending robot");
+            return;
         }
-        catch (err) {
-            console.error(err);
-        }
+        setDecodedPaths(response.data);
     }
 
     // Calculate the Distance of the route
     // TODO move the direction generation to the backend
-    const fetchDirections = (origin, destination, waypoints) => {
-        const directionsService = new window.google.maps.DirectionsService();
-    
-        directionsService.route(
-            {
-                origin: origin,
-                destination: destination,
-                waypoints: waypoints,
-                travelMode: window.google.maps.TravelMode.DRIVING,
-            },
-            (result, status) => {
-                if (status === window.google.maps.DirectionsStatus.OK) {
-                    // Calc the total distance of the route and then set hooks
-                    let totalDistance = 0;
-                    let totalDuration = 0;
-                    result.routes[0].legs.forEach((leg) => {
-                        totalDistance += leg.distance.value / metersToMilesConversion;
-                    })
-                    result.routes[0].legs.forEach((leg) => {
-                        totalDuration += leg.duration.value;
-                    })
-                    
-                    setDirections(result);
-                    setDistance(totalDistance);
-                    setDuration(totalDuration);
-                } else {
-                    console.error("Error fetching directions:", result.request);
-                }
+    const fetchDirections = async () => {
+        try {
+            /*let response = await axiosInstance.get("/api/generateRouteData"); 
+            if (response.status !== 200) {
+                console.error("Something went wrong");
+                return;
             }
-        );
+            
+            setDirections(response.data);
+            response = await axiosInstance.post("/api/decodePolyline", {
+                encodedPolyline: response.data.routes[0].polyline.encodedPolyline
+            });
+            setDecodedPath(response.data);*/
+        }
+        catch (err) {
+            console.error(err);
+        }
     };
 
     useEffect(() => {
-        const origin = { lat: 37.3679163, lng: -121.9677333 };
-        const destination = { lat: 37.4637866, lng: -122.172871 }; 
-        const waypoints = [
-            {
-                location: { lat: 37.3621861, lng: -122.0598506 },
-                stopover: true,
-            },
-        ];
-
         if (isLoaded) {
-            fetchDirections(origin, destination, waypoints);
-            validateAddress();
+            fetchDirections();
+            //validateAddress();
+            /*socket.on("recieve_message", (message) => {
+                console.log(message);
+            });*/
         }
     }, [isLoaded]);
 
     if (loadError) return <div>Error loading maps</div>;
     if (!isLoaded) return <div>Loading Maps...</div>;
+
+    const markerOptions = {
+        // Set your custom icon URL here
+        robot1: {
+          url: '/robot1.png',
+          scaledSize: new window.google.maps.Size(25, 25) // Adjust the size as needed
+        },
+        robot2: {
+            url: '/robot2.png',
+            scaledSize: new window.google.maps.Size(25, 25) // Adjust the size as needed
+          }
+      };
+
+    console.log(directions);
+    console.log(decodedPaths);
 
     return (
         <>
@@ -141,16 +140,38 @@ export default function OrdersMap() {
                         mapTypeControl: false,
                         fullscreenControl: false
                     }}
-                >
-                    <MarkerF position={store}/>
-                    <MarkerF position={robot1}/>
-                    <MarkerF position={robot2}/>
-                    {directions && <DirectionsRenderer directions={directions} />}
+                >   
+                    {
+                        
+                        decodedPaths && decodedPaths.map((path, idx) => (
+                            <PolylineF
+                                key={idx}
+                                path={path}
+                                options={{
+                                    strokeColor: '#FF0000',
+                                    strokeOpacity: 1,
+                                    strokeWeight: 2,
+                                }}
+                            />
+                        ))
+                    }
+                    <MarkerF position={store} title={"Store"} />
+                    <MarkerF 
+                        position={robot1} 
+                        icon={markerOptions.robot1} 
+                        title={"Robot 1"}
+                    />
+                    <MarkerF 
+                        position={robot2} 
+                        icon={markerOptions.robot2} 
+                        title={"Robot 2"}
+                    />
+                    {/*directions && <DirectionsRenderer directions={directions} />*/}
                 </GoogleMap>
                 <br />
                 <HStack justifyContent="space-between">
                     <Box>
-                        <Button colorScheme="red">
+                        <Button onClick={sendRobot} colorScheme="red">
                             Send Orders
                         </Button>
                     </Box>

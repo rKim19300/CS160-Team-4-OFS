@@ -1,7 +1,10 @@
+const express = require("express");
 const router = require("express").Router();
+const app = express();
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const { DB } = require("../database");
+const socketUtils = require("../utils/socketUtils");
 const { validateReqBody, checkLoggedIn, checkIsManager } = require("../middleware/authMiddleware");
 const { UserType } = require("../enums/enums");
 
@@ -66,7 +69,15 @@ router.post("/login",
         let pw_in_db = await DB.get_stored_password(email);
         let isValidPw = await bcrypt.compare(password, pw_in_db);
         if (!isValidPw) return res.status(401).send("Invalid Credentials");
-        req.session.user = user
+        req.session.user = user;
+        let io = req.app.get('io');
+        io.on("connection", (socket) => {
+            console.log(`Client connected main [id=${socket.id}]`);  
+
+            socket.on('disconnect', () => {
+                console.log(`Client disconnected main [id=${socket.id}]`);
+            });
+        });
         return res.status(200).json(user);
     } catch (err) {
         console.log(`ERROR LOGGING IN: ${err}`);
