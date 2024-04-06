@@ -1,5 +1,5 @@
 const sqlite3 = require("sqlite3").verbose();
-const { UserType } = require("./enums/enums");
+const { UserType, OrderStatus, RobotStatus } = require("./enums/enums");
 
 // db connection object
 const db = new sqlite3.Database("db.db", (err) => {
@@ -94,18 +94,33 @@ function setup_tables() {
         );
 
         CREATE TABLE IF NOT EXISTS Robot (
-            robot_id        INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-            latitude        TEXT NOT NULL,
-            longitude       TEXT NOT NULL,
-            status          INTEGER NOT NULL
+          robot_id        INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+          route_id        INTEGER, /* Fill on order placed */
+          latitude        TEXT NOT NULL,
+          longitude       TEXT NOT NULL,
+          weight          REAL DEFAULT 0 NOT NULL,
+          status          INTEGER NOT NULL, 
+          FOREIGN KEY (route_id) REFERENCES Delivery_routes(route_id)
         );
 
         CREATE TABLE IF NOT EXISTS Delivery_routes (
-            route_id        INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-            robot_id        INTEGER NOT NULL,
-            order_id        INTEGER NOT NULL,
-            FOREIGN KEY (robot_id) REFERENCES Robot(robot_id),
-            FOREIGN KEY (order_id) REFERENCES Orders(order_id)
+          route_id        INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+          robot_id        INTEGER NOT NULL,
+          start_time      TEXT, /* Fill on route start */
+          end_time        TEXT, /* Fill on route start */
+          FOREIGN KEY (robot_id) REFERENCES Robot(robot_id)
+        );
+
+        CREATE TABLE IF NOT EXISTS Route_to_orders (
+          route_id        INTEGER NOT NULL,
+          order_id        INTEGER NOT NULL,
+          polyline        TEXT, /* Fill on route start */
+          start_time      TEXT, /* Fill on route start */
+          end_time        TEXT, /* Fill on route start */
+          leg             INTEGER, /* Fill on route start */
+          FOREIGN KEY (route_id) REFERENCES Delivery_routes(route_id),
+          FOREIGN KEY (order_id) REFERENCES Categories(order_id),
+          UNIQUE (route_id, order_id)
         );
     `,
     (err) => {
@@ -232,6 +247,13 @@ class DB {
             let { product_id, quantity } = cart_item;
             await db.query("INSERT INTO Order_items(order_id, product_id, quantity) VALUES (?, ?, ?)", [order_id, product_id, quantity]);
         }
+    }
+
+    // For the sake of placing them on the map
+    // TODO later we can get them based on route
+    static async get_unfinished_orders() {
+      let q = await db.query(`SELECT * FROM Orders WHERE status < ${OrderStatus.DELIVERED}`);
+      return q; 
     }
     
     ///////

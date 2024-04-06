@@ -10,4 +10,15 @@ const SocketRoom = Object.freeze({
     CUSTOMER_ROOM: 'customer-room'
 });
 
-module.exports = { UserType, SocketRoom };
+const OrderStatus = Object.freeze({ 
+    ORDER_PLACED: 0, 
+    ON_THE_WAY: 1,
+    DELIVERED: 2
+});
+
+const RobotStatus = Object.freeze({ 
+    IDLE: 0, 
+    ON_ROUTE: 1
+});
+
+module.exports = { UserType, SocketRoom, OrderStatus, RobotStatus };

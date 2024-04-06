@@ -1,6 +1,4 @@
-//const fetch = (...args) =>
-//	import('node-fetch').then(({default: fetch}) => fetch(...args));
-
+const { SocketRoom } = require("../enums/enums");
 const { response } = require("express");
 
 const ORIGIN_ADDRESS = "1 Washington Sq, San Jose, CA 95192";
@@ -84,6 +82,43 @@ async function generateRouteData(addresses) {
     await generateRouteData(addresses);
 })();
 
+/**
+ * Sets the robot on route
+ * 
+ * @param {*} polyLineList 
+ * @param {*} io 
+ */
+function onRoute(polyLineList, io) {
+    onRouteHelper(polyLineList, io, 0);
+}
+
+function onRouteHelper(polyLineList, io, i) {
+    let coordIndex = 0;
+    let decodedList = polyLineList[i];
+    const incr = Math.round((decodedList.length - 1) / 5); // We will move the robot to a new lat every 5 seconds
+    
+    const interval = setInterval(async () => {
+        
+        // Send the new location of the robot to anyone listening
+        let coord = decodedList[coordIndex];
+        io.to(SocketRoom.STAFF_ROOM).emit('updateRobot1', coord); // Emit to all in room
+        io.emit('updateRobot1', coord); // emit to self 
+        console.log(`Robot moved to ${JSON.stringify(coord)}`);
+            
+        coordIndex += incr; // Increment to the next location
+        console.log(`Robot moved to ${coordIndex}`);
+        
+        // Check if should stop and move on to the next leg
+        if (coordIndex > decodedList.length - 1) {
+            clearInterval(interval);
+            
+            if (i < polyLineList.length - 1)
+                onRouteHelper(polyLineList, io, ++i);
+        }
+            
+    }, 5000);
+}
+
 async function decodePolyline(encodedPolyline) {
     let points = [];
     let index = 0;
@@ -121,4 +156,4 @@ async function decodePolyline(encodedPolyline) {
 })();
 
 
-module.exports = { generateRouteData,  check_is_within_allowable_distance, decodePolyline};
+module.exports = { generateRouteData,  check_is_within_allowable_distance, decodePolyline, onRoute};

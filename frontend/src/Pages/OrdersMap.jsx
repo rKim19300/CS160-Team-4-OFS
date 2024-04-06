@@ -30,10 +30,6 @@ const socket = io.connect("http://localhost:8888");
 
 export default function OrdersMap() {
 
-    socket.on("connection", (socketIO) => {
-        console.log("Connected");
-    });
-
     const containerStyle = {
         width: '100%',
         height: '475px',
@@ -103,6 +99,12 @@ export default function OrdersMap() {
             });*/
         }
     }, [isLoaded]);
+
+    useEffect(() => {
+        socket.on('updateRobot1', (coord) => {
+            setRobot1(coord);
+        });
+      }, [socket]);
 
     if (loadError) return <div>Error loading maps</div>;
     if (!isLoaded) return <div>Loading Maps...</div>;

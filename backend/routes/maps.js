@@ -5,7 +5,8 @@ const { checkLoggedIn, checkIsStaff } = require("../middleware/authMiddleware");
 const { 
 	check_is_within_allowable_distance,
 	generateRouteData,
-	decodePolyline
+	decodePolyline,
+	onRoute
  } = require('../googleMapsRouting/queryHelper');
 
 
@@ -40,8 +41,14 @@ router.get('/sendRobot', checkIsStaff, async (req, res) => {
 		// Decode the paths
 		decodedPaths = [];
 		for (let i = 0; i < 4; i++) {
-			result.push(await decodePolyline(data.routes[0].legs[i].polyline.encodedPolyline));
+			await decodedPaths.push(await decodePolyline(data.routes[0].legs[i].polyline.encodedPolyline));
 		}
+
+		// Set the robot on the path
+		// TODO use a more secure channel
+		let io = await req.app.get('io');
+		await onRoute(decodedPaths, io);
+
 		res.status(200).json(decodedPaths);
 	}
 	catch (err) {
