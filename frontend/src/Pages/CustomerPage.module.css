@@ -1,7 +1,7 @@
 .container {
   flex-direction: column;
   justify-content: space-between;
-  height: 100vh;
+  height: auto;
 }
 
 .menuContent {

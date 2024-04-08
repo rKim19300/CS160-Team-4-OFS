@@ -74,35 +74,31 @@ export default function ProfilePage() {
   return (
     <Flex className={styles.container}>
       <Toaster position="bottom-right" reverseOrder={false} />
-      <NavBarCustomer />
-      <Flex className={styles.menuContent}>
-        <SideBarCustomer />
-        <Flex className={styles.bodyContainer}>
-          <Text className={styles.headerText}>Account Setting</Text>
-          <form className={styles.form} onSubmit={handleSave}>
-            <div>{icon}</div>
-            <FormControl>
-              <FormLabel className={styles.formText}>Name</FormLabel>
-              <Input
-                type="text"
-                fontSize="16px"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-              <FormLabel className={styles.formText}>Email Address</FormLabel>
-              <Input
-                type="email"
-                fontSize="16px"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </FormControl>
+      <Flex className={styles.bodyContainer}>
+        <Text className={styles.headerText}>Account Setting</Text>
+        <form className={styles.form} onSubmit={handleSave}>
+          <div>{icon}</div>
+          <FormControl>
+            <FormLabel className={styles.formText}>Name</FormLabel>
+            <Input
+              type="text"
+              fontSize="16px"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <FormLabel className={styles.formText}>Email Address</FormLabel>
+            <Input
+              type="email"
+              fontSize="16px"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </FormControl>
 
-            <Button className={styles.button} colorScheme="green" type="submit">
-              Save
-            </Button>
-          </form>
-        </Flex>
+          <Button className={styles.button} colorScheme="green" type="submit">
+            Save
+          </Button>
+        </form>
       </Flex>
     </Flex>
   );
