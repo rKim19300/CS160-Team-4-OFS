@@ -57,7 +57,6 @@ export default function OrdersMap() {
 
     const { isLoaded, loadError } = useLoadScript({
         googleMapsApiKey: "AIzaSyB4kJ8KLkJZ9C-E372tsLHyl29Ks-9jUmg"
-
     });
 
     const sendRobot = async () => {

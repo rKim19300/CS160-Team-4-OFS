@@ -6,7 +6,8 @@ const {
 	check_is_within_allowable_distance,
 	generateRouteData,
 	decodePolyline,
-	onRoute
+	onRoute,
+	validateAddress
  } = require('../googleMapsRouting/queryHelper');
 
 
@@ -46,8 +47,8 @@ router.get('/sendRobot', checkIsStaff, async (req, res) => {
 
 		// Set the robot on the path
 		// TODO use a more secure channel
-		let io = await req.app.get('io');
-		await onRoute(decodedPaths, io);
+		let staffIO = await req.app.get('staffIO');
+		await onRoute(decodedPaths, staffIO);
 
 		res.status(200).json(decodedPaths);
 	}
@@ -76,43 +77,31 @@ router.post('/decodePolyline', checkIsStaff, async (req, res) => {
  */
 router.post(`/validateAddress`, checkLoggedIn, async (req, res) => {
 
-	let { address, city, state, zipCode } = req.body;
-
-	const url = queryHelper.getHTTP('https://addressvalidation.googleapis.com/v1:validateAddress');
-
-	const options = queryHelper.getOptions(
-		method='POST',
-		body=queryHelper.getAddressValidationBody(
-			city=city,
-			state=state, // In two letters 'CA'
-			zipCode=zipCode,
-			address=address
-		)
-	);
+	let { addressLine1, addressLine2, city, state, zipCode } = req.body;
 
 	try {
-		const invalidAddressMsg = `Invalid Address.`;
-		let response = await fetch(url, options);
-		if (!response.ok) // 500 if query failed
-			throw new Error('Failed to validate address');
 
-		response = await response.json();
-		const verdict = response.result.verdict.geocodeGranularity; 
-		if (verdict !== 'PREMISE' && verdict !== 'SUB_PREMISE')   // If not accurate enough 400
-			throw new Error(invalidAddressMsg);
+		// Check If the address is valid
+		let address = await validateAddress(addressLine1, addressLine2, city, state, zipCode);
+		console.log(`The address is: "${address}"`);
+		if (address === "" || address === undefined) 
+			return res.status(400).json("Invalid address: Address is either entered incorrectly or\
+												not deliverable");
 
-		res.status(200).json({
-			address: response.result.address.formattedAddress, 
+		// Check if the address is within the correct distance
+		const inRange = await check_is_within_allowable_distance(address);
+		if (!inRange) 
+			return res.status(400).json("Address is not within 20 miles of store!");
+
+		// Return the formatted address
+		return res.status(200).json({
+			address: address 
 		}); 
 	} catch (err) {
 		console.log(err);
-		(err.message === invalidAddressMsg) ? 
-			res.status(400).json(invalidAddressMsg) :
-			res.status(500).json(`Oops! Something went wrong on our end.`);
+		return res.status(500).json(`Oops! Something went wrong on our end. Try again in 60 seconds.`);
 	}
 });
-
-
 
 
 module.exports = router;

@@ -24,6 +24,13 @@ import {
   NumberIncrementStepper,
   NumberDecrementStepper,
   Divider,
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogOverlay,
+  useDisclosure
 } from "@chakra-ui/react";
 import styles from "./CheckoutPage.module.css";
 import axiosInstance from "../axiosInstance";
@@ -160,11 +167,36 @@ function Step1Component({ handleNext }) {
   const [city, setCity] = useState(addressInfo["city"] || "");
   const [state, setState] = useState(addressInfo["state"] || "");
   const [zipCode, setZipCode] = useState(addressInfo["zipCode"] || "");
+  const [errMsg, setErrMsg] = useState("");
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const cancelRef = React.useRef()
 
-  const submitForm = (e) => {
+
+  const submitForm = async (e) => {
     e.preventDefault();
     // set the addressInfo 
     addressInfo = { addressLine1, addressLine2, city, state, zipCode };
+    // Check if the address is valid right here
+    try {
+      let response = await axiosInstance.post('/api/validateAddress', {
+        addressLine1: addressLine1,
+        addressLine2: addressLine2, 
+        city: city,
+        state: state,
+        zipCode: zipCode
+      });
+      if (response.status != 200) {
+        await setErrMsg(response.data);
+        await onOpen();
+        return;
+      }
+    }
+    catch (err) {
+      console.error(err.message);
+      setErrMsg("Oops! Something went wrong on our end, please try again in 60 seconds.");
+      await onOpen();
+      return;
+    }
     // set the "activeStep" state of the parent component by calling handleNext
     handleNext();
   }
@@ -202,6 +234,31 @@ function Step1Component({ handleNext }) {
           </Flex>
         </Flex>
       </form>
+      {/* Alert Dialogue for bad address */}
+      <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+        isCentered={true} 
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+              ERROR!
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              {errMsg}
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button colorScheme='red' onClick={onClose} ml={3}>
+                Okay
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Flex>
   );
 }

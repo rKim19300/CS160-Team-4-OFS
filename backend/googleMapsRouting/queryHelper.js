@@ -3,11 +3,55 @@ const { response } = require("express");
 
 const ORIGIN_ADDRESS = "1 Washington Sq, San Jose, CA 95192";
 const MAX_DISTANCE_FROM_ORIGIN = 20;
+const STORE_COORDS = {"latitude":37.3386564,"longitude":-121.8806354};
+const STORE_ADDRESS = "1 Washington Sq, San Jose, CA 95112-3613, USA";
 const API_KEY = process.env.GOOGLE_API_KEY_BACKEND;
 
+/**
+ * @param {*} addressLine1    The First address line
+ * @param {*} addressLine2    The second address line
+ * @param {*} city            The city 
+ * @param {*} state           The state, usually supposed to be two letters
+ * @param {*} zipCode         The zipcode
+ * @throws ERROR              If google maps query fails
+ * @returns Empty string if invalid, or a formatted address line if valid
+ */
+async function validateAddress(addressLine1, addressLine2, city, state, zipCode) {
 
-async function validateAddress(city, state, zipCode, address) {
+    const url = `https://addressvalidation.googleapis.com/v1:validateAddress`;
+    const reqBody = {
+        "address": {
+            "regionCode": "US",
+            "locality": city,
+            "administrativeArea": state,
+            "postalCode": zipCode,
+            "addressLines": [addressLine1, addressLine2]
+          },
+          "enableUspsCass": true
+    };
 
+    // Fetch the data
+    let response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-type": "application/json",
+            "X-Goog-Api-Key": API_KEY,
+            "X-Goog-FieldMask": "*"
+        },
+        body: JSON.stringify(reqBody)
+    });
+    if (!response.ok) // 500 if query failed
+        throw new Error("Google Maps request failed");
+
+    // Check if the address is accurate enough
+    response = await response.json();
+    let latLng = response.result.geocode.location;
+    const verdict = response.result.verdict.geocodeGranularity; 
+    if (verdict !== 'PREMISE' && verdict !== 'SUB_PREMISE')   // If not accurate enough 400
+        return "";
+    else 
+        return response.result.address.formattedAddress;
+    // TODO reject store coords
 }
 
 
@@ -17,7 +61,6 @@ async function check_is_within_allowable_distance(address) {
 		${address}&origins=${ORIGIN_ADDRESS}&units=imperial&key=${API_KEY}`);
 		if (!res.ok) throw new Error("Failed to get data");
         let data = await res.json();
-        // console.log(JSON.stringify(data, null, 4));
         let distanceMeters = data["rows"][0]["elements"][0]["distance"]["value"];
         let distanceMiles = distanceMeters * 0.000621371;
         return distanceMiles <= MAX_DISTANCE_FROM_ORIGIN;
@@ -96,7 +139,8 @@ function onRouteHelper(polyLineList, io, i) {
     let coordIndex = 0;
     let decodedList = polyLineList[i];
     const incr = Math.round((decodedList.length - 1) / 5); // We will move the robot to a new lat every 5 seconds
-    
+    // const incr = Math.ceil(((decodedList.length - 1) / legDuration) * 5);
+
     const interval = setInterval(async () => {
         
         // Send the new location of the robot to anyone listening
@@ -156,4 +200,10 @@ async function decodePolyline(encodedPolyline) {
 })();
 
 
-module.exports = { generateRouteData,  check_is_within_allowable_distance, decodePolyline, onRoute};
+module.exports = { 
+    generateRouteData, 
+    check_is_within_allowable_distance, 
+    decodePolyline, 
+    onRoute, 
+    validateAddress
+};

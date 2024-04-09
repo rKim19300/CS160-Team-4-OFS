@@ -6,7 +6,7 @@ require("dotenv").config({
   path: '../.env'
 });
 const cors = require("cors");
-const socketUtils = require("./utils/socketUtils");
+const { checkIsStaff } = require("./middleware/authMiddleware");
 
 const authRoute = require("./routes/auth");
 const productsRoute = require("./routes/products");
@@ -63,8 +63,12 @@ const io = socketIO(server, {
 });
 
 // Create namespaces
+const staffIO = io.of('/staff');
 
-
-// Register with middleware and make socket avaiable everywhere
+// Register with middleware and make sockets avaiable everywhere
 io.engine.use(sessionMiddleware);
+staffIO.use((socket, next) => {
+  checkIsStaff(socket.client.request, socket.client.request.res, next);
+});
 app.set('io', io); 
+app.set('staffIO', io); 

@@ -20,6 +20,7 @@ router.post("/placeOrder",
         if (errMsgs.length > 0) return res.status(400).json(errMsgs);
         let { cartWeight, subtotal_cost, deliveryFee, taxAmount, ordered_at } = await HelperFuncs.get_cart_summary(cart_id);
         await DB.add_new_order(req.user_id, subtotal_cost+deliveryFee+taxAmount, cartWeight, street_address, deliveryFee, ordered_at, cart_id);
+        // TODO update the OrdersMap right here ------
         // make sure to update product inventory. This means subtract from `Products` table the amount of each product that was in the users cart
         for (let cart_item of cart_items) {
             let { product_id, quantity: cartQuantity, name } = cart_item;

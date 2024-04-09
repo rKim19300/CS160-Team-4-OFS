@@ -70,16 +70,6 @@ router.post("/login",
         let isValidPw = await bcrypt.compare(password, pw_in_db);
         if (!isValidPw) return res.status(401).send("Invalid Credentials");
         req.session.user = user;
-        let io = req.app.get('io');
-
-        // TODO create secure sockets
-        io.on("connection", (socket) => {
-            console.log(`Client connected main [id=${socket.id}]`);  
-            socket.join(SocketRoom.STAFF_ROOM); 
-            socket.on('disconnect', () => {
-                console.log(`Client disconnected main [id=${socket.id}]`);
-            });
-        });
         return res.status(200).json(user);
     } catch (err) {
         console.log(`ERROR LOGGING IN: ${err}`);
