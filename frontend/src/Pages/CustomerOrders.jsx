@@ -10,21 +10,12 @@ export default function CustomerOrders() {
   const [orderHistory, setOrderHistory] = useState(null);
 
   async function fetchOrders() {
-    const [
-      ongoingOrdersResponse,
-      orderHistoryResponse,
-      onDeliveryOrdersResponse,
-    ] = await Promise.all([
-      axiosInstance.get(`/api/getOngoingOrders`),
-      axiosInstance.get(`/api/getOrderHistory`),
-      axiosInstance.get(`/api/getOnDeliveryOrders`),
-    ]);
-
-    setOngoingOrders(ongoingOrdersResponse.data);
-    setOnDeliveryOrders(onDeliveryOrdersResponse.data);
-    setOrderHistory(orderHistoryResponse.data);
-
-    console.log(ongoingOrdersResponse.data);
+    let ordersResponse = await axiosInstance.get("/api/getOrders");
+    let userOrders = ordersResponse.data;
+    setOngoingOrders(userOrders["Ongoing Orders"]);
+    setOnDeliveryOrders(userOrders["Out For Delivery"]);
+    setOrderHistory(userOrders["Order History"]);
+    console.log(userOrders);
   }
 
   useEffect(() => {
