@@ -26,7 +26,7 @@ import { ArrowBackIcon } from "@chakra-ui/icons";
 
 const metersToMilesConversion = 1609;
 const socket = io.connect("http://localhost:8888");
-//const staffSocket = io.connect("http://localhost:8888/staff");
+//const socket = io.connect("http://localhost:8888/staff");
 
 export default function OrdersMap() {
 
@@ -36,6 +36,7 @@ export default function OrdersMap() {
     };
 
     // Hard coded SJSU ("store") address
+    // TODO makea useState called center
     const store = { 
         lat: 37.33518596879412, 
         lng: -121.88107208071463
@@ -44,16 +45,15 @@ export default function OrdersMap() {
     const [robot2, setRobot2] = useState(store);
 
     const [map, setMap] = useState( /** @type google.maps.Map */(null));
+    const [ center, setCenter ] = useState(store);
 
     const [directions, setDirections] = useState(null);
-    const [ decodedPath, setDecodedPath ] = useState(null);
     const [ decodedPaths, setDecodedPaths ] = useState(null);
+    const [orders, setOrders] = useState(null);
 
     // Of the whole route
     const [distance, setDistance] = useState(0); // In miles
     const [duration, setDuration] = useState(0); // In Seconds 
-
-    const [addressValid, setAddressValid] = useState(0); 
 
     const { isLoaded, loadError } = useLoadScript({
         googleMapsApiKey: "AIzaSyB4kJ8KLkJZ9C-E372tsLHyl29Ks-9jUmg"
@@ -68,8 +68,7 @@ export default function OrdersMap() {
         setDecodedPaths(response.data);
     }
 
-    // Calculate the Distance of the route
-    // TODO move the direction generation to the backend
+    // TODO Have this function update the polylines
     const fetchDirections = async () => {
         try {
             /*let response = await axiosInstance.get("/api/generateRouteData"); 
@@ -89,13 +88,20 @@ export default function OrdersMap() {
         }
     };
 
+    const fetchOrders = async () => {
+        try {
+            let response = await axiosInstance.get('/api/unfinishedOrders');
+            setOrders(response.data);
+        }
+        catch (err) {
+            console.error(err);
+        }
+    }
+
     useEffect(() => {
         if (isLoaded) {
             fetchDirections();
-            //validateAddress();
-            /*socket.on("recieve_message", (message) => {
-                console.log(message);
-            });*/
+            fetchOrders();
         }
     }, [isLoaded]);
 
@@ -103,10 +109,15 @@ export default function OrdersMap() {
         socket.on('updateRobot1', (coord) => {
             setRobot1(coord);
         });
+        socket.on('updateOrders', (coords) => {
+            fetchOrders();
+        });
       }, [socket]);
 
     if (loadError) return <div>Error loading maps</div>;
     if (!isLoaded) return <div>Loading Maps...</div>;
+
+    console.log(orders);
 
     const markerOptions = {
         // Set your custom icon URL here
@@ -122,6 +133,7 @@ export default function OrdersMap() {
 
     console.log(directions);
     console.log(decodedPaths);
+    console.log(orders);
 
     return (
         <>
@@ -133,7 +145,7 @@ export default function OrdersMap() {
             <Flex className={styles.MapContainer}>
                 <GoogleMap
                     mapContainerStyle={containerStyle}
-                    center={store}
+                    center={center}
                     zoom={10}
                     onLoad={(map) => {setMap(map)}}
                     options={{
@@ -143,7 +155,7 @@ export default function OrdersMap() {
                     }}
                 >   
                     {
-                        
+                        /* Place the polylines on the map */
                         decodedPaths && decodedPaths.map((path, idx) => (
                             <PolylineF
                                 key={idx}
@@ -153,6 +165,16 @@ export default function OrdersMap() {
                                     strokeOpacity: 1,
                                     strokeWeight: 2,
                                 }}
+                            />
+                        ))
+                    }
+                    {
+                        /* Place orders on the map */
+                        orders && orders.map((order, idx) => (
+                            <MarkerF 
+                                key={idx}
+                                position={{lat: order.latitude, lng: order.longitude}}
+                                title={`${order.order_id}`} 
                             />
                         ))
                     }
@@ -178,17 +200,32 @@ export default function OrdersMap() {
                     </Box>
                     <Spacer/>
                     <Box>
-                        <Button onClick={() => {map.panTo(store)}}>
+                        <Button 
+                            onClick={() => {
+                                map.panTo(store);
+                                setCenter(store);
+                                }}>
                             Store
                         </Button>
                     </Box>
                     <Box>
-                        <Button label={"Robot1"} onClick={() => {map.panTo(robot1)}}>
+                        <Button 
+                            label={"Robot1"} 
+                            onClick={() => {
+                                map.panTo(robot1);
+                                setCenter(robot1);
+                                }}
+                        >
                             Robot1
                         </Button>
                     </Box>
                     <Box>
-                        <Button onClick={() => {map.panTo(robot2)}}>
+                        <Button 
+                            onClick={() => {
+                                map.panTo(robot2);
+                                setCenter(robot2);
+                                }}
+                        >
                             Robot2
                         </Button>
                     </Box>

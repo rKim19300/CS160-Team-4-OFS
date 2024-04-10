@@ -10,6 +10,7 @@ import EmployeeDashboard from "./Pages/EmployeeDashboard";
 import ProfilePage from "./Pages/ProfilePage";
 import OrdersMap from "./Pages/OrdersMap";
 import CheckoutPage from "./Pages/CheckoutPage";
+import ChangeProductPage from "./Pages/ChangeProductPage";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/OrdersMap" element={<OrdersMap />} />
           <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/changeProduct/:id" element={<ChangeProductPage />} />
         </Routes>
       </BrowserRouter>
     </ChakraProvider>

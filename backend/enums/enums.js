@@ -21,4 +21,9 @@ const RobotStatus = Object.freeze({
     ON_ROUTE: 1
 });
 
-module.exports = { UserType, SocketRoom, OrderStatus, RobotStatus };
+const StaffSocketFunctions = Object.freeze({ 
+    UPDATE_ROBOT_1: 'updateRobot1', 
+    UPDATE_ORDERS: 'updateOrders'
+});
+
+module.exports = { UserType, SocketRoom, OrderStatus, RobotStatus, StaffSocketFunctions };

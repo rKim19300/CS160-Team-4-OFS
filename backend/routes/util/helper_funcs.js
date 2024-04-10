@@ -41,7 +41,7 @@ class HelperFuncs {
         let subtotal_cost = await DB.get_cart_subtotal_cost(cart_id);
         let deliveryFee = cartWeight < 20 ? 0 : 10;
         let taxAmount = subtotal_cost / 100;
-        let ordered_at = new Date().toLocaleString().replace(",", "");
+        let ordered_at = new Date().toLocaleString().replace(",", ""); // TODO change this to SQLite format
         return { cartWeight, subtotal_cost, deliveryFee, taxAmount, ordered_at };
     }
 

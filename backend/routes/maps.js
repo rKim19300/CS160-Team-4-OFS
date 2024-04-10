@@ -11,8 +11,6 @@ const {
  } = require('../googleMapsRouting/queryHelper');
 
 
-let robot1OnRoute = false;
-
 router.get('/generateRouteData', checkIsStaff, async (req, res) => {
 	try {
 		let data = await generateRouteData([
@@ -73,7 +71,7 @@ router.post('/decodePolyline', checkIsStaff, async (req, res) => {
 /**
  * Validates the address
  * 
- * @returns The address if valid
+ * @returns The address and it's lat lng coordinates if success
  */
 router.post(`/validateAddress`, checkLoggedIn, async (req, res) => {
 
@@ -82,9 +80,10 @@ router.post(`/validateAddress`, checkLoggedIn, async (req, res) => {
 	try {
 
 		// Check If the address is valid
-		let address = await validateAddress(addressLine1, addressLine2, city, state, zipCode);
-		console.log(`The address is: "${address}"`);
-		if (address === "" || address === undefined) 
+		let response = await validateAddress(addressLine1, addressLine2, city, state, zipCode);
+		const address = response.address;
+		const coordinates = response.coordinates; 
+		if (address === undefined) 
 			return res.status(400).json("Invalid address: Address is either entered incorrectly or\
 												not deliverable");
 
@@ -94,9 +93,7 @@ router.post(`/validateAddress`, checkLoggedIn, async (req, res) => {
 			return res.status(400).json("Address is not within 20 miles of store!");
 
 		// Return the formatted address
-		return res.status(200).json({
-			address: address 
-		}); 
+		return res.status(200).json(coordinates); 
 	} catch (err) {
 		console.log(err);
 		return res.status(500).json(`Oops! Something went wrong on our end. Try again in 60 seconds.`);

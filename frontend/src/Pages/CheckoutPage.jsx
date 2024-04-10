@@ -51,6 +51,7 @@ const steps = [
 ];
 
 let addressInfo = {};
+let addressCoordinates = {};
 let paymentInfo = {};
 let orderItems = [];
 let orderTotal = {};
@@ -78,7 +79,8 @@ export default function CheckoutPage({ variant }) {
   const [confirmErr, setConfirmErr] = useState(null);
   const handleConfirm = async () => {
     let response = await axiosInstance.post("/api/placeOrder", {
-      "street_address": Object.values(addressInfo).join(", ").replace(/\s\s+/g, ' ')
+      "street_address": Object.values(addressInfo).map(v => v.trim()).filter(v => v !== "").join(", ").replace(/\s\s+/g, ' '),
+      "coordinates": addressCoordinates
     });
     if (response.status !== 200) {
       setConfirmErr(response.data);
@@ -168,15 +170,16 @@ function Step1Component({ handleNext }) {
   const [state, setState] = useState(addressInfo["state"] || "");
   const [zipCode, setZipCode] = useState(addressInfo["zipCode"] || "");
   const [errMsg, setErrMsg] = useState("");
+  // const [addressCoords, setAddressCoords] = useState(addressCoordinates["addressCoords"] || {});
+
   const { isOpen, onOpen, onClose } = useDisclosure()
   const cancelRef = React.useRef()
 
 
   const submitForm = async (e) => {
     e.preventDefault();
-    // set the addressInfo 
-    addressInfo = { addressLine1, addressLine2, city, state, zipCode };
-    // Check if the address is valid right here
+
+    // Check if the address is valid
     try {
       let response = await axiosInstance.post('/api/validateAddress', {
         addressLine1: addressLine1,
@@ -190,6 +193,9 @@ function Step1Component({ handleNext }) {
         await onOpen();
         return;
       }
+      else {
+        addressCoordinates = response.data;
+      }
     }
     catch (err) {
       console.error(err.message);
@@ -197,6 +203,10 @@ function Step1Component({ handleNext }) {
       await onOpen();
       return;
     }
+
+    // set the addressInfo 
+    addressInfo = { addressLine1, addressLine2, city, state, zipCode };
+
     // set the "activeStep" state of the parent component by calling handleNext
     handleNext();
   }
