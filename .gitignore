@@ -4,4 +4,4 @@ node_modules/
 **/.DS_Store
 backend/db.db
 nohup.out
-.vs/slnx.sqlite
+.vs/
