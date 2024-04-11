@@ -41,7 +41,7 @@ export default function ProductCarousel({ products }) {
         swipeable
       >
         {products.map((product, idx) => (
-            <ProductItem key={idx} product={product} />
+          <ProductItem key={idx} product={product} />
         ))}
       </Carousel>
     </div>
@@ -52,7 +52,7 @@ function ProductItem({ product }) {
   return (
     <Flex className={styles.productItem}>
       <img className={styles.prodImg} src={product.image_url} />
-      <Link to={`/productInfo/${product.product_id}`}>
+      <Link to={`/customer/productInfo/${product.product_id}`}>
         <Text className={styles.productTitle}>{product.name}</Text>
       </Link>
       <Text className={styles.productPrice}>${product.price.toFixed(2)}</Text>

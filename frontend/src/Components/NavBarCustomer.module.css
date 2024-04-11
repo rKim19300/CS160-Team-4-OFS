@@ -3,10 +3,13 @@
   padding: 0px 24px;
   height: 12vh;
   align-items: center;
+  align-self: flex-start;
   justify-content: space-between;
   position: sticky;
+  position: -webkit-sticky;
   top: 0;
   z-index: 10000;
+  width: 100%;
 }
 
 .leftSide {
