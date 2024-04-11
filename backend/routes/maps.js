@@ -81,11 +81,11 @@ router.post(`/validateAddress`, checkLoggedIn, async (req, res) => {
 
 		// Check If the address is valid
 		let response = await validateAddress(addressLine1, addressLine2, city, state, zipCode);
+		if (response === undefined) 
+			return res.status(400).json("Invalid address: Address is either entered incorrectly or\
+											not deliverable");
 		const address = response.address;
 		const coordinates = response.coordinates; 
-		if (address === undefined) 
-			return res.status(400).json("Invalid address: Address is either entered incorrectly or\
-												not deliverable");
 
 		// Check if the address is within the correct distance
 		const inRange = await check_is_within_allowable_distance(address);

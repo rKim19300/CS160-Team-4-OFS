@@ -5,3 +5,4 @@ node_modules/
 backend/db.db
 nohup.out
 .vs/slnx.sqlite
+.vs

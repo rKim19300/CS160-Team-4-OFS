@@ -491,23 +491,35 @@ class DB {
     }
 
     /**
+     * Function to be called when a robot is sent ON_ROUTE
+     * 
+     * Assumption: The robot is associated
+     * 
      * @param {*} addresses               The addresses in the same order that they were fed into the 
      *                                    routing API. 
      * @param {*} polylines               The routing API
      * @param {*} durations               The duration of each leg in seconds, order by the leg
      * @param {*} optimizedWaypointOrder  The optimized waypoint index returned by the routing API
      */
-    /*static async set_on_route_data(addresses, polylines, durations, optimizedWaypointOrder) {
+    static async populate_route_data(addresses, polylines, durations, optimizedWaypointOrder) {
+
+        // TODO check if the robot
+
+        let total_duration = 0; // Tracks the total duration so far in the loop
         for (let i = 0; i < addresses.length; i++) {
+
+            total_duration += durations[i];
+            let leg_address = addresses[optimizedWaypointOrder[i]];
+
             await db.query(`UPDATE Route_to_orders
                             SET polyline = ?,
-                                eta = ?,
+                                eta = DATETIME(DATE('now', '+? seconds')),
                                 leg = ?,
                                 duration = ? 
                             WHERE order_id = (SELECT order_id FROM Orders WHERE address = ?)
-                            `, []);
+                            `, [polylines[i], total_duration, i, durations[i], leg_address]);
         }
-    }*/
+    }
 
     //static async 
 
