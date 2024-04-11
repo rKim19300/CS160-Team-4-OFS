@@ -307,5 +307,5 @@ async function addOrders() {
     await addCategories();
     await setProductCategories();
     await addProducts();
-    await addOrders();
+    // await addOrders();
 })();
