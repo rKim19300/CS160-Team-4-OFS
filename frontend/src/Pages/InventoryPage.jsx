@@ -14,8 +14,9 @@ import {
     Heading,
     Button,
     Text,
+    Flex
   } from '@chakra-ui/react'
-import axiosInstance from "../../axiosInstance";
+import axiosInstance from "../axiosInstance";
 import { Link } from "react-router-dom";
 
 
@@ -50,6 +51,7 @@ export default function Inventory() {
     
     return (
         <>
+        <Flex flexDirection="column" width="100%" padding="36px 16px">
         <Heading align="left">All Products</Heading>
         <TableContainer>
             <Table variant='striped'>
@@ -72,7 +74,7 @@ export default function Inventory() {
                                 <Td>{ product.price }</Td>
                                 <Td>{ product.quantity }</Td>
                                 <Td>{ product.weight }</Td>
-                                <Link to={`/changeProduct/${product.product_id}`}>
+                                <Link to={`/employee/changeProduct/${product.product_id}`}>
                                     <u>Edit</u>
                                 </Link>
                             </Tr>
@@ -80,6 +82,7 @@ export default function Inventory() {
                 </Tbody>
             </Table>
         </TableContainer>
+        </Flex>
         </>
     )
 }

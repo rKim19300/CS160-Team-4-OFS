@@ -7,15 +7,18 @@ import {
     Flex,  
     ChakraProvider, 
   } from "@chakra-ui/react";
+import {
+  Outlet
+} from "react-router-dom";
 import axiosInstance from "../axiosInstance";
 import employeeDashboardTheme from "../themes/EmployeeDashboardTheme";
 import styles from "./EmployeeDashboard.module.css";
 import SideBarEmployee from "../Components/SideBarEmployee";
 import NavBarEmployee from "../Components/NavBarEmployee";
-import Inventory from "../Components/EmployeeDashboardComponents/Inventory.jsx";
-import Orders from "../Components/EmployeeDashboardComponents/Orders.jsx";
-import Analytics from "../Components/EmployeeDashboardComponents/Analytics.jsx";
-import Employees from "../Components/EmployeeDashboardComponents/Employees.jsx";
+import Inventory from "./InventoryPage.jsx";
+import Orders from "./OrdersPage.jsx";
+import Analytics from "./Analytics.jsx";
+import Employees from "./EmployeesInfoPage.jsx";
 import Components from "../Enums/EmployeeDashboardComponents.ts";
 
 /**
@@ -43,9 +46,10 @@ export default function EmployeeDashboard() {
           <NavBarEmployee />
           <Flex className={styles.menuContent}>
             <SideBarEmployee onComponentChange={handleComponentChange} />
+            <Outlet />
             <ChakraProvider resetCSS theme={employeeDashboardTheme}>
               <Box flex="1" p={4}>
-                {activeComponent === Components.Inventory && <Inventory />}
+                {/* {activeComponent === Components.Inventory && <Inventory />}
                 {activeComponent === Components.Orders && <Orders />}
                 {activeComponent === Components.Analytics && Analytics(
                                                                       weekRevenue,                                                              
@@ -56,11 +60,12 @@ export default function EmployeeDashboard() {
                                                                       yearOrders
                                                                       )
                                                                       }
-                {activeComponent === Components.Employees && <Employees />}
+                {activeComponent === Components.Employees && <Employees />} */}
               </Box>
             </ChakraProvider>
           </Flex>
         </Flex>
+        
       </>
     );
 }

@@ -35,9 +35,9 @@ import {
     ModalCloseButton
 } from "@chakra-ui/react";
 import { AddIcon, ChevronDownIcon } from '@chakra-ui/icons'
-import FadeInGrid from "../../CustomComponents/FadeInGrid"
-import axiosInstance from "../../axiosInstance";
-import SignUpPage from "../../Pages/SignUpPage";
+import FadeInGrid from "../CustomComponents/FadeInGrid"
+import axiosInstance from "../axiosInstance";
+import SignUpPage from "./SignUpPage";
 
 
 export default function Employees() {
