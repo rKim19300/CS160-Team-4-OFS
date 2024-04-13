@@ -74,9 +74,11 @@ export default function Inventory() {
                                 <Td>{ product.price }</Td>
                                 <Td>{ product.quantity }</Td>
                                 <Td>{ product.weight }</Td>
-                                <Link to={`/employee/changeProduct/${product.product_id}`}>
-                                    <u>Edit</u>
-                                </Link>
+                                <Td>
+                                    <Link to={`/employee/changeProduct/${product.product_id}`}>
+                                        <u>Edit</u>
+                                    </Link>
+                                </Td>
                             </Tr>
                             )})}
                 </Tbody>

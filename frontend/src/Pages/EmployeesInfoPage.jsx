@@ -94,7 +94,8 @@ export default function Employees() {
       return <div>Loading. . .</div>;
 
     return (
-        <>
+      <Flex>
+        <Box width="170vh">
           <Flex alignContent={"center"} justifyContent={"center"}>
             <Heading>Employees</Heading>
           </Flex>
@@ -110,12 +111,17 @@ export default function Employees() {
             />
           </Flex>
           <br />
-          <Divider />
+          <Divider size="10x"/>
           <br />
           <Flex alignContent={"center"} justifyContent={"center"}>
             <FadeInGrid columns={4} spacing={10} delay={50} key={seed}>
             {employees.map((employee, idx) => (
-              <EmployeeGridCard key={idx} employee={employee} fetchData={fetchData} reset={reset} />
+              <EmployeeGridCard 
+                key={idx} 
+                employee={employee} 
+                fetchData={fetchData} 
+                reset={reset} 
+              />
             ))}
             </FadeInGrid>
           </Flex>
@@ -149,7 +155,8 @@ export default function Employees() {
                 </ModalBody>
               </ModalContent>
             </Modal>
-        </>
+        </Box>
+      </Flex>
     );
 }
 
@@ -167,17 +174,24 @@ function EmployeeGridCard({ employee, fetchData, reset }) {
   const cancelDeleteRef = useRef();
 
   return (
-    <Box>
+    <Flex>
       {/* Card which holds employee information */}
-      <Card border='3px solid grey'>
+      <Card border='3px solid grey' width='180px' height='100px'>
         <Box flex='1'>
-          <CardHeader fontWeight='bold' textAlign='center' fontSize="medium" padding='1px' margin='5px'>
+          <CardHeader 
+            fontWeight='bold' 
+            textAlign='center' 
+            fontSize="medium" 
+            padding='1px' 
+            margin='5px'
+            overflow='hidden'
+          >
             {employee.username}
           </CardHeader>
         </Box>
         <Box>
         </Box>
-        <CardBody textAlign='center' fontSize="small" padding='1px' margin='5px'>
+        <CardBody textAlign='center' fontSize="small" padding='1px' margin='5px' overflow='hidden'>
           {employee.email}
         </CardBody>
         <CardFooter padding='1px' fontSize="x-small" color='grey' margin='5px'>
@@ -246,6 +260,6 @@ function EmployeeGridCard({ employee, fetchData, reset }) {
             </AlertDialogContent>
           </AlertDialogOverlay>
         </AlertDialog>
-  </Box>
+  </Flex>
   );
 }
