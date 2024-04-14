@@ -12,6 +12,10 @@ import CheckoutPage from "./Pages/CheckoutPage";
 import ChangeProductPage from "./Pages/ChangeProductPage";
 import CustomerOrders from "./Pages/CustomerOrders";
 import OrderInfoPage from "./Pages/OrderInfoPage";
+import InventoryPage from "./Pages/InventoryPage";
+import OrdersPage from "./Pages/OrdersPage";
+import EmployeesInfoPage from "./Pages/EmployeesInfoPage";
+import Analytics from "./Pages/Analytics";
 
 function App() {
   return (
@@ -28,8 +32,13 @@ function App() {
             <Route path="productInfo/:id" element={<ProductPage />} />
           </Route>
 
-          {/* <Route path="/productInfo/:id" element={<ProductPage />} /> */}
-          <Route path="/EmployeeDashboard" element={<EmployeeDashboard />} />
+          <Route path="/employee" element={<EmployeeDashboard />} >
+            <Route path="inventory" element={<InventoryPage />} />
+            <Route path="changeProduct/:id" element={<ChangeProductPage />} />
+            <Route path="orders" element={<OrdersPage />} />
+            <Route path="staff" element={<EmployeesInfoPage />} />
+            <Route path="analytics" element={<Analytics />} />
+          </Route>
 
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/changeProduct/:id" element={<ChangeProductPage />} />

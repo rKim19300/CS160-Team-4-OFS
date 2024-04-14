@@ -19,8 +19,9 @@ import {
     MenuList,
     MenuItem,
     Button,
+    Flex
   } from '@chakra-ui/react'  
-import axiosInstance from "../../axiosInstance";
+import axiosInstance from "../axiosInstance";
 
 export default function Orders() {
     // Hooks for Orders
@@ -52,6 +53,7 @@ export default function Orders() {
     
     return (
         <>
+        <Flex flexDirection="column" width="100%" padding="36px 16px">
         <Heading>Orders</Heading>
         <TableContainer>
             <Table variant='striped'>
@@ -88,6 +90,7 @@ export default function Orders() {
                 </Tbody>
             </Table>
         </TableContainer>
+        </Flex>
         </>
     )
 }
