@@ -62,7 +62,7 @@ export default function SideBarEmployee({ onComponentChange }) {
           </Flex>
           <Flex className={styles.bottomButtons}>
             <Button>
-              <a href="/profile">Profile</a>
+              <a href="/customer/profile">Profile</a>
             </Button>
             <SignOutButton />
           </Flex>
