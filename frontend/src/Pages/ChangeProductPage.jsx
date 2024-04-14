@@ -14,8 +14,6 @@ import {
   NumberInputField
 } from "@chakra-ui/react";
 import styles from "./ChangeProductPage.module.css";
-import NavBarEmployee from "../Components/NavBarEmployee";
-import SideBarEmployee from "../Components/SideBarEmployee";
 import { useParams, useNavigate } from "react-router-dom";
 
 import axiosInstance from "../axiosInstance";
@@ -93,11 +91,9 @@ export default function ChangeProductPage() {
   };
 
   return (
-    <Flex className={styles.container}>
+    <Flex className={styles.container} width="100%">
       <Toaster position="bottom-right" reverseOrder={false} />
-      <NavBarEmployee />
       <Flex className={styles.menuContent}>
-        <SideBarEmployee />
         <Flex flexDirection="column" alignItems="center" ml={{base: "80px", "2xl": "150px"}} p={{base: "20px", "2xl": "40px"}}>
         <Text className={styles.headerText}>Edit Product </Text>
           <HStack spacing={{base: "90px", "2xl": "120px"}} justify="center">
