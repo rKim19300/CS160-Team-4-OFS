@@ -167,7 +167,7 @@ class DB {
     }
 
     static async update_product_info(product_id, name, description, image_url, price, weight, quantity) {
-        await db.query("UPDATE Products SET name = ?, description = ?, image_url = ?, price = ?, weight = ?, quantity = ? WHERE product_id = ?", [name, description, image_url, price, weight, quantity]);
+        await db.query("UPDATE Products SET name = ?, description = ?, image_url = ?, price = ?, weight = ?, quantity = ? WHERE product_id = ?", [name, description, image_url, price, weight, quantity, product_id]);
     }
 
     static async subtract_product_inventory_quantity(product_id, quantity) {
@@ -187,7 +187,6 @@ class DB {
     }
 
     static async set_product_categories(product_id, category_ids) {
-        if (category_ids.length < 1) return;
         await db.query("DELETE FROM Product_to_categories WHERE product_id = ?", [product_id]);
         for (let category_id of category_ids) {
             await db.query("INSERT INTO Product_to_categories(product_id, category_id) VALUES (?, ?)", [product_id, category_id]);

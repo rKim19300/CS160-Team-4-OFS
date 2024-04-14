@@ -1,0 +1,55 @@
+.container {
+  flex-direction: column;
+  justify-content: space-between;
+  height: auto;
+}
+
+.headerText {
+  font-size: 28px;
+  font-weight: bold;
+  color: #303030;
+}
+
+.form {
+  align-items: center;
+  margin: 32px auto;
+  display: flex;
+  flex-direction: column;
+  width: 40%;
+}
+
+.formText {
+  font-size: 14px;
+  padding-top: 8px;
+}
+
+.button {
+  margin: 24px 0px;
+width: 100%;
+}
+
+.categoryContainer {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.checkboxContainer {
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+.checkboxLabel {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.checkboxLabel {
+    display: inline-block; /* Ensure checkboxes and labels are on the same line */
+    margin-right: 15px; /* Adjust spacing between items */
+    margin-bottom: 7px; /* Adjust vertical spacing */
+  }
+
+.checkboxLabel input[type="checkbox"] {
+    margin-right: 2px;
+}

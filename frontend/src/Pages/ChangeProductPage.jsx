@@ -9,8 +9,11 @@ import {
   HStack,
   Box,
   Image,
+  Textarea,
+  NumberInput,
+  NumberInputField
 } from "@chakra-ui/react";
-import styles from "./ProfilePage.module.css";
+import styles from "./ChangeProductPage.module.css";
 import NavBarEmployee from "../Components/NavBarEmployee";
 import SideBarEmployee from "../Components/SideBarEmployee";
 import { useParams, useNavigate } from "react-router-dom";
@@ -27,22 +30,42 @@ export default function ChangeProductPage() {
   const [image, setImage] = useState("");
   const [description, setDescription] = useState("");
 
+  const [categories, setCategories] = useState([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
+
+  // Function to handle when a category option is (un)selected
+  const handleCheckboxChange = (categoryObj) => {
+    if (selectedCategoryIds.includes(categoryObj.category_id)) {
+      setSelectedCategoryIds(selectedCategoryIds.filter(item => item !== categoryObj.category_id));
+    } else {
+      setSelectedCategoryIds([...selectedCategoryIds, categoryObj.category_id]);
+    }
+    console.log(selectedCategoryIds);
+  };
+
   async function fetchData() {
     try {
       let response = await axiosInstance.get(`/api/productInfo/${id}`);
       setName(response.data.name);
-      setPrice(response.data.price);
+      setPrice(response.data.price.toFixed(2));
       setWeight(response.data.weight);
       setQuantity(response.data.quantity);
       setImage(response.data.image_url);
       setDescription(response.data.description);
+      setSelectedCategoryIds(response.data.categories.map(e => e.category_id));
     } catch (err) {
       console.error(err);
     }
   }
 
+  async function fetchCategories() {
+    let res = await axiosInstance.get("/api/allCategories");
+    setCategories(res.data);
+  }
+
   useEffect(() => {
     fetchData();
+    fetchCategories();
   }, []);
 
   const handleSave = async (event) => {
@@ -52,7 +75,10 @@ export default function ChangeProductPage() {
         name,
         price,
         weight,
-        quantity
+        quantity,
+        image_url: image,
+        description,
+        category_ids: selectedCategoryIds
       });
       if (response.status === 200) {
         console.log("Product info updated!");
@@ -78,7 +104,7 @@ export default function ChangeProductPage() {
 
             <Box maxW="450px">
               <Image src={image} boxSize={{xl: "410px", "2xl": "450px"}} objectFit="cover" />
-              <Text mt="10px" fontSize="lg">{description}</Text>
+              <Textarea placeholder="Write product description here" mt="10px" fontSize="16px" value={description} onChange={(e) => setDescription(e.target.value)}>{description}</Textarea>
             </Box>
 
             <form className={styles.form} onSubmit={handleSave}>
@@ -91,20 +117,29 @@ export default function ChangeProductPage() {
                   onChange={(e) => setName(e.target.value)}
                 />
                 <FormLabel className={styles.formText}>Price</FormLabel>
-                <Input
-                  type="text"
+                <NumberInput
                   fontSize="16px"
                   value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                />
+                  precision={2}
+                  onChange={(val) => setPrice(val)}
+                  min={0.01}
+                  max={100}
+                >
+                  <NumberInputField />
+                </NumberInput>
                 <FormLabel className={styles.formText}>Weight</FormLabel>
-                <Input
-                  type="text"
+                <NumberInput
                   fontSize="16px"
                   value={weight}
-                  onChange={(e) => setWeight(e.target.value)}
-                />
+                  precision={1}
+                  onChange={(val) => setWeight(val)}
+                  min={0.1}
+                  max={100}
+                >
+                  <NumberInputField />
+                </NumberInput>
                 <FormLabel className={styles.formText}>Quantity</FormLabel>
+                {/* TODO: MAKE THE QUANTITY INPUT FIELD A NUMBER INPUT FIELD */}
                 <Input
                   type="text"
                   fontSize="16px"
@@ -118,13 +153,23 @@ export default function ChangeProductPage() {
                   value={image}
                   onChange={(e) => setImage(e.target.value)}
                 />
-                <FormLabel className={styles.formText}>Description</FormLabel>
-                <Input
-                  type="text"
-                  fontSize="16px"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
+                <FormLabel className={styles.formText}>Categories</FormLabel>
+                <div className={styles.categoryContainer}>
+                  <div className={styles.checkboxContainer}>
+                    {/* List of options with checkboxes */}
+                    {categories.map((categoryObj, index) => (
+                      <label key={index} className={styles.checkboxLabel}>
+                        <input
+                          type="checkbox"
+                          value={categoryObj.name}
+                          checked={selectedCategoryIds.includes(categoryObj.category_id)}
+                          onChange={() => handleCheckboxChange(categoryObj)}
+                        />
+                        {categoryObj.name}
+                      </label>
+                    ))}
+                  </div>
+                </div>
               </FormControl>
 
               <Button className={styles.button} colorScheme="green" type="submit">
