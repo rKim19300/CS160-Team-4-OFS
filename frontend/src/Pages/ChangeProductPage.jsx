@@ -115,6 +115,7 @@ export default function ChangeProductPage() {
                   fontSize="16px"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  isRequired={true}
                 />
                 <FormLabel className={styles.formText}>Price</FormLabel>
                 <NumberInput
@@ -124,6 +125,7 @@ export default function ChangeProductPage() {
                   onChange={(val) => setPrice(val)}
                   min={0.01}
                   max={100}
+                  isRequired={true}
                 >
                   <NumberInputField />
                 </NumberInput>
@@ -135,23 +137,26 @@ export default function ChangeProductPage() {
                   onChange={(val) => setWeight(val)}
                   min={0.1}
                   max={100}
+                  isRequired={true}
                 >
                   <NumberInputField />
                 </NumberInput>
                 <FormLabel className={styles.formText}>Quantity</FormLabel>
-                {/* TODO: MAKE THE QUANTITY INPUT FIELD A NUMBER INPUT FIELD */}
-                <Input
-                  type="text"
+                <NumberInput
                   fontSize="16px"
                   value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                />
+                  onChange={(val) => setQuantity(val)}
+                  isRequired={true}
+                >
+                  <NumberInputField />
+                </NumberInput>
                 <FormLabel className={styles.formText}>Image URL</FormLabel>
                 <Input
                   type="text"
                   fontSize="16px"
                   value={image}
                   onChange={(e) => setImage(e.target.value)}
+                  isRequired={true}
                 />
                 <FormLabel className={styles.formText}>Categories</FormLabel>
                 <div className={styles.categoryContainer}>
