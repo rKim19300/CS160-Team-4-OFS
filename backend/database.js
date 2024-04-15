@@ -276,6 +276,9 @@ class DB {
         // TODO: FINISH THIS
     }
 
+    /**
+     * Adds and new Order to the data, as well as placing it on a route
+     */
     static async add_new_order(user_id, cost, weight, address, delivery_fee, created_at, cart_id, latitude, longitude) {
         // inserts the order data into the `Orders` table and the `Order_items` table
         await db.query("INSERT INTO Orders(user_id, cost, weight, address, delivery_fee, created_at, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [user_id, cost, weight, address, delivery_fee, created_at, latitude, longitude]);
@@ -288,6 +291,32 @@ class DB {
             let { product_id, quantity } = cart_item;
             await db.query("INSERT INTO Order_items(order_id, product_id, quantity) VALUES (?, ?, ?)", [order_id, product_id, quantity]);
         }
+
+        // -- Place the order in a route --
+
+        // Query the database for all routes
+        const routes = await this.get_all_routes();
+        const MAX_ROUTE_WEIGHT = 200;
+        const MAX_ROUTE_ORDERS = 10;
+
+        for (let i = 0; i < routes.length; i++) {
+
+            let route_id = routes.route_id;
+
+            // Check if the routes's robot is already ON_ROUTE
+            const is_on_route = await this.route_robot_on_route(route_id);
+            if (is_on_route) continue;
+
+            // Check if the order satisfies the weight and order_num requirements
+            const wno = await this.get_route_weight_and_order_num(route_id);
+            if (((wno.total_weight + weight) <= MAX_ROUTE_WEIGHT) 
+                && (wno.order_num < MAX_ROUTE_ORDERS)) {
+                await this.add_order_to_route(route_id, order_id);
+                return;
+            }
+        }
+        // If route was not found create a new one
+        await this.create_route(order_id); 
     }
 
     // For the sake of placing them on the map
@@ -402,7 +431,7 @@ class DB {
      */
     static async has_route(robot_id) {
         let q = await db.query("SELECT route_id FROM Robot WHERE robot_id = ?", [robot_id]);
-        return (q[0] !== undefined);
+        return (q[0].route_id !== null);
     }
 
     /**
@@ -421,22 +450,49 @@ class DB {
     ///////
     // ROUTE queries
     ///////
+
+    /**
+     * @param {*} order_id The first order to be added to the route
+     * @returns  The route_id of the newly created route
+     */
     static async create_route(order_id) {
         // Add query to order
         await db.query("INSERT INTO Delivery_routes(created_at) SELECT created_at FROM Orders WHERE order_id = ?", [order_id]);
 
+        // Get the ID of the route 
+        let last_inserted_row = await db.query("SELECT last_insert_rowid() as route_id");
+        const route_id = last_inserted_row[0].route_id;
+
         // Add order to the route
-        await db.query("INSERT INTO Route_to_orders(route_id, order_id) VALUES(last_insert_rowid(), ?)", [order_id]);
+        await db.query("INSERT INTO Route_to_orders(route_id, order_id) VALUES(?, ?)", [route_id, order_id]);
+
+        return route_id;
     }
 
     static async add_order_to_route(route_id, order_id) {
         await db.query("INSERT INTO Route_to_orders(route_id, order_id) VALUES(?, ?)", [route_id, order_id]);
     }
 
-    /*static async route_num_orders(route_id) {
-        let q = await db.query("SELECT COUNT(order_id) FROM Route_to_orders WHERE route_id = ?", [route_id]);
+    static async get_all_routes() {
+        let q = await db.query(`SELECT * FROM Delivery_routes ORDER BY created_at`);
         return q;
-    }*/
+    }
+
+    /**
+     * Checks if the route's robot is ON_ROUTE
+     * 
+     * @returns false if the route is not assocaited with a robot or the robot isn't ON_ROUTE
+     */
+    static async route_robot_on_route(route_id) {
+        let q = await db.query(`SELECT 
+                                    r.status AS status FROM Robot AS r
+                                    INNER JOIN Delivery_routes AS dr 
+                                    ON r.robot_id = dr.robot_id
+                                    WHERE r.route_id = ?`, [route_id]);
+        if (q[0] === undefined) return false; // Not Associated with robot
+        let status = q[0].status;
+        return (status === RobotStatus.ON_ROUTE); 
+    }
 
     /**
      * Gets the total weight and number of orders of a route
@@ -461,8 +517,10 @@ class DB {
      * @returns  Whether or not the route_id was set
      */
     static async set_route_to_robot(route_id, robot_id) {
-        if (!this.has_route(robot_id)) {
+        let has_route = await this.has_route(robot_id);
+        if (!has_route) {
             await db.query("UPDATE Robot SET route_id = ? WHERE robot_id = ?", [route_id, robot_id]);
+            await db.query("UPDATE Delivery_routes SET robot_id = ? WHERE route_id = ?", [robot_id, route_id]);
             return true;
         }
         return false;
@@ -486,14 +544,23 @@ class DB {
      * @returns The encoded polylines of the route, sorted by the legs
      */
     static async get_route_polylines(route_id) {
-        let q = await db.query("SELECT polyline FROM Route_to_orders WHERE route_id = ? ORDER BY leg");
+        let q = await db.query("SELECT polyline FROM Route_to_orders WHERE route_id = ? ORDER BY leg", [route_id]);
         return q; 
     }
 
     /**
-     * Function to be called when a robot is sent ON_ROUTE
+     * Function to be called when a robot is sent ON_ROUTE. Sets the encoded polylines, 
+     * eta, leg numbers, and durations of the routes. Also updates the value of the ORDER_STATUS to
+     * ON_THE_WAY
      * 
-     * Assumption: The robot is associated
+     * Assumptions: 
+     * 
+     * - The robot is associated with a route
+     * 
+     * - The Orders not associated with more than one route
+     * 
+     * - Addresses are the same as the ones corresponding to the orders in the database
+     * 
      * 
      * @param {*} addresses               The addresses in the same order that they were fed into the 
      *                                    routing API. 
@@ -501,27 +568,77 @@ class DB {
      * @param {*} durations               The duration of each leg in seconds, order by the leg
      * @param {*} optimizedWaypointOrder  The optimized waypoint index returned by the routing API
      */
-    static async populate_route_data(addresses, polylines, durations, optimizedWaypointOrder) {
+    static async populate_route_data(route_id, addresses, polylines, durations, optimizedWaypointOrder) {
 
-        // TODO check if the robot
+        // TODO Check if associating it with the address causes a bug since address in not unique
+
+        // TODO throw and error if durations is not made of integer values
+
 
         let total_duration = 0; // Tracks the total duration so far in the loop
         for (let i = 0; i < addresses.length; i++) {
-
             total_duration += durations[i];
             let leg_address = addresses[optimizedWaypointOrder[i]];
-
+            
+            // Fill out the leg information
             await db.query(`UPDATE Route_to_orders
                             SET polyline = ?,
-                                eta = DATETIME(DATE('now', '+? seconds')),
+                                eta = datetime('now', '+${total_duration} seconds', 'localtime'),
                                 leg = ?,
                                 duration = ? 
                             WHERE order_id = (SELECT order_id FROM Orders WHERE address = ?)
-                            `, [polylines[i], total_duration, i, durations[i], leg_address]);
+                            AND route_id = ?
+                            `, [polylines[i], i, durations[i], leg_address, route_id]);
+
+            // Update the order status
+            await db.query(`UPDATE Orders SET status = ${OrderStatus.ON_THE_WAY} 
+                WHERE order_id = (SELECT order_id FROM Orders WHERE address = ?)`, [leg_address]);
         }
     }
 
-    //static async 
+    /**
+     * Updates the delivery_time and status of the order and then deletes the route leg. 
+     */
+    static async finish_route_leg(route_id, leg) {
+
+        // Update the delivery time of the order
+        await db.query(`UPDATE 
+                            Orders SET 
+                                time_delivered = datetime('now', 'localtime'),
+                                status = ?
+                        WHERE order_id = 
+                        (SELECT order_id FROM Route_to_orders WHERE route_id = ? AND leg = ?)`
+                        ,[OrderStatus.DELIVERED, route_id, leg]);
+        // Delete the leg
+        await db.query(`DELETE FROM Route_to_orders WHERE route_id = ? AND leg = ?`, [route_id, leg]);
+    }
+
+    /**
+     * Deletes route from both the Delivery_routes and Robot tables. 
+     * 
+     * Assumption: There are no reminants of this route in the Route_to_orders table
+     */
+    static async delete_route(route_id) {
+
+        // Delete the route in the Delivery_routes table
+        await db.query(`DELETE FROM Delivery_routes WHERE route_id = ?`, [route_id]);
+
+        // Remove the route from the robot 
+        await db.query(`UPDATE Robot SET route_id = NULL WHERE route_id = ?`, [route_id]);
+    }
+
+    ///////
+    // OTHER queries
+    ///////
+
+    /**
+     * @returns The current time in SQLite format
+     */
+    static async get_current_time() {
+        let time = await db.query("SELECT datetime('now', 'localtime') AS time");
+        return time[0].time;
+    }
+
 
 }
 
