@@ -25,15 +25,16 @@ const responsive = {
 };
 
 export default function ProductCarousel({ products }) {
+  let isInfinite = products.length > 4;
   return (
     <div style={{ width: "100%", paddingTop: "16px" }}>
       <Carousel
         additionalTransfrom={0}
-        arrows
+        arrows={isInfinite}
         autoPlaySpeed={3000}
         centerMode
         draggable
-        infinite
+        infinite={isInfinite}
         keyBoardControl
         minimumTouchDrag={80}
         pauseOnHover

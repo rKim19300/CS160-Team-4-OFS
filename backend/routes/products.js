@@ -13,6 +13,18 @@ router.get("/allProducts", async (req, res) => {
     }
 });
 
+router.get("/products/category_name=:categoryName", async (req, res) => {
+    try {
+        let { categoryName } = req.params;
+        let { prods, errMsg } = await DB.get_products_with_category_name(categoryName);
+        if (errMsg) return res.status(400).send(errMsg);
+        return res.status(200).json(prods);
+    } catch (err) {
+        console.log(`ERROR WHEN FETCHING PRODUCTS BY CATEGORY NAME: ${err}`);
+        return res.status(400).send("Something went wrong when fetching products with specified category_name");
+    }
+});
+
 router.get("/productInfo/:prodID", checkLoggedIn, async (req, res) => {
     try {
         let product_id = req.params.prodID;
