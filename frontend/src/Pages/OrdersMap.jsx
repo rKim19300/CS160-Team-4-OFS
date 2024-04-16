@@ -36,7 +36,6 @@ export default function OrdersMap() {
     };
 
     // Hard coded SJSU ("store") address
-    // TODO makea useState called center
     const store = { 
         lat: 37.33518596879412, 
         lng: -121.88107208071463

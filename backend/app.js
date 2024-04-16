@@ -6,6 +6,7 @@ require("dotenv").config({
   path: '../.env'
 });
 const cors = require("cors");
+const { DB } = require("./database");
 const { checkIsStaff } = require("./middleware/authMiddleware");
 
 const authRoute = require("./routes/auth");
@@ -71,3 +72,32 @@ staffIO.use((socket, next) => {
 });
 app.set('io', io); 
 app.set('staffIO', io); 
+
+// Create a thread that assigns routes to robots
+const fiveSeconds = 5000;
+setInterval(async () => {
+
+  // Query the database for the robots and routes
+  let robots = await DB.get_all_robots();
+  let routes = await DB.get_all_routes();
+
+  // In a for loop check if either of the robots doesn't have a route
+  let route_start = 0; // Index where you should start searching for routes
+  for (let i = 0; i < robots.length; i++) {
+
+    // Assign a route to a robot, robot doesn't already have a route
+    if (!(await DB.has_route(robots[i].robot_id))) {
+      for (let j = route_start; j < routes.length; j++) {
+
+        // Find a route that doesn't already have a robot assigned to it
+        if (!(await DB.has_robot(routes[j].route_id))) {
+          DB.set_route_to_robot(routes[j].route_id, robots[i].robot_id);
+          console.log(`Robot ID (${robots[i].robot_id}) has been assinged route ID (${routes[j].route_id})`);
+          route_start = j + 1; // Start + 1 where last route was assigned
+          break;
+        }
+
+      }
+    }
+  }
+}, fiveSeconds);

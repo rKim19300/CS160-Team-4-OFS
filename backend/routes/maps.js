@@ -27,10 +27,20 @@ router.get('/generateRouteData', checkIsStaff, async (req, res) => {
 
 });
 
+// TODO change this into a post request
 router.get('/sendRobot', checkIsStaff, async (req, res) => {
 	try {
 
+		// TODO the post parameters are: robot_id
+		let { robot_id } = req.body;
+
+		// Check if the robot has a route
+		await DB.
+
+		// Check if the robot is already ON_ROUTE
+
 		// Generate the route
+		// TODO get the addresses from the robot's route
 		let data = await generateRouteData([
 			"1085 E Brokaw Rd #30, San Jose, CA 95131",
 			"2044 McKee Rd, San Jose, CA 95116",
@@ -44,8 +54,9 @@ router.get('/sendRobot', checkIsStaff, async (req, res) => {
 		}
 
 		// Set the robot on the path
-		// TODO use a more secure channel
 		let staffIO = await req.app.get('staffIO');
+
+		// TODO pass the 
 		await onRoute(decodedPaths, staffIO);
 
 		res.status(200).json(decodedPaths);

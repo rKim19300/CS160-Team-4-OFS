@@ -294,14 +294,14 @@ class DB {
 
         // -- Place the order in a route --
 
-        // Query the database for all routes
+        // Query the database for all routes and loop through them
         const routes = await this.get_all_routes();
         const MAX_ROUTE_WEIGHT = 200;
         const MAX_ROUTE_ORDERS = 10;
 
         for (let i = 0; i < routes.length; i++) {
 
-            let route_id = routes.route_id;
+            let route_id = routes[i].route_id;
 
             // Check if the routes's robot is already ON_ROUTE
             const is_on_route = await this.route_robot_on_route(route_id);
@@ -417,7 +417,7 @@ class DB {
     }
 
     // Gets robot data from each robot
-    static async get_robot_data() {
+    static async get_all_robots() {
         let q = await db.query("SELECT * FROM Robot ORDER BY robot_id");
         for (let i = 0; i < q.length; i++) {
             q[i].latitude = parseFloat(q[i].latitude);
@@ -431,7 +431,7 @@ class DB {
      */
     static async has_route(robot_id) {
         let q = await db.query("SELECT route_id FROM Robot WHERE robot_id = ?", [robot_id]);
-        return (q[0].route_id !== null);
+        return (q[0] !== undefined && q[0].route_id !== null);
     }
 
     /**
@@ -469,6 +469,11 @@ class DB {
         return route_id;
     }
 
+    static async has_robot(route_id) {
+        let q = await db.query("SELECT robot_id FROM Delivery_routes WHERE route_id = ?", [route_id]);
+        return (q[0] !== undefined && q[0].robot_id !== null);
+    }
+
     static async add_order_to_route(route_id, order_id) {
         await db.query("INSERT INTO Route_to_orders(route_id, order_id) VALUES(?, ?)", [route_id, order_id]);
     }
@@ -481,7 +486,7 @@ class DB {
     /**
      * Checks if the route's robot is ON_ROUTE
      * 
-     * @returns false if the route is not assocaited with a robot or the robot isn't ON_ROUTE
+     * @returns false if the route is not associated with a robot or the robot isn't ON_ROUTE
      */
     static async route_robot_on_route(route_id) {
         let q = await db.query(`SELECT 
@@ -518,7 +523,7 @@ class DB {
      */
     static async set_route_to_robot(route_id, robot_id) {
         let has_route = await this.has_route(robot_id);
-        if (!has_route) {
+        if (!(await this.has_route(robot_id))) {
             await db.query("UPDATE Robot SET route_id = ? WHERE robot_id = ?", [route_id, robot_id]);
             await db.query("UPDATE Delivery_routes SET robot_id = ? WHERE route_id = ?", [robot_id, route_id]);
             return true;
