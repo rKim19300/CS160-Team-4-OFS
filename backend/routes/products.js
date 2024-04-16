@@ -61,7 +61,7 @@ router.post("/addCategory", checkIsStaff, async (req, res) => {
 router.post("/addProduct", checkIsStaff, async (req, res) => {
     try {
         let { name, description, image_url, price, weight, quantity, category_ids } = req.body;
-        await DB.add_new_product(name, description, image_url, price, weight, quantity);
+        let product_id = await DB.add_new_product(name, description, image_url, price, weight, quantity);
         await DB.set_product_categories(product_id, category_ids);
         return res.status(200).send("Successfully inserted product into database");
     } catch (err) {

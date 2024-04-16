@@ -164,6 +164,10 @@ class DB {
 
     static async add_new_product(name, description, image_url, price, weight, quantity) {
         await db.query("INSERT INTO Products(name, description, image_url, price, weight, quantity) VALUES (?, ?, ?, ?, ?, ?)", [name, description, image_url, price, weight, quantity]);
+        // retrieve the product_id of the newly inserted product
+        let lastInsertedProduct = await db.query("SELECT last_insert_rowid() as product_id");
+        let product_id = lastInsertedProduct[0].product_id;
+        return product_id;
     }
 
     static async update_product_info(product_id, name, description, image_url, price, weight, quantity) {

@@ -17,6 +17,7 @@ import InventoryPage from "./Pages/InventoryPage";
 import OrdersPage from "./Pages/OrdersPage";
 import EmployeesInfoPage from "./Pages/EmployeesInfoPage";
 import Analytics from "./Pages/Analytics";
+import AddProductPage from "./Pages/AddProductPage";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
               <Route path="/employee" element={<EmployeeDashboard />} >
                 <Route path="inventory" element={<InventoryPage />} />
                 <Route path="changeProduct/:id" element={<ChangeProductPage />} />
+                <Route path="addProduct" element={<AddProductPage />} />
                 <Route path="orders" element={<OrdersPage />} />
                 <Route path="staff" element={<EmployeesInfoPage />} />
                 <Route path="analytics" element={<Analytics />} />
