@@ -268,7 +268,7 @@ class DB {
     }
 
     static async get_order_info(order_id) {
-        let orderInfo = (await db.query("SELECT order_id, cost, weight AS total_weight, address, delivery_fee, status, created_at FROM Orders WHERE order_id = ?", [order_id]))[0];
+        let orderInfo = (await db.query("SELECT order_id, user_id, cost, weight AS total_weight, address, delivery_fee, status, created_at FROM Orders WHERE order_id = ?", [order_id]))[0];
         if (orderInfo === undefined) {
             return { errMsg: `Order with order_id '${order_id}' does not exist`, orderInfo: null };
         }
