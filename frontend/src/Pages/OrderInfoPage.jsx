@@ -20,11 +20,17 @@ import axiosInstance from "../axiosInstance";
 export default function OrderInfoPage({ order_id }) {
   const { id } = useParams();
   const [orderInfo, setOrderInfo] = useState(null);
+  const [errMsg, setErrMsg] = useState("");
 
   useEffect(() => {
     async function fetchData() {
       try {
         let response = await axiosInstance.get(`/api/getOrderInfo/${id}`);
+        if (response.status !== 200) {
+            // something went wrong when fetching order info (order DNE or user does not have permission to view order)
+            setErrMsg(response.data);
+            return;
+        }
         setOrderInfo(response.data);
         console.log(response.data);
       } catch (err) {
@@ -34,6 +40,7 @@ export default function OrderInfoPage({ order_id }) {
     fetchData();
   }, []);
 
+  if (errMsg.length > 0) return <Flex>{errMsg}</Flex>
   if (orderInfo === null) return <Flex>Loading...</Flex>;
 
   return (
