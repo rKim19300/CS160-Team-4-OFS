@@ -174,6 +174,17 @@ class DB {
         await db.query("UPDATE Products SET quantity = quantity - ? WHERE product_id = ?", [quantity, product_id]);
     }
 
+    static async get_products_with_category_name(category_name) {
+        // get the category_id from the name
+        let q = await db.query("SELECT category_id FROM Categories WHERE name = ?", [category_name]);
+        if (q.length === 0) {
+            return { prods: null, errMsg: `Category '${category_name}' does not exist` };
+        }
+        let category_id = q[0]["category_id"];
+        let prods = await db.query("SELECT p.* FROM Products AS p INNER JOIN Product_to_categories AS ptc ON p.product_id = ptc.product_id WHERE ptc.category_id = ?", [category_id]);
+        return { prods, errMsg: null };
+    }
+
     ///////
     // PRODUCT CATEGORIES queries
     ///////

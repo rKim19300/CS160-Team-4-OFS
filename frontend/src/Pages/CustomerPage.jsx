@@ -10,7 +10,7 @@ import axiosInstance from "../axiosInstance";
 
 export default function CustomerPage() {
   const [cats, setCategory] = useState("ALL");
-  const [allProducts, setAllProducts] = useState(null);
+  const [displayedProducts, setDisplayedProducts] = useState(null);
 
   const [view, setView] = useState({ type: "category", name: "ALL" });
   let { category } = useParams();
@@ -22,16 +22,32 @@ export default function CustomerPage() {
     category = "ALL";
   }
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        let response = await axiosInstance.get("/api/allProducts");
-        setAllProducts(response.data);
-      } catch (err) {
-        console.error(err);
+  async function fetchProducts(category_name) {
+    try {
+      let response;
+      if (category_name === "ALL") {
+        response = await axiosInstance.get("/api/allProducts");
+      } else {
+        response = await axiosInstance.get(`/api/products/category_name=${category_name}`);
       }
+      if (response.status !== 200) {
+        setDisplayedProducts([]);
+        return;
+      }
+      setDisplayedProducts(response.data);
+      console.log(displayedProducts);
+    } catch (err) {
+      console.error(err);
     }
-    fetchData();
+  }
+
+  useEffect(() => {
+    fetchProducts(category);
+  }, [category]);
+
+  useEffect(() => {
+    if (category === undefined) return;
+    fetchProducts(category);
   }, []);
 
   const handleChangeCategory = (cat) => {
@@ -44,7 +60,8 @@ export default function CustomerPage() {
     setView({ type: viewName });
   };
 
-  if (allProducts === null) return;
+  if (displayedProducts === null) return;
+  console.log(displayedProducts);
 
   return (
     <Flex className={styles.container}>
@@ -57,7 +74,7 @@ export default function CustomerPage() {
         {category ? (
           <CustomerPageBody
             category={category || "ALL"}
-            products={allProducts}
+            products={displayedProducts}
           />
         ) : (
           <Outlet />
