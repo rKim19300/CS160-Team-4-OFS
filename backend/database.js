@@ -140,7 +140,7 @@ class DB {
         return q[0];
     }
 
-    static async insert_new_user(email, username, hashedPw, user_type=UserType.CUSTOMER) {
+    static async insert_new_user(email, username, hashedPw, user_type = UserType.CUSTOMER) {
         await db.query("INSERT INTO Users(email, username, password, user_type) VALUES (?, ?, ?, ?)", [email, username, hashedPw, user_type]);
     }
 
@@ -182,14 +182,29 @@ class DB {
 
     static async add_new_product(name, description, image_url, price, weight, quantity) {
         await db.query("INSERT INTO Products(name, description, image_url, price, weight, quantity) VALUES (?, ?, ?, ?, ?, ?)", [name, description, image_url, price, weight, quantity]);
+        // retrieve the product_id of the newly inserted product
+        let lastInsertedProduct = await db.query("SELECT last_insert_rowid() as product_id");
+        let product_id = lastInsertedProduct[0].product_id;
+        return product_id;
     }
 
     static async update_product_info(product_id, name, description, image_url, price, weight, quantity) {
-        await db.query("UPDATE Products SET name = ?, description = ?, image_url = ?, price = ?, weight = ?, quantity = ? WHERE product_id = ?", [name, description, image_url, price, weight, quantity]);
+        await db.query("UPDATE Products SET name = ?, description = ?, image_url = ?, price = ?, weight = ?, quantity = ? WHERE product_id = ?", [name, description, image_url, price, weight, quantity, product_id]);
     }
-  
+
     static async subtract_product_inventory_quantity(product_id, quantity) {
         await db.query("UPDATE Products SET quantity = quantity - ? WHERE product_id = ?", [quantity, product_id]);
+    }
+
+    static async get_products_with_category_name(category_name) {
+        // get the category_id from the name
+        let q = await db.query("SELECT category_id FROM Categories WHERE name = ?", [category_name]);
+        if (q.length === 0) {
+            return { prods: null, errMsg: `Category '${category_name}' does not exist` };
+        }
+        let category_id = q[0]["category_id"];
+        let prods = await db.query("SELECT p.* FROM Products AS p INNER JOIN Product_to_categories AS ptc ON p.product_id = ptc.product_id WHERE ptc.category_id = ?", [category_id]);
+        return { prods, errMsg: null };
     }
 
     ///////
@@ -205,7 +220,6 @@ class DB {
     }
 
     static async set_product_categories(product_id, category_ids) {
-        if (category_ids.length < 1) return;
         await db.query("DELETE FROM Product_to_categories WHERE product_id = ?", [product_id]);
         for (let category_id of category_ids) {
             await db.query("INSERT INTO Product_to_categories(product_id, category_id) VALUES (?, ?)", [product_id, category_id]);
@@ -237,14 +251,14 @@ class DB {
     }
 
     static async get_cart_items(cart_id) {
-        let q = await db.query("SELECT p.product_id, p.name, p.description, p.price, p.weight, p.image_url, ci.quantity FROM Cart_items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
+        let q = await db.query("SELECT p.product_id, p.name, p.description, p.price, p.weight, p.image_url, p.quantity AS inventoryAmt, ci.quantity FROM Cart_items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
         return q;
     }
 
     static async modify_cart_item_quantity(cart_id, product_id, quantity) {
         await db.query("UPDATE Cart_Items SET quantity = ? WHERE cart_id = ? AND product_id = ?", [quantity, cart_id, product_id]);
     }
-  
+
     static async get_cart_weight(cart_id) {
         let q = await db.query("SELECT SUM(p.weight * ci.quantity) FROM Cart_Items as ci INNER JOIN Products as p ON ci.product_id = p.product_id WHERE ci.cart_id = ?", [cart_id]);
         return parseFloat(q[0]["SUM(p.weight * ci.quantity)"]) || 0;
@@ -258,7 +272,7 @@ class DB {
     static async delete_all_cart_items(cart_id) {
         await db.query("DELETE FROM Cart_items WHERE cart_id = ?", [cart_id]);
     }
-  
+
     static async get_cart_item_quantity(cart_id, product_id) {
         let q = await db.query("SELECT quantity FROM Cart_items WHERE cart_id = ? AND product_id = ?", [cart_id, product_id]);
         return q.length > 0 ? parseInt(q[0]["quantity"]) : 0;
@@ -275,11 +289,10 @@ class DB {
     static async get_user_order_history(user_id) {
         // TODO: FINISH THIS
     }
-
     /**
      * Adds and new Order to the data, as well as placing it on a route
      */
-    static async add_new_order(user_id, cost, weight, address, delivery_fee, created_at, cart_id, latitude, longitude) {
+    static async add_new_order(user_id, cost, weight, address, delivery_fee, created_at, cart_id) {
         // inserts the order data into the `Orders` table and the `Order_items` table
         await db.query("INSERT INTO Orders(user_id, cost, weight, address, delivery_fee, created_at, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [user_id, cost, weight, address, delivery_fee, created_at, latitude, longitude]);
         // retrieve the last inserted order_id
@@ -320,7 +333,6 @@ class DB {
     }
 
     // For the sake of placing them on the map
-    // TODO later we can get them based on route
     static async get_unfinished_orders() {
       let q = await db.query(`SELECT * FROM Orders WHERE status < ${OrderStatus.DELIVERED}`);
       for (let i = 0; i < q.length; i++) {
@@ -330,6 +342,36 @@ class DB {
       return q; 
     }
     
+    static async get_order_info(order_id) {
+        let orderInfo = (await db.query("SELECT order_id, user_id, cost, weight AS total_weight, address, delivery_fee, status, created_at FROM Orders WHERE order_id = ?", [order_id]))[0];
+        if (orderInfo === undefined) {
+            return { errMsg: `Order with order_id '${order_id}' does not exist`, orderInfo: null };
+        }
+        let order_items = await db.query("SELECT oi.product_id, oi.quantity, p.name, p.image_url, p.price, p.weight FROM Order_items AS oi INNER JOIN Products AS p ON oi.product_id = p.product_id WHERE oi.order_id = ?", [order_id]);
+        orderInfo["products"] = order_items;
+        const subtotal = order_items.reduce((accumulator, currentVal) => {
+            return accumulator + (currentVal.price * currentVal.quantity);
+        }, 0);
+        orderInfo["subtotal"] = subtotal;
+        orderInfo["taxAmount"] = subtotal / 100;
+        return { orderInfo, errMsg: null };
+    }
+
+    static async get_user_orders(user_id) {
+        let all_user_orders = {};
+        const order_statuses = ["Ongoing Orders", "Out For Delivery", "Order History"];
+        for (let [statusNum, orderStatus] of order_statuses.entries()) { // equivalent of enumerate() in python
+            // DONT FORGET TO ADD DELIVERY TIME
+            let orders = await db.query("SELECT order_id, cost, created_at, status FROM Orders WHERE user_id = ? AND status = ?", [user_id, statusNum]);
+            for (let order of orders) {
+                let prod_imgs = await db.query("SELECT p.image_url FROM Products AS p INNER JOIN Order_items AS oi ON p.product_id = oi.product_id WHERE oi.order_id = ?", [order.order_id]);
+                order["image_urls"] = prod_imgs.map(e => e.image_url);
+            }
+            all_user_orders[orderStatus] = orders;
+        }
+        return all_user_orders;
+    }
+
     ///////
     // ANALYTICS queries
     ///////

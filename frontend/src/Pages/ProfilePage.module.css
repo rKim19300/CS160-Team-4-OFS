@@ -1,13 +1,13 @@
 .container {
   flex-direction: column;
   justify-content: space-between;
-  height: 100vh;
+  height: auto;
 }
 
 .bodyContainer {
   padding: 16px 48px;
   flex-direction: column;
-  width: 100%;
+  width: 75vw;
 }
 
 .profileIcon {

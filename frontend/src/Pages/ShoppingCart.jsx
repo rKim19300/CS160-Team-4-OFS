@@ -28,6 +28,26 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [cartSubtotal, setCartSubtotal] = useState(0);
   const [taxAmount, setTaxAmount] = useState(0);
+  
+  // keep track of error msgs for each item in the users cart
+  // if a product's quantity is invalid, it's product id will be added to this set
+  // once its quantity is valid, it will be removed from the set
+  // users can only checkout if this set is empty (memaning there's no errors)
+  const [prodItemErrs, setProdItemErrs] = useState(new Set()); 
+  // functions to add and remove product_ids from the `prodItemErrs` set
+  // need to create a new set everytime we modify the set in order to update the state
+  const addProdErr = prodID => {
+    if (prodItemErrs.has(prodID)) return;
+    setProdItemErrs(prev => new Set(prev).add(prodID));
+  }
+  const removeProdErr = prodID => {
+    if (!prodItemErrs.has(prodID)) return;
+    setProdItemErrs(prev => {
+      const next = new Set(prev);
+      next.delete(prodID);
+      return next;
+    });
+  }
 
   // fetch the user's cart info from the backend
   async function fetchCartData() {
@@ -52,15 +72,29 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
     });
     if (response.status === 200) {
       fetchCartData();
+      removeProdErr(product_id);
     }
   }
 
   async function modifyCartItemQuantity(
-    product_id,
+    product,
     quantity,
     setCartItemErrMsg
   ) {
     console.log(quantity);
+    const { product_id } = product;
+    // Before making request to backend, check if `quantity` is within the valid bounds
+    if (quantity > product.inventoryAmt) {
+      setCartItemErrMsg(`Maximum quantity allowed in cart: ${product.inventoryAmt}`);
+      addProdErr(product_id);
+      return;
+    }
+    if (quantity < 1) {
+      setCartItemErrMsg(`Invalid quantity`);
+      addProdErr(product_id);
+      return;
+    }
+    // Make request to backend
     let response = await axiosInstance.post("/api/modifyCartItemQuantity", {
       product_id,
       quantity,
@@ -68,8 +102,10 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
     if (response.status === 200) {
       fetchCartData();
       setCartItemErrMsg("");
+      removeProdErr(product_id);
     } else {
       setCartItemErrMsg(response.data);
+      addProdErr(product_id);
     }
     console.log(response.data);
   }
@@ -81,7 +117,10 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
       <Drawer
         isOpen={isOpen}
         placement="right"
-        onClose={onClose}
+        onClose={() => {
+          onClose();
+          setProdItemErrs(new Set()); // get rid of product item errors when cart window is closed
+        }}
         finalFocusRef={btnRef}
       >
         <DrawerOverlay />
@@ -134,7 +173,7 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
               </Text>
             </Flex>
             <a href="/checkout">
-              <Button className={styles.checkoutButton} colorScheme="green">
+              <Button className={styles.checkoutButton} colorScheme="green" isDisabled={prodItemErrs.size > 0 || cartItems.length === 0}>
                 Checkout
               </Button>
             </a>
@@ -148,7 +187,6 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
 function CartItem({ product, removeItemFromCart, modifyCartItemQuantity }) {
   const [cartItemErrMsg, setCartItemErrMsg] = useState("");
 
-  const quantityRef = useRef();
   return (
     <Flex className={styles.outsideContainer}>
       <Flex className={styles.topSection}>
@@ -162,16 +200,17 @@ function CartItem({ product, removeItemFromCart, modifyCartItemQuantity }) {
           maxW={16}
           defaultValue={product.quantity}
           min={1}
+          max={product.inventoryAmt}
           clampValueOnBlur={false}
-          onBlur={() =>
+          onChange={(newQuantity) => {
             modifyCartItemQuantity(
-              product.product_id,
-              quantityRef.current.value,
+              product,
+              newQuantity,
               setCartItemErrMsg
             )
-          }
+          }}
         >
-          <NumberInputField ref={quantityRef} height="100%" />
+          <NumberInputField height="100%" />
           <NumberInputStepper>
             <NumberIncrementStepper />
             <NumberDecrementStepper />
@@ -181,7 +220,7 @@ function CartItem({ product, removeItemFromCart, modifyCartItemQuantity }) {
 
       <Flex className={styles.bottomSection}>
         <Text className={styles.priceText}>
-          ${(product.price * product.quantity).toFixed(2)}
+          ${cartItemErrMsg.length < 1 ? (product.price * product.quantity).toFixed(2) : "0.00"}
         </Text>
         <Button
           className={styles.removeButton}

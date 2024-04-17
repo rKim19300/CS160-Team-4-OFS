@@ -25,15 +25,16 @@ const responsive = {
 };
 
 export default function ProductCarousel({ products }) {
+  let isInfinite = products.length > 4;
   return (
     <div style={{ width: "100%", paddingTop: "16px" }}>
       <Carousel
         additionalTransfrom={0}
-        arrows
+        arrows={isInfinite}
         autoPlaySpeed={3000}
         centerMode
         draggable
-        infinite
+        infinite={isInfinite}
         keyBoardControl
         minimumTouchDrag={80}
         pauseOnHover
@@ -41,7 +42,7 @@ export default function ProductCarousel({ products }) {
         swipeable
       >
         {products.map((product, idx) => (
-            <ProductItem key={idx} product={product} />
+          <ProductItem key={idx} product={product} />
         ))}
       </Carousel>
     </div>
@@ -52,7 +53,7 @@ function ProductItem({ product }) {
   return (
     <Flex className={styles.productItem}>
       <img className={styles.prodImg} src={product.image_url} />
-      <Link to={`/productInfo/${product.product_id}`}>
+      <Link to={`/customer/productInfo/${product.product_id}`}>
         <Text className={styles.productTitle}>{product.name}</Text>
       </Link>
       <Text className={styles.productPrice}>${product.price.toFixed(2)}</Text>

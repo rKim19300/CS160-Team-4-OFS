@@ -76,7 +76,6 @@ async function addCategories() {
     await DB.add_new_category("Protein");
     await DB.add_new_category("Snacks & Candy");
     await DB.add_new_category("Frozen");
-    await DB.add_new_category("Nuts");
 }
 
 async function setProductCategories() {

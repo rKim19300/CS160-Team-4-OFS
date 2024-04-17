@@ -13,6 +13,7 @@ import Components from "../Enums/EmployeeDashboardComponents.ts";
 import SignOutButton from "./SignOutButton";
 import { UserType } from "../Enums/enums.js";
 import axiosInstance from "../axiosInstance";
+import { Link } from "react-router-dom";
 
 /**
  * @param { onComponentChange } Stores the name of the clicked component
@@ -39,25 +40,29 @@ export default function SideBarEmployee({ onComponentChange }) {
     return (
         <Flex className={styles.container}>
           <Flex className={styles.categoriesContainer}>
+            <Link to="inventory" >
             <Button 
             variant="ghost" 
             width="10vw" 
-            onClick={() => onComponentChange(Components.Inventory)}
+            // onClick={() => onComponentChange(Components.Inventory)}
             >
                 Inventory
             </Button>
+            </Link>
+            <Link to="orders" >
             <Button 
             variant="ghost" 
             width="10vw" 
-            onClick={() => onComponentChange(Components.Orders)}
+            // onClick={() => onComponentChange(Components.Orders)}
             >
                 Orders
             </Button>
+            </Link>
             {userType === UserType.MANAGER && <ManagerAccordion onComponentChange={ onComponentChange }/>}
           </Flex>
           <Flex className={styles.bottomButtons}>
             <Button>
-              <a href="/profile">Profile</a>
+              <a href="/customer/profile">Profile</a>
             </Button>
             <SignOutButton />
           </Flex>
@@ -82,21 +87,25 @@ function ManagerAccordion({ onComponentChange }) {
               </Box>
           </AccordionButton>
           <AccordionPanel>
+              <Link to="analytics">
               <Button 
               variant="ghost" 
               width="8vw" 
-              onClick={() => onComponentChange(Components.Analytics)}
+              // onClick={() => onComponentChange(Components.Analytics)}
               >
                 Analytics
               </Button>
+              </Link>
               <br />
+              <Link to="staff">
               <Button 
               variant="ghost" 
               width="8vw" 
-              onClick={() => onComponentChange(Components.Employees)}
+              // onClick={() => onComponentChange(Components.Employees)}
               >
                 Employees
               </Button>
+              </Link>
           </AccordionPanel>
         </AccordionItem>
       </Accordion>

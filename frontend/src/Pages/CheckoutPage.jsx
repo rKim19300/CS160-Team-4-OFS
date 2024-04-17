@@ -84,6 +84,7 @@ export default function CheckoutPage({ variant }) {
     });
     if (response.status !== 200) {
       setConfirmErr(response.data);
+      console.log(response.data);
       return;
     }
     orderItems = response.data.items;
