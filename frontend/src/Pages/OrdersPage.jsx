@@ -80,15 +80,6 @@ export default function Orders() {
                     <Td>{order.created_at}</Td>
                     <Td>${order.cost.toFixed(2)}</Td>
                     <Td>
-                      {/* <Menu>
-                                    <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-                                        ...
-                                    </MenuButton>
-                                    <MenuList>
-                                        <MenuItem>Refund</MenuItem>
-                                        <MenuItem>Delete</MenuItem>
-                                    </MenuList>
-                                    </Menu> */}
                       <Link
                         to={`/employee/ordersinfo/${order.order_id}`}
                         className={styles.link}
