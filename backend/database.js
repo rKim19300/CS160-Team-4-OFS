@@ -164,14 +164,29 @@ class DB {
 
     static async add_new_product(name, description, image_url, price, weight, quantity) {
         await db.query("INSERT INTO Products(name, description, image_url, price, weight, quantity) VALUES (?, ?, ?, ?, ?, ?)", [name, description, image_url, price, weight, quantity]);
+        // retrieve the product_id of the newly inserted product
+        let lastInsertedProduct = await db.query("SELECT last_insert_rowid() as product_id");
+        let product_id = lastInsertedProduct[0].product_id;
+        return product_id;
     }
 
     static async update_product_info(product_id, name, description, image_url, price, weight, quantity) {
-        await db.query("UPDATE Products SET name = ?, description = ?, image_url = ?, price = ?, weight = ?, quantity = ? WHERE product_id = ?", [name, description, image_url, price, weight, quantity]);
+        await db.query("UPDATE Products SET name = ?, description = ?, image_url = ?, price = ?, weight = ?, quantity = ? WHERE product_id = ?", [name, description, image_url, price, weight, quantity, product_id]);
     }
 
     static async subtract_product_inventory_quantity(product_id, quantity) {
         await db.query("UPDATE Products SET quantity = quantity - ? WHERE product_id = ?", [quantity, product_id]);
+    }
+
+    static async get_products_with_category_name(category_name) {
+        // get the category_id from the name
+        let q = await db.query("SELECT category_id FROM Categories WHERE name = ?", [category_name]);
+        if (q.length === 0) {
+            return { prods: null, errMsg: `Category '${category_name}' does not exist` };
+        }
+        let category_id = q[0]["category_id"];
+        let prods = await db.query("SELECT p.* FROM Products AS p INNER JOIN Product_to_categories AS ptc ON p.product_id = ptc.product_id WHERE ptc.category_id = ?", [category_id]);
+        return { prods, errMsg: null };
     }
 
     ///////
@@ -187,7 +202,6 @@ class DB {
     }
 
     static async set_product_categories(product_id, category_ids) {
-        if (category_ids.length < 1) return;
         await db.query("DELETE FROM Product_to_categories WHERE product_id = ?", [product_id]);
         for (let category_id of category_ids) {
             await db.query("INSERT INTO Product_to_categories(product_id, category_id) VALUES (?, ?)", [product_id, category_id]);
@@ -269,7 +283,7 @@ class DB {
     }
 
     static async get_order_info(order_id) {
-        let orderInfo = (await db.query("SELECT order_id, cost, weight AS total_weight, address, delivery_fee, status, created_at FROM Orders WHERE order_id = ?", [order_id]))[0];
+        let orderInfo = (await db.query("SELECT order_id, user_id, cost, weight AS total_weight, address, delivery_fee, status, created_at FROM Orders WHERE order_id = ?", [order_id]))[0];
         if (orderInfo === undefined) {
             return { errMsg: `Order with order_id '${order_id}' does not exist`, orderInfo: null };
         }

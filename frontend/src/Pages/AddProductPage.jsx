@@ -19,8 +19,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axiosInstance from "../axiosInstance";
 import toast, { Toaster } from "react-hot-toast";
 
-export default function ChangeProductPage() {
-  let { id } = useParams();
+export default function AddProductPage() {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [weight, setWeight] = useState("");
@@ -30,6 +29,15 @@ export default function ChangeProductPage() {
 
   const [categories, setCategories] = useState([]);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
+
+  async function fetchCategories() {
+    let res = await axiosInstance.get("/api/allCategories");
+    setCategories(res.data);
+  }
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   // Function to handle when a category option is (un)selected
   const handleCheckboxChange = (categoryObj) => {
@@ -41,41 +49,16 @@ export default function ChangeProductPage() {
     console.log(selectedCategoryIds);
   };
 
-  async function fetchData() {
-    try {
-      let response = await axiosInstance.get(`/api/productInfo/${id}`);
-      setName(response.data.name);
-      setPrice(response.data.price.toFixed(2));
-      setWeight(response.data.weight);
-      setQuantity(response.data.quantity);
-      setImage(response.data.image_url);
-      setDescription(response.data.description);
-      setSelectedCategoryIds(response.data.categories.map(e => e.category_id));
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  async function fetchCategories() {
-    let res = await axiosInstance.get("/api/allCategories");
-    setCategories(res.data);
-  }
-
-  useEffect(() => {
-    fetchData();
-    fetchCategories();
-  }, []);
-
   const handleSave = async (event) => {
     event.preventDefault();
     try {
-      let response = await axiosInstance.post(`/api/updateProduct/${id}`, {
-        name,
-        price,
-        weight,
-        quantity,
+      let response = await axiosInstance.post(`/api/addProduct`, {
+        name, 
+        description, 
         image_url: image,
-        description,
+        price, 
+        weight, 
+        quantity, 
         category_ids: selectedCategoryIds
       });
       if (response.status === 200) {

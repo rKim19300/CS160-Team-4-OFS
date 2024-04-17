@@ -3,6 +3,7 @@ const { DB } = require("../database");
 const { body } = require("express-validator");
 const { checkLoggedIn, checkIsEmployee, validateReqBody } = require("../middleware/authMiddleware");
 const { HelperFuncs } = require("./util/helper_funcs");
+const { UserType } = require("../enums/enums");
 
 router.post("/placeOrder", checkLoggedIn,
     validateReqBody([
@@ -51,14 +52,17 @@ router.get("/allOrders", async (req, res) => {
     }
 });
 
-// TODO: Check to make sure that `req.user_id` matches the user_id saved with the specified `order_id`
-// This makes sure that customers can only see their own orders
-// Employees bypass this rule; they should be able to see everything
 router.get("/getOrderInfo/:order_id", checkLoggedIn, async (req, res) => {
     try {
         let order_id = req.params.order_id;
         let { orderInfo, errMsg } = await DB.get_order_info(order_id);
         if (errMsg) return res.status(400).send(errMsg); // order with order_id does not exist
+        // Check to make sure that customers can only see their own orders
+        // Employees bypass this rule; they are able to see everything
+        let { user_type, user_id } = req.session.user;
+        if (user_type === UserType.CUSTOMER && user_id !== orderInfo.user_id) {
+            return res.status(401).send("You cannot view this order");
+        }
         return res.status(200).json(orderInfo);
     } catch (err) {
         console.log(`ERROR WHEN FETCHING ORDER INFO: ${err}`);
