@@ -84,9 +84,20 @@ async function populate_route(route_id) {
     }
 }
 
+async function get_addresses() {
+    try {
+        let addresses = await DB.get_route_addresses(1);
+        console.log(JSON.stringify(addresses));
+    }
+    catch (err) {
+        console.error(`ADDRESS QUERY FAILED: ${err}`);
+    }
+}
+
 (async () => {
     // await robot_tests();
-    let route_id = await route_tests();
-    await populate_route(route_id);
+    //let route_id = await route_tests();
+    // await populate_route(route_id);
+    get_addresses();
 })();
 

@@ -1,5 +1,6 @@
 const { SocketRoom, StaffSocketFunctions } = require("../enums/enums");
 const { response } = require("express");
+const { DB } = require("../database");
 
 const ORIGIN_ADDRESS = "1 Washington Sq, San Jose, CA 95192";
 const MAX_DISTANCE_FROM_ORIGIN = 20;
@@ -74,7 +75,6 @@ async function validateAddress(addressLine1, addressLine2, city, state, zipCode)
 async function check_is_within_allowable_distance(address) {
     try {
         const encodedAddress = encodeAddress(address); // Encode unsafe characters
-        console.log(`The address is: "${encodedAddress}"`);
         let res = await fetch(`https://maps.googleapis.com/maps/api/distancematrix/json?destinations=
 		${encodedAddress}&origins=${ORIGIN_ADDRESS}&units=imperial&key=${API_KEY}`);
 		if (!res.ok) throw new Error("Failed to get data");
@@ -146,48 +146,60 @@ async function generateRouteData(addresses) {
     }
 }
 
-(async () => {
-    addresses = [
-        "1085 E Brokaw Rd #30, San Jose, CA 95131",
-        "2044 McKee Rd, San Jose, CA 95116",
-        "601 N 4th St, San Jose, CA 95112"
-    ];
-    await generateRouteData(addresses);
-})();
-
 /**
  * Sets the robot on route
  * 
- * @param {*} polyLineList 
- * @param {*} io 
+ * @param {*} robot_id      The robot on the route being traversed
+ * @param {*} route_id      The ID of the route being traversed
+ * @param {*} durations     An array containing the durations of each of the legs in seconds
+ * @param {*} decodedRoute  A 2D array of decoded polylines each representing a leg
+ * @param {*} io            The socket being used
  */
-function onRoute(polyLineList, io) {
-    onRouteHelper(polyLineList, io, 0);
+function onRoute(robot_id, route_id, durations, decodedRoute, io) {
+    onRouteHelper(robot_id, route_id, durations, decodedRoute, io, 0);
 }
 
-function onRouteHelper(polyLineList, io, i) {
+function onRouteHelper(robot_id, route_id, durations, decodedRoute, io, leg) {
     let coordIndex = 0;
-    let decodedList = polyLineList[i];
-    const incr = Math.round((decodedList.length - 1) / 5); // We will move the robot to a new lat every 5 seconds
-    // const incr = Math.ceil(((decodedList.length - 1) / legDuration) * 5);
+    let legDuration = durations[leg];
+    let decodedLeg = decodedRoute[leg];
+    const incr = Math.round((decodedLeg.length - 1) / 5); // Move the robot to a new lat every 5 seconds
+    // const incr = Math.ceil(((decodedLeg.length - 1) / legDuration) * 5);
 
     const interval = setInterval(async () => {
         
-        // Send the new location of the robot to anyone listening
-        let coord = decodedList[coordIndex];
-        io.to(SocketRoom.STAFF_ROOM).emit('updateRobot1', coord); // Emit to all in room
-        io.emit('updateRobot1', coord); // emit to self 
-        console.log(`Robot moved to ${JSON.stringify(coord)}`);
+        // Update the robot location in the database
+        let coord = decodedLeg[coordIndex];
+        await DB.update_robot_location(robot_id, coord.lat, coord.lng);
+
+        // Send the update for the robot location to anyone that is listening
+        io.to(SocketRoom.STAFF_ROOM).emit('updateRobots', coord); // Emit to all in room
+        io.emit('updateRobots', coord); // emit to self 
+        console.log(`Robot (ID: ${robot_id}) moved to ${JSON.stringify(coord)}`);
             
         coordIndex += incr; // Increment to the next location
-        console.log(`Robot moved to ${coordIndex}`);
         
         // Check if should stop and move on to the next leg
-        if (coordIndex > decodedList.length - 1) {
+        if (coordIndex > decodedLeg.length - 1) {
             clearInterval(interval);
             
-            if (i < polyLineList.length - 1)
-                onRouteHelper(polyLineList, io, ++i);
+            // Update the status of the order and remove it from the database
+            await DB.finish_route_leg(route_id, leg);
+            console.log(`leg ${leg} removed from route ${route_id}`);
+
+            // Tell anyone listening to update their orders and polylines
+            io.to(SocketRoom.STAFF_ROOM).emit('updatePolylines', coord); // Emit to all in room
+            io.emit('updatePolylines', coord); // emit to self 
+            io.to(SocketRoom.STAFF_ROOM).emit('updateOrders', coord); // Emit to all in room
+            io.emit('updateOrders', coord); // emit to self 
+
+            // Move to the next leg if there is one
+            if (leg < decodedRoute.length - 1)
+                onRouteHelper(robot_id, route_id, durations, decodedRoute, io, ++leg);
+            else {
+                await DB.delete_route(route_id);
+                console.log(`route (ID ${route_id}) finished`);
+            }
         }
             
     }, 5000);

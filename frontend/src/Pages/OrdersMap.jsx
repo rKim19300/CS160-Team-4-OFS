@@ -40,6 +40,7 @@ export default function OrdersMap() {
         lat: 37.33518596879412, 
         lng: -121.88107208071463
     };
+
     const [robot1, setRobot1] = useState(store);
     const [robot2, setRobot2] = useState(store);
 
@@ -47,19 +48,17 @@ export default function OrdersMap() {
     const [ center, setCenter ] = useState(store);
 
     const [directions, setDirections] = useState(null);
-    const [ decodedPaths, setDecodedPaths ] = useState(null);
+    const [ decodedPaths, setDecodedPaths ] = useState({robot1: [], robot2: []});
     const [orders, setOrders] = useState(null);
-
-    // Of the whole route
-    const [distance, setDistance] = useState(0); // In miles
-    const [duration, setDuration] = useState(0); // In Seconds 
 
     const { isLoaded, loadError } = useLoadScript({
         googleMapsApiKey: "AIzaSyB4kJ8KLkJZ9C-E372tsLHyl29Ks-9jUmg"
     });
 
     const sendRobot = async () => {
-        let response = await axiosInstance.get('/api/sendRobot');
+        let response = await axiosInstance.post('/api/sendRobot', {
+            robot_id: 1
+        });
         if (response.status !== 200) {
             console.error("Something went wrong when sending robot");
             return;
@@ -68,19 +67,25 @@ export default function OrdersMap() {
     }
 
     // TODO Have this function update the polylines
-    const fetchDirections = async () => {
+    const fetchDecodedpaths = async () => {
         try {
-            /*let response = await axiosInstance.get("/api/generateRouteData"); 
-            if (response.status !== 200) {
-                console.error("Something went wrong");
-                return;
-            }
-            
-            setDirections(response.data);
-            response = await axiosInstance.post("/api/decodePolyline", {
-                encodedPolyline: response.data.routes[0].polyline.encodedPolyline
-            });
-            setDecodedPath(response.data);*/
+            let response = await axiosInstance.get('/api/getDecodedPolylines');
+            console.log(response.data);
+            setDecodedPaths(response.data);
+        }
+        catch (err) {
+            console.error(err);
+        }
+    };
+
+    /**
+     * Assumption: Assumes that there are two robots
+     */
+    const fetchRobots = async () => {
+        try {
+            let response = await axiosInstance.get('/api/getRobots');
+            setRobot1(response.data[0]);
+            setRobot2(response.data[1]);
         }
         catch (err) {
             console.error(err);
@@ -95,22 +100,27 @@ export default function OrdersMap() {
         catch (err) {
             console.error(err);
         }
-    }
+    };
 
     useEffect(() => {
         if (isLoaded) {
-            fetchDirections();
+            fetchDecodedpaths();
             fetchOrders();
+            fetchRobots();
         }
     }, [isLoaded]);
 
     useEffect(() => {
-        socket.on('updateRobot1', (coord) => {
-            setRobot1(coord);
+        socket.on('updatePolylines', (coord) => {
+            fetchDecodedpaths();
+        });
+        socket.on('updateRobots', (coord) => {
+            fetchRobots();
         });
         socket.on('updateOrders', (coords) => {
             fetchOrders();
         });
+
       }, [socket]);
 
     if (loadError) return <div>Error loading maps</div>;
@@ -122,12 +132,12 @@ export default function OrdersMap() {
         // Set your custom icon URL here
         robot1: {
           url: '/robot1.png',
-          scaledSize: new window.google.maps.Size(25, 25) // Adjust the size as needed
+          scaledSize: new window.google.maps.Size(25, 25)
         },
         robot2: {
             url: '/robot2.png',
-            scaledSize: new window.google.maps.Size(25, 25) // Adjust the size as needed
-          }
+            scaledSize: new window.google.maps.Size(25, 25)
+        }
       };
 
     console.log(directions);
@@ -155,7 +165,7 @@ export default function OrdersMap() {
                 >   
                     {
                         /* Place the polylines on the map */
-                        decodedPaths && decodedPaths.map((path, idx) => (
+                        decodedPaths.robot1 && decodedPaths.robot1.map((path, idx) => (
                             <PolylineF
                                 key={idx}
                                 path={path}
@@ -177,14 +187,17 @@ export default function OrdersMap() {
                             />
                         ))
                     }
-                    <MarkerF position={store} title={"Store"} />
                     <MarkerF 
-                        position={robot1} 
+                        position={store} 
+                        title={"Store"} 
+                    />
+                    <MarkerF 
+                        position={{lat: robot1.latitude, lng: robot1.longitude}} 
                         icon={markerOptions.robot1} 
                         title={"Robot 1"}
                     />
                     <MarkerF 
-                        position={robot2} 
+                        position={{lat: robot2.latitude, lng: robot2.longitude}} 
                         icon={markerOptions.robot2} 
                         title={"Robot 2"}
                     />

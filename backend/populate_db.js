@@ -1,5 +1,10 @@
 const { DB } = require("./database");
 
+async function addRobots() {
+    DB.add_new_robot();
+    DB.add_new_robot();
+}
+
 async function addProducts() {
     // name, description, image_url, price, weight, quantity
 
@@ -307,5 +312,6 @@ async function addOrders() {
     await addCategories();
     await setProductCategories();
     await addProducts();
+    await addRobots();
     // await addOrders();
 })();

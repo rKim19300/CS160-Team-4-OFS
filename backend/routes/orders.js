@@ -73,7 +73,6 @@ router.get("/allOrders", async (req, res) => {
 router.get('/unfinishedOrders', checkIsStaff, async (req, res) => {
     try {
         let unfinishedOrders = await DB.get_unfinished_orders();
-        console.log(JSON.stringify(unfinishedOrders));
         return res.status(200).json(unfinishedOrders);
     }
     catch (err) {

@@ -426,6 +426,11 @@ class DB {
         return q;
     }
 
+    static async update_robot_location(robot_id, lat, lng) {
+        await db.query('UPDATE Robot SET latitude = ?, longitude = ? WHERE robot_id = ?', 
+            [lat, lng, robot_id]);
+    }
+
     /**
      * @returns boolean value
      */
@@ -435,16 +440,42 @@ class DB {
     }
 
     /**
-     * @returns The route_id or undefined if no route
+     * @returns The route object or undefined if no route
      */
     static async get_route(robot_id) {
         let q = await db.query("SELECT * FROM Delivery_routes WHERE robot_id = ?", [robot_id]);
         return q[0]; 
     }
 
+    // Checks if the robot is ON_ROUTE
     static async is_on_route(robot_id) {
         let q = await db.query("SELECT status FROM Robot WHERE robot_id = ?", [robot_id]);
-        return (q > 0);
+        return (q[0].status > RobotStatus.IDLE);
+    }
+
+    static async set_robot_on_route(robot_id) {
+        await db.query(`UPDATE Robot SET status = ${RobotStatus.ON_ROUTE} WHERE robot_id = ?`, 
+            [robot_id]);
+    }
+
+    /**
+     * Gets the polylines of the robot's route
+     * 
+     * @returns The endcoded polylines or an empty array if the routes does not exist
+     *          OR the route doesn't have have any
+     */
+    static async get_robot_route_polylines(robot_id) {
+
+        let route = await this.get_route(robot_id) // get Robot's route
+
+        // Gets polylines if robot has route
+        let q = [];
+        if (route !== undefined) {
+            q = await db.query(`SELECT polyline 
+                                    FROM Route_to_orders 
+                                    WHERE route_id = ? ORDER BY leg`, [route.route_id]);
+        }
+        return q.map(({ polyline }) => polyline);
     }
         
     ///////
@@ -481,6 +512,20 @@ class DB {
     static async get_all_routes() {
         let q = await db.query(`SELECT * FROM Delivery_routes ORDER BY created_at`);
         return q;
+    }
+
+    /**
+     * @param {*} route_id 
+     * @returns An array of addresses
+     */
+    static async get_route_addresses(route_id) {
+        let q = await db.query(`SELECT o.address 
+                                    FROM Route_to_orders AS rto
+                                    INNER JOIN Orders AS o 
+                                    ON rto.order_id = o.order_id
+                                    WHERE rto.route_id = ?
+                                            `, [route_id]);
+        return q.map(({ address }) => address);
     }
 
     /**
@@ -573,39 +618,71 @@ class DB {
      * @param {*} durations               The duration of each leg in seconds, order by the leg
      * @param {*} optimizedWaypointOrder  The optimized waypoint index returned by the routing API
      */
-    static async populate_route_data(route_id, addresses, polylines, durations, optimizedWaypointOrder) {
+    static async populate_route_data(robot_id, addresses, polylines, durations, optimizedWaypointOrder) {
 
         // TODO Check if associating it with the address causes a bug since address in not unique
-
         // TODO throw and error if durations is not made of integer values
 
+        // Take care of edge case
+        if (optimizedWaypointOrder[0] === -1) optimizedWaypointOrder[0] = 0;
+
+        // Set robot ON_ROUTE
+        await db.query(`UPDATE Robot SET status = ${RobotStatus.ON_ROUTE} WHERE robot_id = ?`, 
+            [robot_id]);
+
+        // Get the robot's route
+        let route_id = (await db.query(`SELECT route_id FROM Robot WHERE robot_id = ?`, 
+            [robot_id]))[0].route_id;
 
         let total_duration = 0; // Tracks the total duration so far in the loop
         for (let i = 0; i < addresses.length; i++) {
             total_duration += durations[i];
             let leg_address = addresses[optimizedWaypointOrder[i]];
-            
+
             // Fill out the leg information
             await db.query(`UPDATE Route_to_orders
                             SET polyline = ?,
                                 eta = datetime('now', '+${total_duration} seconds', 'localtime'),
                                 leg = ?,
                                 duration = ? 
-                            WHERE order_id = (SELECT order_id FROM Orders WHERE address = ?)
-                            AND route_id = ?
-                            `, [polylines[i], i, durations[i], leg_address, route_id]);
+                            WHERE order_id = (
+                                                SELECT o.order_id FROM Route_to_orders AS rto 
+                                                INNER JOIN Orders AS o 
+                                                ON rto.order_id = o.order_id
+                                                WHERE o.address = ? AND rto.route_id = ?
+                                        )`, [polylines[i], i, durations[i], leg_address, route_id]);
 
             // Update the order status
             await db.query(`UPDATE Orders SET status = ${OrderStatus.ON_THE_WAY} 
-                WHERE order_id = (SELECT order_id FROM Orders WHERE address = ?)`, [leg_address]);
+                WHERE order_id = (SELECT o.order_id FROM Route_to_orders AS rto 
+                    INNER JOIN Orders AS o 
+                    ON rto.order_id = o.order_id
+                    WHERE o.address = ? AND rto.route_id = ?
+                )`, [leg_address, route_id]);
         }
+
+        // Add the final leg to the store
+        const store_id = -1;
+        await db.query(`INSERT INTO Route_to_orders(
+                                                    route_id, 
+                                                    order_id, 
+                                                    polyline,
+                                                    leg, 
+                                                    duration) 
+                                    VALUES(?, ?, ?, ?, ?)`, 
+                                [
+                                    route_id, 
+                                    store_id, 
+                                    polylines[polylines.length - 1], 
+                                    polylines.length - 1,
+                                    durations[durations.length - 1]
+                                ]);
     }
 
     /**
      * Updates the delivery_time and status of the order and then deletes the route leg. 
      */
     static async finish_route_leg(route_id, leg) {
-
         // Update the delivery time of the order
         await db.query(`UPDATE 
                             Orders SET 
@@ -628,8 +705,15 @@ class DB {
         // Delete the route in the Delivery_routes table
         await db.query(`DELETE FROM Delivery_routes WHERE route_id = ?`, [route_id]);
 
-        // Remove the route from the robot 
-        await db.query(`UPDATE Robot SET route_id = NULL WHERE route_id = ?`, [route_id]);
+        // Update the robot's status, remove the route from the robot, and set location to store
+        await db.query(`UPDATE Robot 
+                                    SET 
+                                        status = ${RobotStatus.IDLE},
+                                        route_id = NULL,
+                                        latitude = ?,
+                                        longitude = ?
+                                    WHERE route_id = ?`, 
+                                    [this.store.lat, this.store.lng, route_id]);
     }
 
     ///////
