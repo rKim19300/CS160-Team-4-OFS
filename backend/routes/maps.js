@@ -11,21 +11,6 @@ const {
  } = require('../googleMapsRouting/queryHelper');
 
 
-/*router.get('/generateRouteData', checkIsStaff, async (req, res) => {
-	try {
-		let data = await generateRouteData([
-			"1085 E Brokaw Rd #30, San Jose, CA 95131",
-			"2044 McKee Rd, San Jose, CA 95116",
-			"601 N 4th St, San Jose, CA 95112"
-		]);
-		console.log(data);
-		res.status(200).json(data); 
-	}
-	catch (err) {
-		res.status(500).json(`Oops! Something went wrong on our end.`);
-	}
-
-});*/
 
 /**
  * Gets to robots and all of their data
@@ -35,6 +20,25 @@ router.get('/getRobots', checkIsStaff, async (req, res) => {
 		let data = await DB.get_all_robots();
 		// TODO handle query fail
 		res.status(200).json(data); 
+	}
+	catch (err) {
+		res.status(500).json(`Oops! Something went wrong on our end.`);
+	}
+});
+
+router.post('/getRobotOrders', checkIsStaff, async (req, res) => {
+	try {
+		let { robot_id } = req.body;
+
+		let route = await DB.get_route(robot_id); // Get robot's route
+		if (route === undefined) {
+			res.status(400).send("No route to get orders from");
+			return;
+		}
+
+		let orders = await DB.get_route_orders(route.route_id); // Get Robot's orders
+
+		res.status(200).send(orders);
 	}
 	catch (err) {
 		res.status(500).json(`Oops! Something went wrong on our end.`);
@@ -55,9 +59,6 @@ router.get('/getDecodedPolylines', checkIsStaff, async (req, res) => {
 		// Get the route_ids of the robots
 		let polylines1 = await DB.get_robot_route_polylines(robots[0].robot_id);
 		let polylines2 = await DB.get_robot_route_polylines(robots[1].robot_id);
-		console.log(`Polylines1: ${JSON.stringify(polylines1)}`);
-		console.log(`Polylines2: ${JSON.stringify(polylines2)}`);
-
 
 		// Decode the polylines
 		for (let i = 0; i < polylines1.length; i++)
@@ -79,7 +80,7 @@ router.post('/sendRobot', checkIsStaff, async (req, res) => {
 
 		// Check if the robot has a route
 		if (!(await DB.has_route(robot_id))) {
-			res.status(400).send("ERROR: A route has not been assigned to a robot");
+			res.status(400).send(`ERROR: A route has not been assigned this robot`);
 			return;
 		}
 

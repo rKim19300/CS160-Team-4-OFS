@@ -576,6 +576,11 @@ class DB {
         return false;
     }
 
+    /**
+     * 
+     * @param {*} route_id 
+     * @returns The order data from the route
+     */
     static async get_route_orders(route_id) {
                 let q = await db.query(`SELECT 
                 o.*
@@ -583,6 +588,10 @@ class DB {
                 INNER JOIN Orders AS o 
                 ON rto.order_id = o.order_id 
                 WHERE rto.route_id = ? ORDER BY created_at`, [route_id]);
+        for (let i = 0; i < q.length; i++) {
+            q[i].latitude = parseFloat(q[i].latitude);
+            q[i].longitude = parseFloat(q[i].longitude);
+            }
         // TODO might want to round the weights to two decimal places somewhere
         return q; 
     }

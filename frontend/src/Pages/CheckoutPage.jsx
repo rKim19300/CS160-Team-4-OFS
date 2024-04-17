@@ -172,8 +172,8 @@ function Step1Component({ handleNext }) {
   const [errMsg, setErrMsg] = useState("");
   // const [addressCoords, setAddressCoords] = useState(addressCoordinates["addressCoords"] || {});
 
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const cancelRef = React.useRef()
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = React.useRef();
 
 
   const submitForm = async (e) => {
