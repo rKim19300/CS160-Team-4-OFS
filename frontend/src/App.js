@@ -45,6 +45,7 @@ function App() {
                 <Route path="changeProduct/:id" element={<ChangeProductPage />} />
                 <Route path="addProduct" element={<AddProductPage />} />
                 <Route path="orders" element={<OrdersPage />} />
+                <Route path="map" element={<OrdersMap />} />
                 <Route path="ordersinfo/:id" element={<OrderInfoPage />} />
                 <Route path="staff" element={<EmployeesInfoPage />} />
                 <Route path="analytics" element={<Analytics />} />

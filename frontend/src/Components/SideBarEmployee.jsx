@@ -58,6 +58,14 @@ export default function SideBarEmployee({ onComponentChange }) {
                 Orders
             </Button>
             </Link>
+            <Link to="map" >
+            <Button 
+            variant="ghost" 
+            width="10vw" 
+            >
+                Map
+            </Button>
+            </Link>
             {userType === UserType.MANAGER && <ManagerAccordion onComponentChange={ onComponentChange }/>}
           </Flex>
           <Flex className={styles.bottomButtons}>

@@ -46,7 +46,7 @@ export default function OrdersMap() {
     // -- Constants --
     const containerStyle = {
         width: '100%',
-        height: '475px',
+        height: '400px',
     };
 
     // Hard coded SJSU ("store") address
@@ -338,7 +338,7 @@ export default function OrdersMap() {
                     
                 </Text>
             </Flex>
-            <Flex className={styles.MapContainer}>
+            <Flex marginLeft='100' className={styles.MapContainer}>
                 <Box>
                     <Tabs>
                         <TabList>

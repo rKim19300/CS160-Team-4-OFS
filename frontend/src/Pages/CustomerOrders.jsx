@@ -84,7 +84,7 @@ function OrderComponent({ order }) {
         {order.status === 2 ? (
           <GridItem>
             <Text className={styles.infoText}>Delivered At</Text>
-            <Text>15:30</Text>
+            <Text>{order.time_delivered}</Text>
           </GridItem>
         ) : (
           <GridItem>

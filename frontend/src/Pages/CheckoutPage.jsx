@@ -196,6 +196,7 @@ function Step1Component({ handleNext }) {
       }
       else {
         addressCoordinates = response.data;
+        console.log(response.data);
       }
     }
     catch (err) {

@@ -11,7 +11,7 @@ router.post("/placeOrder", checkLoggedIn,
     ]),
     async (req, res) => {
         try {
-            let { street_address } = req.body;
+            let { street_address, coordinates } = req.body;
             let cart_id = await DB.get_cart_id(req.user_id);
             let cart_items = await DB.get_cart_items(cart_id);
             if (cart_items.length === 0) return res.status(400).send("There are no items in your cart. Cannot place an order");
@@ -20,7 +20,7 @@ router.post("/placeOrder", checkLoggedIn,
             let errMsgs = await HelperFuncs.check_all_cart_items_availability(cart_items);
             if (errMsgs.length > 0) return res.status(400).json(errMsgs);
             let { cartWeight, subtotal_cost, deliveryFee, taxAmount, ordered_at } = await HelperFuncs.get_cart_summary(cart_id);
-            await DB.add_new_order(req.user_id, subtotal_cost+deliveryFee+taxAmount, cartWeight, street_address, deliveryFee, ordered_at, cart_id);
+            await DB.add_new_order(req.user_id, subtotal_cost+deliveryFee+taxAmount, cartWeight, street_address, deliveryFee, ordered_at, cart_id, coordinates.lat, coordinates.lng);
 
             // make sure to update product inventory. This means subtract from `Products` table the amount of each product that was in the users cart
             for (let cart_item of cart_items) {

@@ -292,7 +292,7 @@ class DB {
     /**
      * Adds and new Order to the data, as well as placing it on a route
      */
-    static async add_new_order(user_id, cost, weight, address, delivery_fee, created_at, cart_id) {
+    static async add_new_order(user_id, cost, weight, address, delivery_fee, created_at, cart_id, latitude, longitude) {
         // inserts the order data into the `Orders` table and the `Order_items` table
         await db.query("INSERT INTO Orders(user_id, cost, weight, address, delivery_fee, created_at, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [user_id, cost, weight, address, delivery_fee, created_at, latitude, longitude]);
         // retrieve the last inserted order_id
@@ -343,7 +343,7 @@ class DB {
     }
     
     static async get_order_info(order_id) {
-        let orderInfo = (await db.query("SELECT order_id, user_id, cost, weight AS total_weight, address, delivery_fee, status, created_at FROM Orders WHERE order_id = ?", [order_id]))[0];
+        let orderInfo = (await db.query("SELECT order_id, user_id, cost, weight AS total_weight, address, delivery_fee, status, created_at, time_delivered FROM Orders WHERE order_id = ?", [order_id]))[0];
         if (orderInfo === undefined) {
             return { errMsg: `Order with order_id '${order_id}' does not exist`, orderInfo: null };
         }
@@ -362,7 +362,7 @@ class DB {
         const order_statuses = ["Ongoing Orders", "Out For Delivery", "Order History"];
         for (let [statusNum, orderStatus] of order_statuses.entries()) { // equivalent of enumerate() in python
             // DONT FORGET TO ADD DELIVERY TIME
-            let orders = await db.query("SELECT order_id, cost, created_at, status FROM Orders WHERE user_id = ? AND status = ?", [user_id, statusNum]);
+            let orders = await db.query("SELECT order_id, cost, created_at, status, time_delivered FROM Orders WHERE user_id = ? AND status = ?", [user_id, statusNum]);
             for (let order of orders) {
                 let prod_imgs = await db.query("SELECT p.image_url FROM Products AS p INNER JOIN Order_items AS oi ON p.product_id = oi.product_id WHERE oi.order_id = ?", [order.order_id]);
                 order["image_urls"] = prod_imgs.map(e => e.image_url);

@@ -77,7 +77,7 @@ export default function OrderInfoPage({ order_id }) {
             ) : orderInfo.status === 2 ? (
               <>
                 <Text>Order Status: Completed</Text>
-                <Text>Delivered At: 14:30</Text>
+                <Text>Delivered At: {orderInfo.time_delivered}</Text>
               </>
             ) : (
               <Text>Not Found</Text>
