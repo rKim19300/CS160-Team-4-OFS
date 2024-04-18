@@ -12,7 +12,7 @@ LOGIN_URL = "http://localhost:3000"
 def main():
 
     # Create object and link to server
-    service = Service(executable_path="chromedriver.exe")
+    service = Service(executable_path=".\\chromedriver.exe")
     driver = webdriver.Chrome(service=service)
 
     driver.get(LOGIN_URL)
@@ -30,7 +30,7 @@ def main():
     clickSignUp(driver)
     
     # Test Case: empty Input Field
-    time.sleep(2)   # pause for class to see action
+    time.sleep(1)   # pause for class to see action
     clickSubmit(driver)
     
     # Test Case: Email Input 
@@ -39,30 +39,7 @@ def main():
     time.sleep(5)
     driver.quit()
 
-"""LOG IN PAGE SECTION"""
-
-def testEmptyInput(driver):
-    '''Test Case for invalid account log in'''
-    clickContinue(driver)
-    time.sleep(2)   # pause for class to see action
-    clickOK(driver)
-    
-def testInvalidAccount(driver):
-    '''Test Case for invalid account log in'''
-    fillInEmail(driver, "invalidAccount@ofs.com")
-    fillInPassword(driver, "P@$$w0rd")
-    time.sleep(2)   # pause for class to see action
-    clickContinue(driver)
-    time.sleep(2)   # pause for class to see action
-    clickOK(driver)
-    
-def testAdminAccount(driver):
-    ''' Test Case for Admin account Successfully login '''
-    fillInEmail(driver, "admin@admin.com")
-    fillInPassword(driver, "admin")
-    time.sleep(2)   # pause for class to see action
-    clickContinue(driver)
-    
+""" HELPER FUNCTIONS"""
 
 def clickContinue(driver):
     '''Find and click Continue button'''
@@ -70,7 +47,6 @@ def clickContinue(driver):
     WebDriverWait(driver, 5).until(
         EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Continue')]"))
     )
-    
     continueButton = driver.find_element(By.XPATH, "//*[contains(text(), 'Continue')]")
     continueButton.click()
 
@@ -80,7 +56,6 @@ def clickOK(driver):
     WebDriverWait(driver, 5).until(
         EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'OK')]"))
     )
-    
     confirmButton = driver.find_element(By.XPATH, "//*[contains(text(), 'OK')]")
     confirmButton.click()
 
@@ -104,7 +79,35 @@ def fillInPassword(driver, password):
     passwordInput.clear()
     passwordInput.send_keys(password)
     
-"""SIGN UP PAGE SECTION"""
+    
+"""LOG IN PAGE FUNCTIONS"""
+
+def testEmptyInput(driver):
+    '''Test Case for empty input log in'''
+    clickContinue(driver)
+    time.sleep(1)   # pause for class to see action
+    clickOK(driver)
+    
+def testInvalidAccount(driver):
+    '''Test Case for invalid account log in'''
+    fillInEmail(driver, "invalidAccount@ofs.com")
+    fillInPassword(driver, "P@$$w0rd")
+    time.sleep(1)   # pause for class to see action
+    clickContinue(driver)
+    time.sleep(1)   # pause for class to see action
+    clickOK(driver)
+    
+def testAdminAccount(driver):
+    ''' Test Case for Admin account Successfully login '''
+    fillInEmail(driver, "admin@admin.com")
+    fillInPassword(driver, "admin")
+    time.sleep(1)   # pause for class to see action
+    clickContinue(driver)
+    
+
+
+    
+"""SIGN UP PAGE FUNCTIONS"""
 
 def clickSignUp(driver):
     '''Find and click link to Sign Up Page'''
