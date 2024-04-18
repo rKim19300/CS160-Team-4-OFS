@@ -325,6 +325,7 @@ class DB {
             if (((wno.total_weight + weight) <= MAX_ROUTE_WEIGHT) 
                 && (wno.order_num < MAX_ROUTE_ORDERS)) {
                 await this.add_order_to_route(route_id, order_id);
+                // TODO check here if the order is ready to be sent
                 return;
             }
         }
@@ -690,26 +691,27 @@ class DB {
             total_duration += durations[i];
             let leg_address = addresses[optimizedWaypointOrder[i]];
 
+            // Get the order id's
+            let order_id = (await db.query(`SELECT o.order_id FROM Route_to_orders AS rto 
+                                            INNER JOIN Orders AS o 
+                                            ON rto.order_id = o.order_id
+                                            WHERE o.address = ? 
+                                            AND rto.route_id = ? 
+                                            AND rto.polyline IS NULL`, 
+                                            [leg_address, route_id]))[0].order_id;;
+
             // Fill out the leg information
             await db.query(`UPDATE Route_to_orders
                             SET polyline = ?,
                                 eta = datetime('now', '+${total_duration} seconds', 'localtime'),
                                 leg = ?,
                                 duration = ? 
-                            WHERE order_id = (
-                                                SELECT o.order_id FROM Route_to_orders AS rto 
-                                                INNER JOIN Orders AS o 
-                                                ON rto.order_id = o.order_id
-                                                WHERE o.address = ? AND rto.route_id = ?
-                                        )`, [polylines[i], i, durations[i], leg_address, route_id]);
+                            WHERE order_id = ?`, 
+                            [polylines[i], i, durations[i], order_id]);
 
             // Update the order status
             await db.query(`UPDATE Orders SET status = ${OrderStatus.ON_THE_WAY} 
-                WHERE order_id = (SELECT o.order_id FROM Route_to_orders AS rto 
-                    INNER JOIN Orders AS o 
-                    ON rto.order_id = o.order_id
-                    WHERE o.address = ? AND rto.route_id = ?
-                )`, [leg_address, route_id]);
+                WHERE order_id = ?`, [order_id]);
         }
 
         // Add the final leg to the store

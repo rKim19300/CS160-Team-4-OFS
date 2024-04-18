@@ -81,11 +81,11 @@ setInterval(async () => {
   let robots = await DB.get_all_robots();
   let routes = await DB.get_all_routes();
 
-  // In a for loop check if either of the robots doesn't have a route
+  // In a for loop, check if either of the robots doesn't have a route
   let route_start = 0; // Index where you should start searching for routes
   for (let i = 0; i < robots.length; i++) {
 
-    // Assign a route to a robot, robot doesn't already have a route
+    // Assign a route to a robot if robot doesn't already have a route
     if (!(await DB.has_route(robots[i].robot_id))) {
       for (let j = route_start; j < routes.length; j++) {
 

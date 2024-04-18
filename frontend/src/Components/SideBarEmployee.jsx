@@ -44,7 +44,6 @@ export default function SideBarEmployee({ onComponentChange }) {
             <Button 
             variant="ghost" 
             width="10vw" 
-            // onClick={() => onComponentChange(Components.Inventory)}
             >
                 Inventory
             </Button>
@@ -53,7 +52,6 @@ export default function SideBarEmployee({ onComponentChange }) {
             <Button 
             variant="ghost" 
             width="10vw" 
-            // onClick={() => onComponentChange(Components.Orders)}
             >
                 Orders
             </Button>

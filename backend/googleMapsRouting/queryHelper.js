@@ -165,7 +165,7 @@ function onRouteHelper(robot_id, route_id, durations, decodedRoute, io, leg) {
     let coordIndex = 0;
     let legDuration = durations[leg];
     let decodedLeg = decodedRoute[leg];
-    const incr = Math.ceil(((decodedLeg.length - 1) / legDuration) * seconds); // Move robot every X seconds
+    const incr = Math.ceil(((decodedLeg.length) / legDuration) * seconds); // Move robot every X seconds
 
     const interval = setInterval(async () => {
         

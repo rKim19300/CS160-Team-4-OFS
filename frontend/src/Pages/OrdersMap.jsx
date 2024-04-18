@@ -340,7 +340,7 @@ export default function OrdersMap() {
             </Flex>
             <Flex marginLeft='100' className={styles.MapContainer}>
                 <Box>
-                    <Tabs>
+                    <Tabs isLazy={true}>
                         <TabList>
                             <Tab 
                                 onClick={() => {handleContent(ORDER_TAB)}}  
@@ -371,16 +371,9 @@ export default function OrdersMap() {
                         fullscreenControl: false
                     }}
                 >   
-
-                    {
-                        showRobot1 && robot1Content()
-                    }
-                    {
-                        showOrders && orderContent()
-                    }
-                    {
-                        showRobot2 && robot2Content()
-                    }
+                    {showRobot1 && robot1Content()}
+                    {showOrders && orderContent()}
+                    {showRobot2 && robot2Content()}
                     <MarkerF 
                         position={store} 
                         title={"Store"} 
