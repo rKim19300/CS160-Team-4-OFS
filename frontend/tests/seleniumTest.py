@@ -24,40 +24,24 @@ def main():
     testInvalidAccount(driver)
     
     # Test Case: Owner Account
-    # testAdminAccount(driver)
+    testAdminAccount(driver)
 
     # Move To Sign Up Page
-    clickSignUp(driver)
+    # clickSignUp(driver)
     
     # Test Case: empty Input Field
-    time.sleep(1)   # pause for class to see action
-    clickSubmit(driver)
+    # time.sleep(1)   # pause for class to see action
+    # clickSubmit(driver)
     
-    # Test Case: Email Input 
-    
+    # Test Case: Email Input already exist
+    # fillInEmail(driver, "admin@admin.com")
+    # fillInPassword(driver, "P@$$w0rd")
+    # clickSubmit(driver)
     
     time.sleep(5)
     driver.quit()
 
 """ HELPER FUNCTIONS"""
-
-def clickContinue(driver):
-    '''Find and click Continue button'''
-    # Wait for page elements to load
-    WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Continue')]"))
-    )
-    continueButton = driver.find_element(By.XPATH, "//*[contains(text(), 'Continue')]")
-    continueButton.click()
-
-def clickOK(driver):
-    '''Find and click OK button'''
-    # Wait for page elements to load
-    WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'OK')]"))
-    )
-    confirmButton = driver.find_element(By.XPATH, "//*[contains(text(), 'OK')]")
-    confirmButton.click()
 
 def fillInEmail(driver, email):
     '''Find email box and type in email'''
@@ -78,7 +62,36 @@ def fillInPassword(driver, password):
     passwordInput = driver.find_element(By.XPATH, "//input[@type='password']")
     passwordInput.clear()
     passwordInput.send_keys(password)
-    
+
+def clickContinue(driver):
+    '''Find and click Continue button'''
+    # Wait for page elements to load
+    WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Continue')]"))
+    )
+    # Find and click Continue
+    continueButton = driver.find_element(By.XPATH, "//*[contains(text(), 'Continue')]")
+    continueButton.click()
+
+def clickOK(driver):
+    '''Find and click OK button'''
+    # Wait for page elements to load
+    WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'OK')]"))
+    )
+    # Find and click OK
+    confirmButton = driver.find_element(By.XPATH, "//*[contains(text(), 'OK')]")
+    confirmButton.click()
+
+def clickSubmit(driver):
+    '''Find and click Submit button'''
+    # Wait for page elements to load
+    WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Submit')]"))
+    )
+    # Find and click Submit
+    submit = driver.find_element(By.XPATH, "//*[contains(text(), 'Submit')]")
+    submit.click()
     
 """LOG IN PAGE FUNCTIONS"""
 
@@ -104,9 +117,6 @@ def testAdminAccount(driver):
     time.sleep(1)   # pause for class to see action
     clickContinue(driver)
     
-
-
-    
 """SIGN UP PAGE FUNCTIONS"""
 
 def clickSignUp(driver):
@@ -119,15 +129,7 @@ def clickSignUp(driver):
     signUp = driver.find_element(By.XPATH, "//*[contains(text(), 'Create Account')]")
     signUp.click()
     
-def clickSubmit(driver):
-    '''Find and click Submit button'''
-    # Wait for page elements to load
-    WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Submit')]"))
-    )
-    
-    submit = driver.find_element(By.XPATH, "//*[contains(text(), 'Submit')]")
-    submit.click()
+
     
 if __name__ == '__main__':
     main()
