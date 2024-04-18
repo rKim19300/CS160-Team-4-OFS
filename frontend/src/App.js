@@ -49,6 +49,7 @@ function App() {
                 <Route path="ordersinfo/:id" element={<OrderInfoPage />} />
                 <Route path="staff" element={<EmployeesInfoPage />} />
                 <Route path="analytics" element={<Analytics />} />
+                <Route path="profile" element={<ProfilePage />} />
               </Route>
           </Route>          
         </Routes>

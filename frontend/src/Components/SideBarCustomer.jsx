@@ -5,12 +5,24 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "./SideBarCustomer.module.css";
 import SignOutButton from "./SignOutButton";
 import axiosInstance from "../axiosInstance";
+import { UserType } from "../Enums/enums";
 
 export default function SideBarCustomer({
   handleChangeCategory,
   handleSpecialView,
 }) {
   const [categories, setCategories] = useState([]);
+  const [userType, setUserType] = useState(0);
+
+  async function fetchUserType() {
+    try {
+      let response = await axiosInstance.get("/api/viewUser");
+      setUserType(response.data.user_type);
+      console.log("usertype", userType);
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   useEffect(() => {
     async function fetchCategories() {
@@ -22,6 +34,7 @@ export default function SideBarCustomer({
       }
     }
     fetchCategories();
+    fetchUserType();
   }, []);
 
   return (
@@ -57,10 +70,15 @@ export default function SideBarCustomer({
         </Link>
       </Flex>
       <Flex className={styles.bottomButtons}>
+        {(userType === UserType.MANAGER || userType === UserType.EMPLOYEE) && (
+          <Link to="/employee">
+            <Button width="100%" variant="outline">
+              Employee View
+            </Button>
+          </Link>
+        )}
         <Link to="profile">
-          <Button width="100%">
-            <a href="/profile">Profile</a>
-          </Button>
+          <Button width="100%">Profile</Button>
         </Link>
         <SignOutButton />
       </Flex>
