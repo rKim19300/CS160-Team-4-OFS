@@ -161,11 +161,11 @@ function onRoute(robot_id, route_id, durations, decodedRoute, io) {
 
 function onRouteHelper(robot_id, route_id, durations, decodedRoute, io, leg) {
     
-    const seconds = 5;
+    const update_rate = 1; // in seconds
     let coordIndex = 0;
     let legDuration = durations[leg];
     let decodedLeg = decodedRoute[leg];
-    const incr = Math.ceil(((decodedLeg.length) / legDuration) * seconds); // Move robot every X seconds
+    const incr = Math.ceil(((decodedLeg.length) / legDuration) * update_rate); // Move robot every X seconds
 
     const interval = setInterval(async () => {
         
@@ -203,7 +203,7 @@ function onRouteHelper(robot_id, route_id, durations, decodedRoute, io, leg) {
             }
         }
             
-    }, 500); // TODO change this back to 5 seconds
+    }, update_rate * 1000); // TODO change this back to 5 seconds
 }
 
 async function decodePolyline(encodedPolyline) {

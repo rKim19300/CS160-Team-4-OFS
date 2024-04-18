@@ -343,11 +343,18 @@ class DB {
       return q; 
     }
     
+    /**
+     * 
+     * @param {*} order_id 
+     * @returns Order info and items. Also returns the eta if order is ON_ROUTE
+     */
     static async get_order_info(order_id) {
         let orderInfo = (await db.query("SELECT order_id, user_id, cost, weight AS total_weight, address, delivery_fee, status, created_at, time_delivered FROM Orders WHERE order_id = ?", [order_id]))[0];
         if (orderInfo === undefined) {
             return { errMsg: `Order with order_id '${order_id}' does not exist`, orderInfo: null };
         }
+        let order_eta = (await db.query(`SELECT eta FROM Route_to_orders WHERE order_id = ?`, [order_id]))[0];
+        if (order_eta !== undefined) orderInfo["eta"] = order_eta.eta; 
         let order_items = await db.query("SELECT oi.product_id, oi.quantity, p.name, p.image_url, p.price, p.weight FROM Order_items AS oi INNER JOIN Products AS p ON oi.product_id = p.product_id WHERE oi.order_id = ?", [order_id]);
         orderInfo["products"] = order_items;
         const subtotal = order_items.reduce((accumulator, currentVal) => {
@@ -367,6 +374,12 @@ class DB {
             for (let order of orders) {
                 let prod_imgs = await db.query("SELECT p.image_url FROM Products AS p INNER JOIN Order_items AS oi ON p.product_id = oi.product_id WHERE oi.order_id = ?", [order.order_id]);
                 order["image_urls"] = prod_imgs.map(e => e.image_url);
+
+                if (order["status"] === OrderStatus.ON_THE_WAY) {
+                    let order_eta = (await db.query(`SELECT eta FROM Route_to_orders 
+                                                WHERE order_id = ?`, [order.order_id]))[0];
+                    order["eta"] = order_eta.eta;
+                }
             }
             all_user_orders[orderStatus] = orders;
         }

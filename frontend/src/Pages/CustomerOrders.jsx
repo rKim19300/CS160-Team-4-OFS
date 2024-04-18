@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Flex, Text, Divider, Grid, GridItem } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
+import { OrderStatus } from "../Enums/enums.js";
 import styles from "./CustomerOrders.module.css";
 import axiosInstance from "../axiosInstance";
+import io from "socket.io-client";
+
+const socket = io.connect("http://localhost:8888");
 
 export default function CustomerOrders() {
   const [ongoingOrders, setOngoingOrders] = useState(null);
@@ -81,7 +85,7 @@ function OrderComponent({ order }) {
           <Text className={styles.infoText}>Order Placed</Text>
           <Text>{order.created_at}</Text>
         </GridItem>
-        {order.status === 2 ? (
+        {order.status === OrderStatus.DELIVERED ? (
           <GridItem>
             <Text className={styles.infoText}>Delivered At</Text>
             <Text>{order.time_delivered}</Text>
@@ -89,16 +93,16 @@ function OrderComponent({ order }) {
         ) : (
           <GridItem>
             <Text className={styles.infoText}>Estimated Delivery Time</Text>
-            <Text>15:00 - 18:00</Text>
+            <Text>{(order.status === OrderStatus.EN_ROUTE) ? order.eta : "--/--"}</Text>
           </GridItem>
         )}
         <GridItem>
           <Text className={styles.infoText}>Order Status</Text>
-          {order.status === 0 ? (
+          {order.status === OrderStatus.PROCESSING ? (
             <Text>Processing</Text>
-          ) : order.status === 1 ? (
+          ) : order.status === OrderStatus.EN_ROUTE ? (
             <Text>En Route</Text>
-          ) : order.status === 2 ? (
+          ) : order.status === OrderStatus.DELIVERED ? (
             <Text>Delivered</Text>
           ) : (
             <Text>Not Found</Text>
