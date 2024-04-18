@@ -19,6 +19,7 @@ import {
 } from "@chakra-ui/react";
 import styles from "./LogInPage.module.css";
 import { ArrowBackIcon } from "@chakra-ui/icons";
+import { UserType } from "../Enums/enums";
 
 export default function LogInPage() {
   const [email, setEmail] = useState("");
@@ -32,11 +33,11 @@ export default function LogInPage() {
     // this function runs when we press "Continue" button
     event.preventDefault();
     let response = await axiosInstance.post("/api/login", { email, password });
-    let responseMsg = response.data; // if successful, json obj of user data { email, user_type, username, user_id }
+    let data = response.data; // if successful, json obj of user data { email, user_type, username, user_id }
     if (response.status === 200) {
-      navigate("/customer");
+      navigate(data.user_type === UserType.CUSTOMER ? "/customer" : "/employee");
     } else {
-      setErrMsg(responseMsg);
+      setErrMsg(data);
       setErrorDialogOpen(true);
     }
   };

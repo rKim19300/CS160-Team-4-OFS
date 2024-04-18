@@ -99,7 +99,7 @@ export default function ChangeProductPage() {
           <HStack spacing={{base: "90px", "2xl": "120px"}} justify="center">
 
             <Box maxW="450px">
-              <Image src={image} boxSize={{xl: "410px", "2xl": "450px"}} objectFit="cover" />
+              <Image src={image || "https://www.contentviewspro.com/wp-content/uploads/2017/07/default_image.png"} boxSize={{xl: "410px", "2xl": "450px"}} objectFit="cover" />
               <Textarea placeholder="Write product description here" mt="10px" fontSize="16px" value={description} onChange={(e) => setDescription(e.target.value)}>{description}</Textarea>
             </Box>
 
