@@ -67,9 +67,14 @@ export default function SideBarEmployee({ onComponentChange }) {
             {userType === UserType.MANAGER && <ManagerAccordion onComponentChange={ onComponentChange }/>}
           </Flex>
           <Flex className={styles.bottomButtons}>
-            <Button>
-              <a href="/customer/profile">Profile</a>
-            </Button>
+            <Link to="/customer">
+              <Button width="100%" variant="outline">
+                Customer View
+              </Button>
+            </Link>
+            <Link to="profile">
+              <Button width="100%">Profile</Button>
+            </Link>
             <SignOutButton />
           </Flex>
         </Flex>
