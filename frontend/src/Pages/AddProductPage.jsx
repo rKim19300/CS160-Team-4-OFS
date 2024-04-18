@@ -62,14 +62,14 @@ export default function AddProductPage() {
         category_ids: selectedCategoryIds
       });
       if (response.status === 200) {
-        console.log("Product info updated!");
-        toast.success("Item updated successfully!");
+        console.log("Product created!");
+        toast.success("Item added successfully!");
       } else {
         toast.error(response.data);
       }
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update product!");
+      toast.error("Failed to add product!");
     }
   };
 
@@ -78,11 +78,11 @@ export default function AddProductPage() {
       <Toaster position="bottom-right" reverseOrder={false} />
       <Flex className={styles.menuContent}>
         <Flex flexDirection="column" alignItems="center" ml={{base: "80px", "2xl": "150px"}} p={{base: "20px", "2xl": "40px"}}>
-        <Text className={styles.headerText}>Edit Product </Text>
+        <Text className={styles.headerText}>Add Product </Text>
           <HStack spacing={{base: "90px", "2xl": "120px"}} justify="center">
 
             <Box maxW="450px">
-              <Image src={image} boxSize={{xl: "410px", "2xl": "450px"}} objectFit="cover" />
+              <Image src={image || "https://www.contentviewspro.com/wp-content/uploads/2017/07/default_image.png"} boxSize={{xl: "410px", "2xl": "450px"}} objectFit="cover" />
               <Textarea placeholder="Write product description here" mt="10px" fontSize="16px" value={description} onChange={(e) => setDescription(e.target.value)}>{description}</Textarea>
             </Box>
 

@@ -71,7 +71,7 @@ export default function Inventory() {
                             <Tr>
                                 <Td>{ product.product_id }</Td>
                                 <Td>{ product.name }</Td>
-                                <Td>{ product.price }</Td>
+                                <Td>${ product.price.toFixed(2) }</Td>
                                 <Td>{ product.quantity }</Td>
                                 <Td>{ product.weight }</Td>
                                 <Td>
@@ -86,7 +86,7 @@ export default function Inventory() {
         </TableContainer>
         <Link to={'/employee/addProduct'}>
         <Button colorScheme="green"  width="200px">
-            Add product
+            Add Product
         </Button>
         </Link>
         </Flex>
