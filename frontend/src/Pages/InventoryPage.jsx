@@ -84,6 +84,11 @@ export default function Inventory() {
                 </Tbody>
             </Table>
         </TableContainer>
+        <Link to={'/employee/addProduct'}>
+        <Button colorScheme="green"  width="200px">
+            Add product
+        </Button>
+        </Link>
         </Flex>
         </>
     )
