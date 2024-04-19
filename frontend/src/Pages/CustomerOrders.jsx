@@ -93,7 +93,7 @@ function OrderComponent({ order }) {
         ) : (
           <GridItem>
             <Text className={styles.infoText}>Estimated Delivery Time</Text>
-            <Text>{(order.status === OrderStatus.EN_ROUTE) ? order.eta : "--/--"}</Text>
+            <Text>{(order.status === OrderStatus.EN_ROUTE) ? order.eta : "Pending..."}</Text>
           </GridItem>
         )}
         <GridItem>

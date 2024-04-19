@@ -532,6 +532,23 @@ class DB {
                                     WHERE route_id = ? ORDER BY leg`, [route.route_id]);
         }
         return q.map(({ polyline }) => polyline);
+    }  
+
+    /**
+     * Checks if the has a route that that 
+     */
+    static async check_robot_ready(robot_id) {
+
+        // Check if robot is already ON_ROUTE
+        if ((await this.is_on_route(robot_id))) return false;
+
+        // Get robot's route
+        let route = await this.get_route(robot_id);
+        if (route === undefined) return false;
+        
+        let wno = await this.get_route_weight_and_order_num(route.route_id);
+
+        return ((wno.total_weight === 200) || (wno.order_num === 10)) ? true : false;
     }
         
     ///////
@@ -616,7 +633,6 @@ class DB {
         return q[0]; 
     }
 
-
     /**
      * Will not set the route of the robot if robot already has one
      * 
@@ -685,7 +701,6 @@ class DB {
      */
     static async populate_route_data(robot_id, addresses, polylines, durations, optimizedWaypointOrder) {
 
-        // TODO Check if associating it with the address causes a bug since address in not unique
         // TODO throw and error if durations is not made of integer values
 
         // Take care of edge case

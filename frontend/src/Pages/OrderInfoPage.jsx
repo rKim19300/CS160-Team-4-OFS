@@ -67,7 +67,7 @@ export default function OrderInfoPage({ order_id }) {
                 <Text>
                   Order Status: <span color="red">Processing</span>
                 </Text>
-                <Text>Estimated Delivery Time: --/--</Text>
+                <Text>Estimated Delivery Time: Pending...</Text>
               </>
             ) : orderInfo.status === OrderStatus.EN_ROUTE ? (
               <>
