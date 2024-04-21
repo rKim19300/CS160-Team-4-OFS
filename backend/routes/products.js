@@ -25,6 +25,18 @@ router.get("/products/category_name=:categoryName", async (req, res) => {
     }
 });
 
+// Endpoint that the searchbar on the frontend uses
+router.get("/searchProducts", async (req, res) => {
+    try {
+        let { query } = req.query;
+        let matchingResults = await DB.search_products_by_name(query);
+        return res.status(200).json(matchingResults);
+    } catch (err) {
+        console.log(`ERROR WHEN SEARCHING PRODUCTS: ${err}`);
+        return res.status(400).send("Something went wrong when searching products");
+    }
+});
+
 router.get("/productInfo/:prodID", checkLoggedIn, async (req, res) => {
     try {
         let product_id = req.params.prodID;

@@ -196,6 +196,11 @@ class DB {
         await db.query("UPDATE Products SET quantity = quantity - ? WHERE product_id = ?", [quantity, product_id]);
     }
 
+    static async search_products_by_name(query) {
+        let matchingProds = await db.query("SELECT product_id, name FROM Products WHERE name LIKE ? COLLATE NOCASE", ['%'+query+'%']);
+        return matchingProds;
+    }
+
     static async get_products_with_category_name(category_name) {
         // get the category_id from the name
         let q = await db.query("SELECT category_id FROM Categories WHERE name = ?", [category_name]);
