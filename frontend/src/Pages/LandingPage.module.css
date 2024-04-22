@@ -1,0 +1,215 @@
+.container {
+  flex-direction: column;
+}
+
+/* NavBar  */
+.navSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+}
+
+.navText {
+  font-size: 20px;
+  color: black;
+  font-weight: 500;
+}
+
+.buttonSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.firstSection {
+  flex-direction: column;
+  height: 80vh;
+  background-color: #707070;
+  justify-content: center;
+}
+
+.textSection {
+  padding-left: 15vw;
+  flex-direction: column;
+  width: 60%;
+}
+
+.headerImg {
+  width: 100%;
+  object-fit: cover;
+}
+
+.headerText {
+  margin-top: -100px;
+  color: white;
+  font-size: 54px;
+  font-weight: 700;
+  z-index: 100;
+}
+
+.subHeaderText {
+  font-size: 24px;
+  color: #f0f0f0;
+}
+
+/* Second Section  */
+.productHeader {
+  margin: 32px 48px 16px 48px;
+  font-size: 36px;
+  font-weight: 600;
+  /* color: #006c3f; */
+}
+
+.grid {
+  grid-template-columns: repeat(5, 1fr);
+  gap: 48px;
+  margin: 0 48px 32px 48px;
+}
+
+.productCard {
+  width: auto;
+  height: auto;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.prodImg {
+  height: 200px;
+}
+
+.productTitle {
+  font-size: 18px;
+  color: #333;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.productPrice {
+  font-size: 16px;
+  color: #4caf50;
+  margin-top: 5px;
+}
+
+.productWeight {
+  font-size: 14px;
+  color: #666;
+  margin-top: 5px;
+}
+
+/* Features  */
+.featuresSection {
+  margin: 16px 48px 32px 48px;
+  justify-content: space-between;
+}
+
+.circleIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  /* background-color: #8fbc8f; */
+  border-radius: 50%;
+}
+
+.feature {
+  flex-direction: column;
+  align-items: center;
+  width: 20%;
+}
+
+.featureText {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.featureSubText {
+  font-size: 14px;
+  text-align: center;
+}
+/* About Us Section  */
+.aboutSection {
+  margin: 48px 48px;
+  height: 50vh;
+}
+
+.aboutImg {
+  width: 55%;
+  object-fit: cover;
+}
+
+.aboutTextSection {
+  flex-direction: column;
+  padding: 0 0 0 32px;
+  width: 50%;
+}
+
+.aboutHeader {
+  font-size: 36px;
+  font-weight: 600;
+}
+
+.footerImg {
+  margin: 32px 0;
+  height: 70vh;
+  object-fit: cover;
+}
+
+/* Address Check  */
+.AddressCheck {
+  flex-direction: column;
+  background-color: rgba(143, 188, 143, 0.5);
+  padding: 32px 48px;
+  justify-content: space-between;
+}
+
+.AddressTextSection {
+  flex-direction: column;
+  width: 40%;
+  padding-right: 48px;
+}
+
+.addressHeaderText {
+  font-size: 36px;
+  font-weight: 600;
+  color: #333;
+}
+
+.addressText {
+  font-size: 25px;
+  font-weight: 500;
+  color: #333;
+}
+
+.contactIcon {
+  width: 40px;
+  height: 40px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.formContainer {
+  width: 60%;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.titleText {
+  font-weight: bold;
+  font-size: 24px;
+}
+
+.formText {
+  font-size: 14px;
+  padding-top: 8px;
+}

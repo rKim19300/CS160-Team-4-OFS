@@ -32,6 +32,6 @@ export default function PrivateRoutes({ isStaff }) {
         // if they are not logged in, redirect to login page
         if (user.user_type >= UserType.EMPLOYEE) return <Outlet />;
         if (user.user_type === UserType.CUSTOMER) return <Navigate to='/customer'/>;
-        return <Navigate to="/"/>;
+        return <Navigate to="/login"/>;
     }
 }
