@@ -76,7 +76,7 @@ router.post("/updateProduct/:prodID", checkIsStaff,
         body("image_url").notEmpty().withMessage("Missing required image_url"),
         body("price").isFloat({ min: 0.01, max: 100 }).withMessage("Price must be between $0.01 and $100"),
         body("weight").isFloat({ min: 0.1, max: 100 }).withMessage("Weight must be between 0.1 and 100 lbs"),
-        body("quantity").isInt({ min: 1, max: 100 }).withMessage("Quantity must be an integer between 1 and 100")
+        body("quantity").isInt({ min: -1, max: 100 }).withMessage("Quantity must be an integer between -1 and 100")
     ]),
     async (req, res) => {
     try {

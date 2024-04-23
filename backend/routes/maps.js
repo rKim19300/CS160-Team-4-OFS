@@ -6,8 +6,8 @@ const {
 	check_is_within_allowable_distance,
 	generateRouteData,
 	decodePolyline,
-	onRoute,
-	validateAddress
+	validateAddress,
+	sendRobot
  } = require('../googleMapsRouting/queryHelper');
 
 
@@ -18,7 +18,6 @@ const {
 router.get('/getRobots', checkIsStaff, async (req, res) => {
 	try {
 		let data = await DB.get_all_robots();
-		// TODO handle query fail
 		res.status(200).json(data); 
 	}
 	catch (err) {
@@ -90,55 +89,11 @@ router.post('/sendRobot', checkIsStaff, async (req, res) => {
 			return;
 		}
 
-		// Get the robot's route
-		let route = await DB.get_route(robot_id);
-		const route_id = route.route_id;
+		staffIO = req.app.get('staffIO')
 
-		// Generate the route
-		// TODO Get the addresses from the robot's route
+		await sendRobot(robot_id, staffIO);
 
-		let addresses = await DB.get_route_addresses(route_id);
-
-		// Generate the route data from the addresses
-		let data = await generateRouteData(addresses);
-
-		const optimizedWaypointOrder = data.routes[0].optimizedIntermediateWaypointIndex;
-		let encodedPolylines = []; // The encoded polyline paths of each leg (the leg number is the index)
-		let durations = []; // The durations of each leg
-
-		// Populate the polyline and durations arrays
-		let legs = data.routes[0].legs;
-		for (let i = 0; i < legs.length; i++) {
-			encodedPolylines.push(legs[i].polyline.encodedPolyline);
-			durations.push(parseInt(data.routes[0].legs[i].duration));
-		}
-
-
-		// Populate the database the route with the leg data
-		await DB.populate_route_data(
-				robot_id, 
-				addresses, 
-				encodedPolylines, 
-				durations, 
-				optimizedWaypointOrder
-			);
-
-		// Decode the paths
-		decodedPaths = [];
-		for (let i = 0; i < encodedPolylines.length; i++)
-			await decodedPaths.push(await decodePolyline(encodedPolylines[i]));
-
-		// Set the robot on the path
-		let staffIO = await req.app.get('staffIO');
-
-		// Tell anyone listening to update their polylines
-		staffIO.to(SocketRoom.STAFF_ROOM).emit('updatePolylines', []); // Emit to all in room
-		staffIO.emit('updatePolylines', []); // emit to self 
-
-		// Send the robot on the route
-		await onRoute(robot_id, route_id, durations, decodedPaths, staffIO);
-
-		res.status(200).json(decodedPaths);
+		res.status(200).json();
 	}
 	catch (err) {
 		res.status(500).json("Something went wrong on our end, please try again later.");

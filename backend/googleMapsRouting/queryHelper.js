@@ -147,6 +147,57 @@ async function generateRouteData(addresses) {
 }
 
 /**
+ * @param {*} robot_id The robot being sent onRoute
+ *                     Assumption: Have already checked that the robot has 
+ *                                 a route and that it is not already ON_ROUTE
+ * @param {*} staffIO  The socket used to update the robot's location
+ */
+async function sendRobot(robot_id, staffIO) {
+
+    	// Get the robot's route
+		let route = await DB.get_route(robot_id);
+		const route_id = route.route_id;
+
+		// Generate the route
+		let addresses = await DB.get_route_addresses(route_id);
+
+		// Generate the route data from the addresses
+		let data = await generateRouteData(addresses);
+
+		const optimizedWaypointOrder = data.routes[0].optimizedIntermediateWaypointIndex;
+		let encodedPolylines = []; // The encoded polyline paths of each leg (the leg number is the index)
+		let durations = []; // The durations of each leg
+
+		// Populate the polyline and durations arrays
+		let legs = data.routes[0].legs;
+		for (let i = 0; i < legs.length; i++) {
+			encodedPolylines.push(legs[i].polyline.encodedPolyline);
+			durations.push(parseInt(data.routes[0].legs[i].duration));
+		}
+
+		// Populate the database the route with the leg data
+		await DB.populate_route_data(
+				robot_id, 
+				addresses, 
+				encodedPolylines, 
+				durations, 
+				optimizedWaypointOrder
+			);
+
+		// Decode the paths
+		decodedPaths = [];
+		for (let i = 0; i < encodedPolylines.length; i++)
+			await decodedPaths.push(await decodePolyline(encodedPolylines[i]));
+
+		// Tell anyone listening to update their polylines
+		staffIO.to(SocketRoom.STAFF_ROOM).emit('updatePolylines', []); // Emit to all in room
+		staffIO.emit('updatePolylines', []); // emit to self 
+
+		// Send the robot on the route
+		await onRoute(robot_id, route_id, durations, decodedPaths, staffIO);
+}
+
+/**
  * Sets the robot on route
  * 
  * @param {*} robot_id      The robot on the route being traversed
@@ -161,11 +212,11 @@ function onRoute(robot_id, route_id, durations, decodedRoute, io) {
 
 function onRouteHelper(robot_id, route_id, durations, decodedRoute, io, leg) {
     
-    const seconds = 5;
+    const update_rate = 1; // in seconds
     let coordIndex = 0;
     let legDuration = durations[leg];
     let decodedLeg = decodedRoute[leg];
-    const incr = Math.ceil(((decodedLeg.length - 1) / legDuration) * seconds); // Move robot every X seconds
+    const incr = Math.ceil(((decodedLeg.length) / legDuration) * update_rate); // Move robot every X seconds
 
     const interval = setInterval(async () => {
         
@@ -203,7 +254,7 @@ function onRouteHelper(robot_id, route_id, durations, decodedRoute, io, leg) {
             }
         }
             
-    }, 500); // TODO change this back to 5 seconds
+    }, update_rate * 1000); // TODO change this back to 5 seconds
 }
 
 async function decodePolyline(encodedPolyline) {
@@ -247,6 +298,6 @@ module.exports = {
     generateRouteData, 
     check_is_within_allowable_distance, 
     decodePolyline, 
-    onRoute, 
-    validateAddress
+    validateAddress,
+    sendRobot
 };

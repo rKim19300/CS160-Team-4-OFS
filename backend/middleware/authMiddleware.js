@@ -39,7 +39,6 @@ const checkIsStaff = (req, res, next) => {
     } else {
         res.status(401).send("You are not an employee");
     }
-
 }
 
 const checkIsManager = (req, res, next) => {

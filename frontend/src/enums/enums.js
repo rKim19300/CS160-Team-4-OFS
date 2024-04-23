@@ -5,5 +5,11 @@ const UserType = Object.freeze({
     MANAGER: 2
 }); 
 
+const OrderStatus = Object.freeze({ 
+    PROCESSING: 0, 
+    EN_ROUTE: 1, 
+    DELIVERED: 2
+}); 
 
-module.exports = { UserType };
+
+module.exports = { UserType, OrderStatus };

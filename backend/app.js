@@ -6,8 +6,10 @@ require("dotenv").config({
   path: '../.env'
 });
 const cors = require("cors");
+
 const { DB } = require("./database");
 const { checkIsStaff } = require("./middleware/authMiddleware");
+const { sendRobot } = require('./googleMapsRouting/queryHelper');
 
 const authRoute = require("./routes/auth");
 const productsRoute = require("./routes/products");
@@ -62,16 +64,20 @@ const io = socketIO(server, {
   },
 });
 
+// Register socket to session middleware
+io.engine.use(sessionMiddleware);
+
 // Create namespaces
 const staffIO = io.of('/staff');
 
-// Register with middleware and make sockets avaiable everywhere
-io.engine.use(sessionMiddleware);
-staffIO.use((socket, next) => {
-  checkIsStaff(socket.client.request, socket.client.request.res, next);
-});
+// Register staff namespace with staff middleware
+/*staffIO.use((socket, next) => {
+  socketCheckIsStaff(socket.client.request, socket.client.request.res, next);
+});*/
+
+// Make socket available where the app is 
 app.set('io', io); 
-app.set('staffIO', io); 
+app.set('staffIO', io); // TODO register staffIO with session middlware
 
 // Create a thread that assigns routes to robots
 const fiveSeconds = 5000;
@@ -81,23 +87,28 @@ setInterval(async () => {
   let robots = await DB.get_all_robots();
   let routes = await DB.get_all_routes();
 
-  // In a for loop check if either of the robots doesn't have a route
+  // In a for loop, check if either of the robots doesn't have a route
   let route_start = 0; // Index where you should start searching for routes
   for (let i = 0; i < robots.length; i++) {
+    const robot_id = robots[i].robot_id;
 
-    // Assign a route to a robot, robot doesn't already have a route
-    if (!(await DB.has_route(robots[i].robot_id))) {
+    // Assign a route to a robot if robot doesn't already have a route
+    if (!(await DB.has_route(robot_id))) {
       for (let j = route_start; j < routes.length; j++) {
+        const route_id = routes[j].route_id;
 
         // Find a route that doesn't already have a robot assigned to it
-        if (!(await DB.has_robot(routes[j].route_id))) {
-          DB.set_route_to_robot(routes[j].route_id, robots[i].robot_id);
-          console.log(`Robot ID (${robots[i].robot_id}) has been assinged route ID (${routes[j].route_id})`);
+        if (!(await DB.has_robot(route_id))) {
+          DB.set_route_to_robot(route_id, robot_id);
+          console.log(`Robot ID (${robot_id}) has been assinged route ID (${route_id})`);
           route_start = j + 1; // Start + 1 where last route was assigned
           break;
         }
-
       }
+    } 
+    // If the robot has route and meets req, send robot
+    else if ((await DB.check_robot_ready(robot_id))) {
+      sendRobot(robot_id, io);
     }
   }
 }, fiveSeconds);

@@ -482,7 +482,7 @@ function Step4Component() {
       </Flex>
       <Flex gap="8px">
         <Text>Estimated Delivery Time:</Text>
-        <Text color="#006C3F">14:30</Text>
+        <Text color="#006C3F">Pending...</Text>
       </Flex>
       <Flex className={styles.orderSummaryContainer}>
         <Text fontWeight="bold">Order Summary</Text>

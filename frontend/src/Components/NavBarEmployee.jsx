@@ -14,7 +14,7 @@ export default function NavBarEmployee() {
   return (
     <Flex className={styles.container}>
       <Flex className={styles.leftSide}>
-        <a href="/EmployeeDashboard" className={styles.linkWrapper}>
+        <a href="/employee" className={styles.linkWrapper}>
           <img className={styles.logoImg} src="/logo.png" />
         </a>
       </Flex>

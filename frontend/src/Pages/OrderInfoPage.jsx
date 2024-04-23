@@ -11,9 +11,9 @@ import {
   AccordionIcon,
   Icon,
 } from "@chakra-ui/react";
+import { OrderStatus } from "../Enums/enums.js";
 import { useParams } from "react-router-dom";
 import { FaBox, FaTruck, FaLocationDot } from "react-icons/fa6";
-
 import styles from "./OrderInfoPage.module.css";
 import axiosInstance from "../axiosInstance";
 
@@ -62,19 +62,19 @@ export default function OrderInfoPage({ order_id }) {
 
           {/* TODO: Add Delivery Time */}
           <AccordionPanel>
-            {orderInfo.status === 0 ? (
+            {orderInfo.status === OrderStatus.PROCESSING ? (
               <>
                 <Text>
                   Order Status: <span color="red">Processing</span>
                 </Text>
-                <Text>Estimated Delivery Time: 14:30</Text>
+                <Text>Estimated Delivery Time: Pending...</Text>
               </>
-            ) : orderInfo.status === 1 ? (
+            ) : orderInfo.status === OrderStatus.EN_ROUTE ? (
               <>
                 <Text>Order Status: Heading To You</Text>
-                <Text>Estimated Delivery Time: 14:30</Text>
+                <Text>Estimated Delivery Time: {orderInfo.eta}</Text>
               </>
-            ) : orderInfo.status === 2 ? (
+            ) : orderInfo.status === OrderStatus.DELIVERED ? (
               <>
                 <Text>Order Status: Completed</Text>
                 <Text>Delivered At: {orderInfo.time_delivered}</Text>

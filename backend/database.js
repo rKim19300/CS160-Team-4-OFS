@@ -325,6 +325,7 @@ class DB {
             if (((wno.total_weight + weight) <= MAX_ROUTE_WEIGHT) 
                 && (wno.order_num < MAX_ROUTE_ORDERS)) {
                 await this.add_order_to_route(route_id, order_id);
+                // TODO check here if the order is ready to be sent
                 return;
             }
         }
@@ -342,11 +343,18 @@ class DB {
       return q; 
     }
     
+    /**
+     * 
+     * @param {*} order_id 
+     * @returns Order info and items. Also returns the eta if order is ON_ROUTE
+     */
     static async get_order_info(order_id) {
         let orderInfo = (await db.query("SELECT order_id, user_id, cost, weight AS total_weight, address, delivery_fee, status, created_at, time_delivered FROM Orders WHERE order_id = ?", [order_id]))[0];
         if (orderInfo === undefined) {
             return { errMsg: `Order with order_id '${order_id}' does not exist`, orderInfo: null };
         }
+        let order_eta = (await db.query(`SELECT eta FROM Route_to_orders WHERE order_id = ?`, [order_id]))[0];
+        if (order_eta !== undefined) orderInfo["eta"] = order_eta.eta; 
         let order_items = await db.query("SELECT oi.product_id, oi.quantity, p.name, p.image_url, p.price, p.weight FROM Order_items AS oi INNER JOIN Products AS p ON oi.product_id = p.product_id WHERE oi.order_id = ?", [order_id]);
         orderInfo["products"] = order_items;
         const subtotal = order_items.reduce((accumulator, currentVal) => {
@@ -366,6 +374,12 @@ class DB {
             for (let order of orders) {
                 let prod_imgs = await db.query("SELECT p.image_url FROM Products AS p INNER JOIN Order_items AS oi ON p.product_id = oi.product_id WHERE oi.order_id = ?", [order.order_id]);
                 order["image_urls"] = prod_imgs.map(e => e.image_url);
+
+                if (order["status"] === OrderStatus.ON_THE_WAY) {
+                    let order_eta = (await db.query(`SELECT eta FROM Route_to_orders 
+                                                WHERE order_id = ?`, [order.order_id]))[0];
+                    order["eta"] = order_eta.eta;
+                }
             }
             all_user_orders[orderStatus] = orders;
         }
@@ -518,6 +532,23 @@ class DB {
                                     WHERE route_id = ? ORDER BY leg`, [route.route_id]);
         }
         return q.map(({ polyline }) => polyline);
+    }  
+
+    /**
+     * Checks if the has a route that that 
+     */
+    static async check_robot_ready(robot_id) {
+
+        // Check if robot is already ON_ROUTE
+        if ((await this.is_on_route(robot_id))) return false;
+
+        // Get robot's route
+        let route = await this.get_route(robot_id);
+        if (route === undefined) return false;
+        
+        let wno = await this.get_route_weight_and_order_num(route.route_id);
+
+        return ((wno.total_weight === 200) || (wno.order_num === 10)) ? true : false;
     }
         
     ///////
@@ -602,7 +633,6 @@ class DB {
         return q[0]; 
     }
 
-
     /**
      * Will not set the route of the robot if robot already has one
      * 
@@ -671,7 +701,6 @@ class DB {
      */
     static async populate_route_data(robot_id, addresses, polylines, durations, optimizedWaypointOrder) {
 
-        // TODO Check if associating it with the address causes a bug since address in not unique
         // TODO throw and error if durations is not made of integer values
 
         // Take care of edge case
@@ -690,26 +719,27 @@ class DB {
             total_duration += durations[i];
             let leg_address = addresses[optimizedWaypointOrder[i]];
 
+            // Get the order id's
+            let order_id = (await db.query(`SELECT o.order_id FROM Route_to_orders AS rto 
+                                            INNER JOIN Orders AS o 
+                                            ON rto.order_id = o.order_id
+                                            WHERE o.address = ? 
+                                            AND rto.route_id = ? 
+                                            AND rto.polyline IS NULL`, 
+                                            [leg_address, route_id]))[0].order_id;;
+
             // Fill out the leg information
             await db.query(`UPDATE Route_to_orders
                             SET polyline = ?,
                                 eta = datetime('now', '+${total_duration} seconds', 'localtime'),
                                 leg = ?,
                                 duration = ? 
-                            WHERE order_id = (
-                                                SELECT o.order_id FROM Route_to_orders AS rto 
-                                                INNER JOIN Orders AS o 
-                                                ON rto.order_id = o.order_id
-                                                WHERE o.address = ? AND rto.route_id = ?
-                                        )`, [polylines[i], i, durations[i], leg_address, route_id]);
+                            WHERE order_id = ?`, 
+                            [polylines[i], i, durations[i], order_id]);
 
             // Update the order status
             await db.query(`UPDATE Orders SET status = ${OrderStatus.ON_THE_WAY} 
-                WHERE order_id = (SELECT o.order_id FROM Route_to_orders AS rto 
-                    INNER JOIN Orders AS o 
-                    ON rto.order_id = o.order_id
-                    WHERE o.address = ? AND rto.route_id = ?
-                )`, [leg_address, route_id]);
+                WHERE order_id = ?`, [order_id]);
         }
 
         // Add the final leg to the store
