@@ -44,6 +44,34 @@ export default function Inventory() {
       }
       fetchData();
     }, []);
+
+    // async function onRemove(productId) {
+    //     try {
+    //         let product = await axiosInstance.get(`/api/getProductInfo/${productId}`);
+    //         console.log(product);
+    //         product.name;
+    //         let response = await axiosInstance.post(`/api/updateProduct/${product.product_id}`, {
+    //           product.name,
+    //           product.price,
+    //           weight,
+    //           quantity,
+    //           image_url: image,
+    //           description,
+    //           category_ids: selectedCategoryIds
+    //         });
+    //         if (response.status === 200) {
+    //           console.log("Product info updated!");
+    //           toast.success("Item updated successfully!");
+    //         } else {
+    //           toast.error(response.data);
+    //         }
+    //       } catch (err) {
+    //         console.error(err);
+    //         toast.error("Failed to update product!");
+    //       }
+    //     };
+    //     useEffect();
+    // }
     
     // Make sure necessary data is fetched
     if (products === null) 
@@ -67,6 +95,7 @@ export default function Inventory() {
                 </Thead>
                 <Tbody>
                     {products.map(product => {
+                        if (product.quantity > -1) {
                         return (
                             <Tr>
                                 <Td>{ product.product_id }</Td>
@@ -76,11 +105,14 @@ export default function Inventory() {
                                 <Td>{ product.weight }</Td>
                                 <Td>
                                     <Link to={`/employee/changeProduct/${product.product_id}`}>
-                                        <u>Edit</u>
+                                        <Button colorScheme="green">
+                                            Edit
+                                        </Button>
                                     </Link>
                                 </Td>
                             </Tr>
-                            )})}
+                            )}
+                        })}
                 </Tbody>
             </Table>
         </TableContainer>
@@ -89,6 +121,40 @@ export default function Inventory() {
             Add Product
         </Button>
         </Link>
+        <Heading align="left">Unavailable Products</Heading>
+        <TableContainer>
+            <Table variant='striped'>
+                <TableCaption>Items Unavailable For Sale</TableCaption>
+                <Thead>
+                <Tr>
+                    <Th>ID</Th>
+                    <Th>Name</Th>
+                    <Th>Price</Th>
+                    <Th>Weight in lbs</Th>
+                </Tr>
+                </Thead>
+                <Tbody>
+                    {products.map(product => {
+                        if (product.quantity < 0) {
+                        return (
+                            <Tr>
+                                <Td>{ product.product_id }</Td>
+                                <Td>{ product.name }</Td>
+                                <Td>{ product.price }</Td>
+                                <Td>{ product.weight }</Td>
+                                <Td>
+                                    <Button colorScheme="green" >
+                                    <Link to={`/employee/changeProduct/${product.product_id}`}>
+                                        Edit
+                                    </Link>
+                                    </Button>
+                                </Td>
+                            </Tr>
+                            )}
+                        })}
+                </Tbody>
+            </Table>
+        </TableContainer>
         </Flex>
         </>
     )
