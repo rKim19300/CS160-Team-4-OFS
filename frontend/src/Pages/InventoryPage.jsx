@@ -26,52 +26,56 @@ export default function Inventory() {
     const [products, setProducts] = useState(null);
     const [errMsg, setErrMsg] = useState("");
 
+    async function fetchData() {
+        try {
+            let response = await axiosInstance.get(`/api/allProducts`);
+            console.log(response);
+            let data = response.data;
+            console.log(data);
+            if (response.status !== 200) {
+                setErrMsg(data);
+                return;
+            }
+            setProducts(data);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
     useEffect(() => {
-      async function fetchData() {
-          try {
-              let response = await axiosInstance.get(`/api/allProducts`);
-              console.log(response);
-              let data = response.data;
-              console.log(data);
-              if (response.status !== 200) {
-                  setErrMsg(data);
-                  return;
-              }
-              setProducts(data);
-          } catch (err) {
-              console.error(err);
-          }
-      }
       fetchData();
     }, []);
 
-    // async function onRemove(productId) {
-    //     try {
-    //         let product = await axiosInstance.get(`/api/getProductInfo/${productId}`);
-    //         console.log(product);
-    //         product.name;
-    //         let response = await axiosInstance.post(`/api/updateProduct/${product.product_id}`, {
-    //           product.name,
-    //           product.price,
-    //           weight,
-    //           quantity,
-    //           image_url: image,
-    //           description,
-    //           category_ids: selectedCategoryIds
-    //         });
-    //         if (response.status === 200) {
-    //           console.log("Product info updated!");
-    //           toast.success("Item updated successfully!");
-    //         } else {
-    //           toast.error(response.data);
-    //         }
-    //       } catch (err) {
-    //         console.error(err);
-    //         toast.error("Failed to update product!");
-    //       }
-    //     };
-    //     useEffect();
-    // }
+    async function handleRemove (product)  {
+        try {
+            console.log(product)
+            let name = product.name;
+            let price = product.price;
+            let weight = product.weight;
+            let quantity = -1;
+            let image_url = product.image_url;
+            let description = product.description;
+            let category_ids = product.categories;
+            let response = await axiosInstance.post(`/api/updateProduct/${product.product_id}`, {
+              name,
+              price,
+              weight,
+              quantity,
+              image_url,
+              description,
+              category_ids
+            });
+            if (response.status === 200) {
+              console.log("Product info updated!");
+              fetchData();
+            }
+            else {
+                console.log(response.data)
+            }
+          } catch (err) {
+            console.error(err);
+          }
+        };
     
     // Make sure necessary data is fetched
     if (products === null) 
@@ -109,6 +113,11 @@ export default function Inventory() {
                                             Edit
                                         </Button>
                                     </Link>
+                                </Td>
+                                <Td>
+                                    <Button colorScheme="red" onClick={() =>handleRemove(product)}>
+                                        Remove
+                                    </Button>
                                 </Td>
                             </Tr>
                             )}
