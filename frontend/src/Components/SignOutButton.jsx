@@ -20,7 +20,7 @@ export default function SignOutButton() {
             }
         }
         >
-            <a href="/">Sign Out</a>
+            <a href="/login">Sign Out</a>
         </Button>
     );
 }

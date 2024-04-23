@@ -19,13 +19,15 @@ import OrdersPage from "./Pages/OrdersPage";
 import EmployeesInfoPage from "./Pages/EmployeesInfoPage";
 import Analytics from "./Pages/Analytics";
 import AddProductPage from "./Pages/AddProductPage";
+import LandingPage from "./Pages/LandingPage";
 
 function App() {
   return (
     <ChakraProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<LogInPage />} />
+          <Route path="/" element={<LandingPage/>} />
+          <Route path="/login" element={<LogInPage />} />
           <Route path="/SignUp" element={<SignUpPage />} />
 
           <Route element={<ProtectedRoutes isStaff={false} />}>
