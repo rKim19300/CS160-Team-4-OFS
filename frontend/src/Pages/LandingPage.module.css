@@ -58,7 +58,6 @@
   margin: 32px 48px 16px 48px;
   font-size: 36px;
   font-weight: 600;
-  /* color: #006c3f; */
 }
 
 .grid {
@@ -104,7 +103,7 @@
 
 /* Features  */
 .featuresSection {
-  margin: 16px 48px 32px 48px;
+  margin: 16px 48px 48px 48px;
   justify-content: space-between;
 }
 
@@ -137,11 +136,12 @@
 /* About Us Section  */
 .aboutSection {
   margin: 48px 48px;
-  height: 50vh;
+  height: auto;
 }
 
 .aboutImg {
   width: 55%;
+  height: 50vh;
   object-fit: cover;
 }
 
@@ -157,7 +157,6 @@
 }
 
 .footerImg {
-  margin: 32px 0;
   height: 70vh;
   object-fit: cover;
 }
@@ -177,13 +176,13 @@
 }
 
 .addressHeaderText {
-  font-size: 36px;
+  font-size: 30px;
   font-weight: 600;
   color: #333;
 }
 
 .addressText {
-  font-size: 25px;
+  font-size: 20px;
   font-weight: 500;
   color: #333;
 }
@@ -196,6 +195,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 8px;
 }
 
 .formContainer {

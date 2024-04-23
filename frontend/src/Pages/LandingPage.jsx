@@ -26,7 +26,7 @@ export default function LandingPage() {
       const response = await axiosInstance.get("/api/allProducts");
       const data = response.data;
       console.log("Data", data);
-      setProducts(data.slice(0, 5));
+      setProducts(data.slice(0, 4));
       console.log("Products", products);
     } catch (err) {
       console.error(err);
@@ -69,13 +69,13 @@ export default function LandingPage() {
       <Text className={styles.productHeader} id="products">
         Some of Our Products...
       </Text>
-      <Grid className={styles.grid}>
+      <Grid className={styles.grid} templateColumns="repeat(4, 1fr)">
         {products.map((product) => (
           <ProductCard key={product.product_id} product={product} />
         ))}
       </Grid>
 
-      <Text className={styles.productHeader}>
+      <Text className={styles.productHeader} style={{ marginTop: "16px" }}>
         Why use our grocery delivery service?
       </Text>
       <FeatureSection />
@@ -220,21 +220,19 @@ function AddressCheck() {
             Currently, our delivery services are only available in select areas
             :(
           </Text>
-          <Text>
-            See if we deliver to your area by entering your address here
-          </Text>
         </Flex>
         <AddressValidation />
       </Flex>
       <Divider marginBottom="32px" marginTop="48px" />
       <Flex gap="20vw" justifyContent="center" id="contact">
-        <Flex flexDirection="column" alignItems="center">
-          <div className={styles.contactIcon}>
-            <FaRegEnvelope size="24px" />
-          </div>
-          <Text>ofsdelivery@ofs.com</Text>
-        </Flex>
-
+        <a href="mailto:ofsdelivery@ofs.com" target="_blank">
+          <Flex flexDirection="column" alignItems="center">
+            <div className={styles.contactIcon}>
+              <FaRegEnvelope size="24px" />
+            </div>
+            <Text>ofsdelivery@ofs.com</Text>
+          </Flex>
+        </a>
         <Flex flexDirection="column" alignItems="center">
           <div className={styles.contactIcon}>
             <TiPhoneOutline size="24px" />
@@ -299,6 +297,9 @@ function AddressValidation() {
 
   return (
     <Flex className={styles.formContainer}>
+      <Text fontStyle="italic">
+        See if we deliver to your area by entering your address here
+      </Text>
       <Toaster position="bottom-center" reverseOrder={false} />
       <form id="addressForm" onSubmit={submitForm}>
         <FormControl>
