@@ -46,16 +46,12 @@ export default function Inventory() {
       fetchData();
     }, []);
 
-    async function handleRemove (product)  {
+    async function handleRemove(product)  {
         try {
             console.log(product)
-            let name = product.name;
-            let price = product.price;
-            let weight = product.weight;
+            let { name, price, weight, image_url, description } = product;
             let quantity = -1;
-            let image_url = product.image_url;
-            let description = product.description;
-            let category_ids = product.categories;
+            let category_ids = product.categories.map(obj => obj.category_id);
             let response = await axiosInstance.post(`/api/updateProduct/${product.product_id}`, {
               name,
               price,
@@ -115,7 +111,7 @@ export default function Inventory() {
                                     </Link>
                                 </Td>
                                 <Td>
-                                    <Button colorScheme="red" onClick={() =>handleRemove(product)}>
+                                    <Button colorScheme="red" onClick={() => handleRemove(product)}>
                                         Remove
                                     </Button>
                                 </Td>
@@ -152,11 +148,11 @@ export default function Inventory() {
                                 <Td>{ product.price }</Td>
                                 <Td>{ product.weight }</Td>
                                 <Td>
-                                    <Button colorScheme="green" >
                                     <Link to={`/employee/changeProduct/${product.product_id}`}>
-                                        Edit
+                                        <Button colorScheme="green" >
+                                            Edit
+                                        </Button>
                                     </Link>
-                                    </Button>
                                 </Td>
                             </Tr>
                             )}

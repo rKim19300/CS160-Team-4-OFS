@@ -34,7 +34,8 @@ export default function CustomerPage() {
         setDisplayedProducts([]);
         return;
       }
-      setDisplayedProducts(response.data);
+      // only display products that are available (quantity > -1)
+      setDisplayedProducts(response.data.filter(prod => prod.quantity > -1));
       console.log(displayedProducts);
     } catch (err) {
       console.error(err);
