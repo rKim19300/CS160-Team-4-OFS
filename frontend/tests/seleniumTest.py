@@ -12,7 +12,7 @@ LOGIN_URL = "http://localhost:3000"
 def main():
 
     # Create object and link to server
-    service = Service(executable_path=".\\chromedriver.exe")
+    service = Service(executable_path="C:\\Kid2512\\Study\\SJSU\\2024 Spring\\CS160\\Project\\TeamGit\\frontend\\tests\\chromedriver.exe")
     driver = webdriver.Chrome(service=service)
 
     driver.get(LOGIN_URL)
