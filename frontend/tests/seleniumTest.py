@@ -8,6 +8,8 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 LOGIN_URL = "http://localhost:3000"
+PAUSE_TIME = 1
+testCounter = 0
 
 def main():
 
@@ -18,30 +20,128 @@ def main():
     driver.get(LOGIN_URL)
     
     # Test Case: empty Input Field
-    testEmptyInput(driver)
+    # testEmptyInput(driver)
     
     # Test Case: Invalid ID or Password
     testInvalidAccount(driver)
     
     # Test Case: Owner Account
-    testAdminAccount(driver)
+    # testAdminAccount(driver)
 
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    
     # Move To Sign Up Page
-    # clickSignUp(driver)
+    clickSignUp(driver)
     
     # Test Case: empty Input Field
-    # time.sleep(1)   # pause for class to see action
-    # clickSubmit(driver)
+    testEmptySignUp(driver)
     
     # Test Case: Email Input already exist
-    # fillInEmail(driver, "admin@admin.com")
-    # fillInPassword(driver, "P@$$w0rd")
-    # clickSubmit(driver)
+    # testInvalidEmail(driver)
     
-    time.sleep(5)
+    # Test Case: Account successfully created
+    testSignUp(driver)
+    
+    time.sleep(PAUSE_TIME)
     driver.quit()
 
-""" HELPER FUNCTIONS"""
+"""SIGN UP PAGE TESTS"""
+
+def testEmptySignUp(driver):
+    '''Test Case for Empty Input Submittion'''
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    clickSubmit(driver)
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    
+def testInvalidEmail(driver):
+    '''Test Case for Email Already exist'''
+    fillUsername(driver, "admin")
+    fillEmail(driver, "admin@admin.com")
+    fillPassword(driver, "P@$$w0rd")
+    fillConfirmPassword(driver, "P@$$w0rd")
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    clickSubmit(driver)
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    clickOK(driver)
+
+def testSignUp(driver):
+    '''Test Case for Account Successfully Created'''
+    name = "test" + str(testCounter)
+    email = "test" + str(testCounter) + "@test.com"
+    
+    print("name = ", name)
+    print("email = ", email)
+    fillUsername(driver, name)
+    fillEmail(driver, email)
+    # fillUsername(driver, "test0")
+    # fillEmail(driver, "test0@test.com")
+    fillPassword(driver, "P@$$w0rd")
+    fillConfirmPassword(driver, "P@$$w0rd")
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    clickSubmit(driver)
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    clickOK(driver)
+    
+def clickSignUp(driver):
+    '''Find and click link to Sign Up Page'''
+    # Wait for page elements to load
+    WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Create Account')]"))
+    )
+    
+    signUp = driver.find_element(By.XPATH, "//*[contains(text(), 'Create Account')]")
+    signUp.click()
+    
+"""SIGN UP HELPER FUNCTIONS"""
+def fillUsername(driver, username):
+    '''Find Name Field and type in userName'''
+    username_field = driver.find_element(By.NAME, "userName")
+    username_field.clear()
+    username_field.send_keys(username)
+
+def fillEmail(driver, email):
+    '''Find Email Field and type in email'''
+    email_field = driver.find_element(By.NAME, "email")
+    email_field.clear()
+    email_field.send_keys(email)
+
+def fillPassword(driver, password):
+    '''Find Password Field and type in password'''
+    password_field = driver.find_element(By.NAME, "password")
+    password_field.clear()
+    password_field.send_keys(password)
+
+def fillConfirmPassword(driver, confirmPassword):
+    '''Find Password Field and type in confirmPassword'''
+    confirm_password_field = driver.find_element(By.NAME, "confirmPassword")
+    confirm_password_field.clear()
+    confirm_password_field.send_keys(confirmPassword)
+
+"""LOG IN PAGE TESTS"""
+
+def testEmptyInput(driver):
+    '''Test Case for empty input log in'''
+    clickContinue(driver)
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    clickOK(driver)
+    
+def testInvalidAccount(driver):
+    '''Test Case for invalid account log in'''
+    fillInEmail(driver, "invalidAccount@ofs.com")
+    fillInPassword(driver, "P@$$w0rd")
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    clickContinue(driver)
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    clickOK(driver)
+    
+def testAdminAccount(driver):
+    ''' Test Case for Admin account Successfully login '''
+    fillInEmail(driver, "admin@admin.com")
+    fillInPassword(driver, "admin")
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    clickContinue(driver)
+    
+""" LOG IN HELPER FUNCTIONS"""
 
 def fillInEmail(driver, email):
     '''Find email box and type in email'''
@@ -93,43 +193,6 @@ def clickSubmit(driver):
     submit = driver.find_element(By.XPATH, "//*[contains(text(), 'Submit')]")
     submit.click()
     
-"""LOG IN PAGE FUNCTIONS"""
-
-def testEmptyInput(driver):
-    '''Test Case for empty input log in'''
-    clickContinue(driver)
-    time.sleep(1)   # pause for class to see action
-    clickOK(driver)
-    
-def testInvalidAccount(driver):
-    '''Test Case for invalid account log in'''
-    fillInEmail(driver, "invalidAccount@ofs.com")
-    fillInPassword(driver, "P@$$w0rd")
-    time.sleep(1)   # pause for class to see action
-    clickContinue(driver)
-    time.sleep(1)   # pause for class to see action
-    clickOK(driver)
-    
-def testAdminAccount(driver):
-    ''' Test Case for Admin account Successfully login '''
-    fillInEmail(driver, "admin@admin.com")
-    fillInPassword(driver, "admin")
-    time.sleep(1)   # pause for class to see action
-    clickContinue(driver)
-    
-"""SIGN UP PAGE FUNCTIONS"""
-
-def clickSignUp(driver):
-    '''Find and click link to Sign Up Page'''
-    # Wait for page elements to load
-    WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Create Account')]"))
-    )
-    
-    signUp = driver.find_element(By.XPATH, "//*[contains(text(), 'Create Account')]")
-    signUp.click()
-    
-
     
 if __name__ == '__main__':
     main()
