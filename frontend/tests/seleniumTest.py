@@ -9,7 +9,7 @@ import time
 
 LOGIN_URL = "http://localhost:3000"
 PAUSE_TIME = 1
-testCounter = 0
+testCounter = 3
 
 def main():
 
@@ -24,9 +24,6 @@ def main():
     
     # Test Case: Invalid ID or Password
     testInvalidAccount(driver)
-    
-    # Test Case: Owner Account
-    # testAdminAccount(driver)
 
     time.sleep(PAUSE_TIME)   # pause for class to see action
     
@@ -37,13 +34,26 @@ def main():
     testEmptySignUp(driver)
     
     # Test Case: Email Input already exist
-    # testInvalidEmail(driver)
+    testInvalidEmail(driver)
     
     # Test Case: Account successfully created
     testSignUp(driver)
     
+        
+    # Test Case: Owner Account
+    # testAdminAccount(driver)
+    
     time.sleep(PAUSE_TIME)
     driver.quit()
+
+"""TEST ADMIN ACTION"""
+
+def testAdminAccount(driver):
+    ''' Test Case for Admin account Successfully login '''
+    fillInEmail(driver, "admin@admin.com")
+    fillInPassword(driver, "admin")
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    clickContinue(driver)
 
 """SIGN UP PAGE TESTS"""
 
@@ -79,8 +89,8 @@ def testSignUp(driver):
     fillConfirmPassword(driver, "P@$$w0rd")
     time.sleep(PAUSE_TIME)   # pause for class to see action
     clickSubmit(driver)
-    time.sleep(PAUSE_TIME)   # pause for class to see action
-    clickOK(driver)
+    # time.sleep(PAUSE_TIME)   # pause for class to see action
+    # clickOK(driver)
     
 def clickSignUp(driver):
     '''Find and click link to Sign Up Page'''
@@ -88,31 +98,43 @@ def clickSignUp(driver):
     WebDriverWait(driver, 5).until(
         EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Create Account')]"))
     )
-    
+    # Find and click Create Account
     signUp = driver.find_element(By.XPATH, "//*[contains(text(), 'Create Account')]")
     signUp.click()
     
 """SIGN UP HELPER FUNCTIONS"""
 def fillUsername(driver, username):
     '''Find Name Field and type in userName'''
+    # Wait for page elements to load
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "userName")))
+    # Locate name input fields and fill in user name
     username_field = driver.find_element(By.NAME, "userName")
     username_field.clear()
     username_field.send_keys(username)
 
 def fillEmail(driver, email):
     '''Find Email Field and type in email'''
+    # Wait for page elements to load
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "email")))
+    # Locate email input fields and fill in test email
     email_field = driver.find_element(By.NAME, "email")
     email_field.clear()
     email_field.send_keys(email)
 
 def fillPassword(driver, password):
     '''Find Password Field and type in password'''
+    # Wait for page elements to load
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "password")))
+    # Locate password input fields and fill in password
     password_field = driver.find_element(By.NAME, "password")
     password_field.clear()
     password_field.send_keys(password)
 
 def fillConfirmPassword(driver, confirmPassword):
     '''Find Password Field and type in confirmPassword'''
+    # Wait for page elements to load
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "confirmPassword")))
+    # Locate confirm password input fields and fill in password
     confirm_password_field = driver.find_element(By.NAME, "confirmPassword")
     confirm_password_field.clear()
     confirm_password_field.send_keys(confirmPassword)
@@ -133,13 +155,6 @@ def testInvalidAccount(driver):
     clickContinue(driver)
     time.sleep(PAUSE_TIME)   # pause for class to see action
     clickOK(driver)
-    
-def testAdminAccount(driver):
-    ''' Test Case for Admin account Successfully login '''
-    fillInEmail(driver, "admin@admin.com")
-    fillInPassword(driver, "admin")
-    time.sleep(PAUSE_TIME)   # pause for class to see action
-    clickContinue(driver)
     
 """ LOG IN HELPER FUNCTIONS"""
 
