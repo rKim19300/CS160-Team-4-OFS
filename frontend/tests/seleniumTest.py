@@ -8,52 +8,209 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 LOGIN_URL = "http://localhost:3000"
-PAUSE_TIME = 1
+PAUSE_TIME = 2
 testCounter = 3
 
 def main():
 
     # Create object and link to server
-    service = Service(executable_path="C:\\Kid2512\\Study\\SJSU\\2024 Spring\\CS160\\Project\\TeamGit\\frontend\\tests\\chromedriver.exe")
+    service = Service(executable_path="./chromedriver.exe")
     driver = webdriver.Chrome(service=service)
 
     driver.get(LOGIN_URL)
     
-    # Test Case: empty Input Field
+    # # Test Case: empty Input Field
     # testEmptyInput(driver)
     
-    # Test Case: Invalid ID or Password
-    testInvalidAccount(driver)
+    # # Test Case: Invalid ID or Password
+    # testInvalidAccount(driver)
 
-    time.sleep(PAUSE_TIME)   # pause for class to see action
+    # time.sleep(PAUSE_TIME)   # pause for class to see action
     
-    # Move To Sign Up Page
-    clickSignUp(driver)
+    # # Move To Sign Up Page
+    # clickSignUp(driver)
     
-    # Test Case: empty Input Field
-    testEmptySignUp(driver)
+    # # Test Case: empty Input Field
+    # testEmptySignUp(driver)
     
-    # Test Case: Email Input already exist
-    testInvalidEmail(driver)
+    # # Test Case: Email Input already exist
+    # testInvalidEmail(driver)
     
-    # Test Case: Account successfully created
-    testSignUp(driver)
+    # # Test Case: Account successfully created
+    # testSignUp(driver)
     
-        
+    # Test Case: Customer Action
+    testCustomerAccount(driver)
+    
     # Test Case: Owner Account
     # testAdminAccount(driver)
     
     time.sleep(PAUSE_TIME)
     driver.quit()
 
-"""TEST ADMIN ACTION"""
+"""TEST USER ACTION"""
+def testCustomerAccount(driver):
+    ''' Test Case for Customer Action '''
+    fillInEmail(driver, "test@test.com")
+    fillInPassword(driver, "P@$$w0rd")
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    clickContinue(driver)
+    clickCategories(driver)
+    addItemsToCart(driver)
 
 def testAdminAccount(driver):
-    ''' Test Case for Admin account Successfully login '''
+    ''' Test Case for Admin Action '''
     fillInEmail(driver, "admin@admin.com")
     fillInPassword(driver, "admin")
     time.sleep(PAUSE_TIME)   # pause for class to see action
     clickContinue(driver)
+    
+def addItemsToCart(driver):
+    '''Add a few items to Cart'''
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    # Add 3 Apples
+    click_fruits(driver)
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    click_apple(driver)
+    addQuantity(driver, 2)
+    addToCart(driver)
+    clickOK(driver)
+    
+    # Add 1 banana 
+    click_fruits(driver)
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    click_banana(driver)
+    addToCart(driver)
+    clickOK(driver)
+    
+    # Add Salmon
+    click_protein(driver)
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    click_salmon_fillet(driver)
+    addQuantity(driver, 1)
+    addToCart(driver)
+    clickOK(driver)
+    
+    goToCart(driver)
+    
+def clickCategories(driver):
+    '''Test Click All Different Categories'''
+    click_all_products(driver)
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    click_dairy_and_eggs
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    click_vegetables(driver)
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    click_fruits(driver)
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    click_meat(driver)
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    click_seafood(driver)
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    click_protein(driver)
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    click_snack_and_candy(driver)
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+    click_frozen(driver)
+    time.sleep(PAUSE_TIME)   # pause for class to see action
+
+"""CUSTOMER PAGE HELPER FUNCTIONS"""
+def goToCart(driver):
+    '''Find and click Cart'''
+    cart_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Cart')]"))
+    )
+    cart_button.click()
+    
+def addQuantity(driver, amount):
+    '''Add amount of item'''
+    increaseButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//*[@id=\"root\"]/div/div[3]/div[2]/div/div/div/div[2]/div/div/div[1]"))
+    )
+    for i in range(amount):
+        increaseButton.click()
+
+def addToCart(driver):
+    '''Find and click Add To Cart'''
+    addButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Add To Cart')]"))
+    )
+    addButton.click()  
+
+def click_apple(driver):
+    '''Find and click Apple'''
+    apple = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//*[@id=\"root\"]/div/div[3]/div[2]/div/div/ul/li[1]/div/a"))
+    )
+    apple.click()
+
+def click_banana(driver):
+    '''Find and click Banana'''
+    banana = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//*[@id=\"root\"]/div/div[3]/div[2]/div/div/ul/li[2]/div/a"))
+    )
+    banana.click()
+
+def click_salmon_fillet(driver):
+    '''Find and click Salmon'''
+    salmon_fillet = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//*[@id=\"root\"]/div/div[3]/div[2]/div/div/ul/li/div/a"))
+    )
+    salmon_fillet.click()
+    
+def click_all_products(driver):
+    all_products_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'All Products')]"))
+    )
+    all_products_button.click()
+
+def click_dairy_and_eggs(driver):
+    dairy_and_eggs_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//*[@id=\"root\"]/div/div[3]/div[1]/div[1]/a[2]/button"))
+    )
+    dairy_and_eggs_button.click()
+
+def click_vegetables(driver):
+    vegetables_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Vegetables')]"))
+    )
+    vegetables_button.click()
+
+def click_fruits(driver):
+    fruits_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Fruits')]"))
+    )
+    fruits_button.click()
+
+def click_meat(driver):
+    meat_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Meat')]"))
+    )
+    meat_button.click()
+
+def click_seafood(driver):
+    seafood_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Seafood')]"))
+    )
+    seafood_button.click()
+
+def click_protein(driver):
+    protein_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Protein')]"))
+    )
+    protein_button.click()
+
+def click_snack_and_candy(driver):
+    snack_and_candy_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//*[@id=\"root\"]/div/div[3]/div[1]/div[1]/a[8]/button"))
+    )
+    snack_and_candy_button.click()
+
+def click_frozen(driver):
+    frozen_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Frozen')]"))
+    )
+    frozen_button.click()
 
 """SIGN UP PAGE TESTS"""
 
