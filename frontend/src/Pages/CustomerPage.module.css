@@ -19,3 +19,27 @@
   font-size: 20px;
   font-weight: bold;
 }
+
+.productItem {
+  flex-direction: column;
+  border: 2px solid gray;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.prodImg {
+  height: 60%;
+  width: auto;
+  padding: 4px;
+}
+
+.productTitle {
+  font-size: 24px;
+  font-weight: bold;
+  padding-top: 16px;
+}
+
+.productWeight {
+  font-size: 16px;
+  color: gray;
+}
