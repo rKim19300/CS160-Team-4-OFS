@@ -67,7 +67,8 @@ router.get('/getDecodedPolylines', checkIsStaff, async (req, res) => {
 
 		res.status(200).json({robot1: polylines1, robot2: polylines2});
 	}
-	catch {
+	catch (err) {
+		console.log(`ERROR WHEN DECODING POLYLINES ${err}`);
 		res.status(500).json("Something went wrong on our end, please try again later.");
 	}
 })

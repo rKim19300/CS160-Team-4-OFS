@@ -531,7 +531,7 @@ class DB {
                                     FROM Route_to_orders 
                                     WHERE route_id = ? ORDER BY leg`, [route.route_id]);
         }
-        return q.map(({ polyline }) => polyline);
+        return (q.length > 0 && q[0].polyline === null) ? [] : q.map(({ polyline }) => polyline);
     }  
 
     /**
