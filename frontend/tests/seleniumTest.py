@@ -8,8 +8,8 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 LOGIN_URL = "http://localhost:3000"
-PAUSE_TIME = 2
-testCounter = 3
+PAUSE_TIME = 1
+testCounter = 7
 
 def main():
 
@@ -19,25 +19,25 @@ def main():
 
     driver.get(LOGIN_URL)
     
-    # # Test Case: empty Input Field
-    # testEmptyInput(driver)
+    # Test Case: empty Input Field
+    testEmptyInput(driver)
     
-    # # Test Case: Invalid ID or Password
-    # testInvalidAccount(driver)
+    # Test Case: Invalid ID or Password
+    testInvalidAccount(driver)
 
-    # time.sleep(PAUSE_TIME)   # pause for class to see action
+    time.sleep(PAUSE_TIME)   # pause for class to see action
     
-    # # Move To Sign Up Page
-    # clickSignUp(driver)
+    # Move To Sign Up Page
+    clickSignUp(driver)
     
-    # # Test Case: empty Input Field
-    # testEmptySignUp(driver)
+    # Test Case: empty Input Field
+    testEmptySignUp(driver)
     
-    # # Test Case: Email Input already exist
+    # Test Case: Email Input already exist
     # testInvalidEmail(driver)
     
-    # # Test Case: Account successfully created
-    # testSignUp(driver)
+    # Test Case: Account successfully created
+    testSignUp(driver)
     
     # Test Case: Customer Action
     testCustomerAccount(driver)
@@ -91,7 +91,9 @@ def addItemsToCart(driver):
     addToCart(driver)
     clickOK(driver)
     
+    # Go to Cart check out
     goToCart(driver)
+    checkOut(driver)
     
 def clickCategories(driver):
     '''Test Click All Different Categories'''
@@ -121,6 +123,13 @@ def goToCart(driver):
         EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Cart')]"))
     )
     cart_button.click()
+    
+def checkOut(driver):
+    '''Find and click Cart'''
+    checkOut_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Checkout')]"))
+    )
+    checkOut_button.click()
     
 def addQuantity(driver, amount):
     '''Add amount of item'''
@@ -266,7 +275,9 @@ def fillUsername(driver, username):
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "userName")))
     # Locate name input fields and fill in user name
     username_field = driver.find_element(By.NAME, "userName")
-    username_field.clear()
+    # username_field.clear()
+    username_field.send_keys(Keys.CONTROL, 'a')
+    username_field.send_keys(Keys.DELETE)
     username_field.send_keys(username)
 
 def fillEmail(driver, email):
@@ -275,7 +286,9 @@ def fillEmail(driver, email):
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "email")))
     # Locate email input fields and fill in test email
     email_field = driver.find_element(By.NAME, "email")
-    email_field.clear()
+    email_field.send_keys(Keys.CONTROL, 'a')
+    email_field.send_keys(Keys.DELETE)
+    # email_field.clear()
     email_field.send_keys(email)
 
 def fillPassword(driver, password):
@@ -284,7 +297,9 @@ def fillPassword(driver, password):
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "password")))
     # Locate password input fields and fill in password
     password_field = driver.find_element(By.NAME, "password")
-    password_field.clear()
+    # password_field.clear()
+    password_field.send_keys(Keys.CONTROL, 'a')
+    password_field.send_keys(Keys.DELETE)
     password_field.send_keys(password)
 
 def fillConfirmPassword(driver, confirmPassword):
@@ -293,7 +308,9 @@ def fillConfirmPassword(driver, confirmPassword):
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "confirmPassword")))
     # Locate confirm password input fields and fill in password
     confirm_password_field = driver.find_element(By.NAME, "confirmPassword")
-    confirm_password_field.clear()
+    # confirm_password_field.clear()
+    confirm_password_field.send_keys(Keys.CONTROL, 'a')
+    confirm_password_field.send_keys(Keys.DELETE)
     confirm_password_field.send_keys(confirmPassword)
 
 """LOG IN PAGE TESTS"""
@@ -303,6 +320,7 @@ def testEmptyInput(driver):
     clickContinue(driver)
     time.sleep(PAUSE_TIME)   # pause for class to see action
     clickOK(driver)
+    time.sleep(PAUSE_TIME)   # pause for class to see action
     
 def testInvalidAccount(driver):
     '''Test Case for invalid account log in'''
@@ -312,6 +330,7 @@ def testInvalidAccount(driver):
     clickContinue(driver)
     time.sleep(PAUSE_TIME)   # pause for class to see action
     clickOK(driver)
+    time.sleep(PAUSE_TIME)   # pause for class to see action
     
 """ LOG IN HELPER FUNCTIONS"""
 
@@ -323,6 +342,8 @@ def fillInEmail(driver, email):
     # Locate email input fields and fill in test email
     emailInput = driver.find_element(By.XPATH, "//input[@type='email']")
     emailInput.clear()
+    # emailInput.send_keys(Keys.CONTROL, 'a')
+    # emailInput.send_keys(Keys.DELETE)
     emailInput.send_keys(email)
 
 def fillInPassword(driver, password):
@@ -333,6 +354,8 @@ def fillInPassword(driver, password):
     # Locate password input fields and fill in test password
     passwordInput = driver.find_element(By.XPATH, "//input[@type='password']")
     passwordInput.clear()
+    # passwordInput.send_keys(Keys.CONTROL, 'a')
+    # passwordInput.send_keys(Keys.DELETE)
     passwordInput.send_keys(password)
 
 def clickContinue(driver):
