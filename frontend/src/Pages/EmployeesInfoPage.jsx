@@ -95,7 +95,8 @@ export default function Employees() {
 
     return (
       <Flex>
-        <Box width="170vh">
+        <Box width="85vw">
+        {/* <Box width="170vh"> */}
           <Flex alignContent={"center"} justifyContent={"center"}>
             <Heading>Employees</Heading>
           </Flex>

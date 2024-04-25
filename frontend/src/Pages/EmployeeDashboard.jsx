@@ -51,8 +51,8 @@ export default function EmployeeDashboard() {
           <Flex className={styles.menuContent}>
             <SideBarEmployee onComponentChange={handleComponentChange} />
             {category === "inventory" ? <InventoryPage /> : <Outlet/>}
-            <ChakraProvider resetCSS theme={employeeDashboardTheme}>
-              <Box flex="1" p={4}>
+            {/* <ChakraProvider resetCSS theme={employeeDashboardTheme}>
+              <Box flex="1" p={4}> */}
                 {/* {activeComponent === Components.Inventory && <Inventory />}
                 {activeComponent === Components.Orders && <Orders />}
                 {activeComponent === Components.Analytics && Analytics(
@@ -65,8 +65,8 @@ export default function EmployeeDashboard() {
                                                                       )
                                                                       }
                 {activeComponent === Components.Employees && <Employees />} */}
-              </Box>
-            </ChakraProvider>
+              {/* </Box>
+            </ChakraProvider> */}
           </Flex>
         </Flex>
         
