@@ -65,6 +65,46 @@ async function addProducts() {
         2,
         25
     );
+    await DB.add_new_product(
+        "Pasta",
+        "Our pasta noodles offer a delightful blend of firmness and texture that pairs perfectly with your favorite sauces and ingredients",
+        "https://www.realsimple.com/thmb/Q9AoEkcxo5p4R4bF7jyea69GwAU=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/types-of-pasta-noodles-linguine-92e6a63f388e4c0e98325629086cf646.jpg",
+        5.99,
+        3,
+        50
+    );
+    await DB.add_new_product(
+        "Broccoli",
+        "Our broccoli stands out with its fresh, crisp texture and vibrant green color, making it a versatile and nutritious addition to any meal",
+        "https://purepng.com/public/uploads/large/purepng.com-broccolivegetables-broccoli-941524725896rn80y.png",
+        1.85,
+        1.1,
+        40
+    );
+    await DB.add_new_product(
+        "Brown Eggs",
+        "Our brown eggs offer a classic choice for your breakfast table, featuring a rich flavor and firm texture that's perfect for any cooking style",
+        "https://img1.exportersindia.com/product_images/bc-full/2021/12/9665693/brown-eggs-1640669879-6133575.jpeg",
+        5.99,
+        6,
+        20
+    );
+    await DB.add_new_product(
+        "White Eggs",
+        "Our white eggs offer a classic choice for any meal, prized for their versatility and protein-packed goodness",
+        "https://oexmarkets.com/wp-content/uploads/2020/03/white-egg.jpg",
+        5.50,
+        6,
+        30
+    );
+    await DB.add_new_product(
+        "Beef",
+        "Our beef is a culinary cornerstone, renowned for its rich flavor and juicy tenderness that transforms any meal into a savory delight",
+        "https://thumbs.dreamstime.com/b/shin-beef-meat-isolated-white-studio-background-uncooked-organic-48190235.jpg",
+        12.99,
+        5,
+        20
+    );
 }
 
 async function addCategories() {
@@ -83,6 +123,10 @@ async function setProductCategories() {
     await DB.set_product_categories(1, [3]);
     await DB.set_product_categories(2, [3]);
     await DB.set_product_categories(3, [5, 6, 8]);
+    await DB.set_product_categories(9, [2]);
+    await DB.set_product_categories(10, [1, 6]);
+    await DB.set_product_categories(11, [1, 6]);
+    await DB.set_product_categories(12, [4, 6]);
 }
 
 async function addUsers() {
