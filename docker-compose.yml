@@ -10,3 +10,13 @@ services:
     ports:
       - "8888:8888"
     image: "ofs_backend"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile
+    ports:
+      - "3000:3000"
+    image: "ofs_frontend"
+    depends_on:
+      - "backend"

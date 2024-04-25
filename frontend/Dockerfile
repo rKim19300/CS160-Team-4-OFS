@@ -5,5 +5,8 @@ RUN npm install
 COPY . /ofs/frontend
 WORKDIR  /ofs/frontend
 
+EXPOSE 3000
+
 RUN npm run build 
+
 CMD ["npm", "start"] 
