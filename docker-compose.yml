@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ./Dockerfile
+    env_file:
+      - ".env"
+    ports:
+      - "8888:8888"
+    image: "ofs_backend"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile
+    ports:
+      - "3000:3000"
+    image: "ofs_frontend"
+    depends_on:
+      - "backend"
