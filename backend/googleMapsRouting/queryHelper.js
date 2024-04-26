@@ -55,7 +55,6 @@ async function validateAddress(addressLine1, addressLine2, city, state, zipCode)
 
     // Check if the address is accurate enough
     response = await response.json();
-    console.log(response);
     let lat = response.result.geocode.location.latitude;
     let lng = response.result.geocode.location.longitude;
     const verdict = response.result.verdict.geocodeGranularity; 
@@ -68,7 +67,6 @@ async function validateAddress(addressLine1, addressLine2, city, state, zipCode)
             address: response.result.address.formattedAddress,
             coordinates: {lat: lat, lng: lng}
     }; 
-    // TODO reject store coords
 }
 
 /**
@@ -126,10 +124,6 @@ async function generateRouteData(addresses) {
         "units": "IMPERIAL"
     };
     try {
-        // set the intermediate points for the req body
-        /*for (let address of addresses) {
-            reqBody["intermediates"].push({ address })
-        }*/
         // make the request
         let res = await fetch(`https://routes.googleapis.com/directions/v2:computeRoutes`, {
             method: "POST",
@@ -147,21 +141,6 @@ async function generateRouteData(addresses) {
     } catch (err) {
         console.log(`GOOGMAPS: ERROR WHEN GENERATING ROUTES: ${err}`);
     }
-}
-
-/**
- * Recovers the robot if it was ON_ROUTE what the database was shut off.
- * Assumption: Already checked that the Robot status is ON_ROUTE
- * 
- * @param {*} robot_id 
- * @param {*} staaffIO 
- */
-async function recoverRobot(robot_id, staaffIO) {
-
-    // Get the robot's route
-
-    // 
-
 }
 
 /**
@@ -217,6 +196,8 @@ async function sendRobot(robot_id, staffIO) {
 
 /**
  * Sets the robot on route
+ * 
+ * Assumption: The legs are indexeds starting at 0, and do not skip integers
  * 
  * @param {*} robot_id      The robot on the route being traversed
  * @param {*} route_id      The ID of the route being traversed
@@ -275,6 +256,60 @@ function onRouteHelper(robot_id, route_id, durations, decodedRoute, io, leg) {
     }, update_rate * 1000); // TODO change this back to 5 seconds
 }
 
+/**
+ * Recovers the robot if it was ON_ROUTE what the database was shut off.
+ * Assumption: Already checked that the Robot status is ON_ROUTE
+ * 
+ * @param {*} robot_id   The entire robot object
+ * @param {*} staffIO   The IO for the socket
+ */
+async function recoverRobot(robot, staffIO) {
+    try {
+        const route_id = robot.route_id
+
+        // Get the durations and polylines of the route
+        console.log("Querying the route polylines and durations. . .");
+        let polylines = await DB.get_route_polylines(route_id);
+        let durations = await DB.get_route_durations(route_id);
+
+        // Decode the polylines
+        console.log("Decoding the route polylines. . .");
+        for (let i = 0; i < polylines.length; i++) 
+            polylines[i] = (await decodePolyline(polylines[i]));
+        
+        // Find the index where the robot stopped within the first polyline 
+        let stop_index = 0;
+        let first_polyline = polylines[0];
+        while ((first_polyline[stop_index].lat != robot.latitude) && 
+                (first_polyline[stop_index].lng != robot.longitude)) {
+            stop_index++;
+            if (stop_index > first_polyline.length) throw new Error(`Failed to find first index`);
+        }
+
+        // Adjust the duration of the first leg 
+        durations[0] = Math.ceil((1 - ((stop_index + 1) / first_polyline.length)) * durations[0]);
+
+        // Slice the polyline array of the first leg
+        polylines[0] = polylines[0].slice(stop_index, polylines[0].length);
+
+        // Update the etas of the legs in the database
+        /*
+            NOTE: We don't update the duration of first leg in database because 
+                  subsequent shutoffs could unnecessarily shrink the duration toward 0. 
+        */
+        await DB.recover_robot_route_data(route_id, durations);
+
+        // Send robot ON_ROUTE
+        console.log(`Sending robot (ID ${robot.robot_id}) ON_ROUTE`);
+        await onRoute(robot.robot_id, route_id, durations, polylines, staffIO);
+    } 
+    catch (err) {
+        console.log(`ERROR WHEN RECOVERING ROBOT: ${err}`);
+    }
+
+
+}
+
 async function decodePolyline(encodedPolyline) {
     let points = [];
     let index = 0;
@@ -318,5 +353,6 @@ module.exports = {
     check_is_within_allowable_distance, 
     decodePolyline, 
     validateAddress,
-    sendRobot
+    sendRobot, 
+    recoverRobot
 };
