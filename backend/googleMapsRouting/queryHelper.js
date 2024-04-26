@@ -55,10 +55,13 @@ async function validateAddress(addressLine1, addressLine2, city, state, zipCode)
 
     // Check if the address is accurate enough
     response = await response.json();
+    console.log(response);
     let lat = response.result.geocode.location.latitude;
     let lng = response.result.geocode.location.longitude;
     const verdict = response.result.verdict.geocodeGranularity; 
     if (verdict !== 'PREMISE' && verdict !== 'SUB_PREMISE')   // If not accurate enough 400
+        return undefined;
+    else if (lat === STORE_COORDS.latitude && lng === STORE_COORDS.longitude)
         return undefined;
     else 
         return {
@@ -144,6 +147,21 @@ async function generateRouteData(addresses) {
     } catch (err) {
         console.log(`GOOGMAPS: ERROR WHEN GENERATING ROUTES: ${err}`);
     }
+}
+
+/**
+ * Recovers the robot if it was ON_ROUTE what the database was shut off.
+ * Assumption: Already checked that the Robot status is ON_ROUTE
+ * 
+ * @param {*} robot_id 
+ * @param {*} staaffIO 
+ */
+async function recoverRobot(robot_id, staaffIO) {
+
+    // Get the robot's route
+
+    // 
+
 }
 
 /**
@@ -289,6 +307,7 @@ async function decodePolyline(encodedPolyline) {
     }
     return points;
 }
+
 (async () => {
 
 })();

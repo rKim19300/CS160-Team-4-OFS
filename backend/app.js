@@ -79,6 +79,10 @@ const staffIO = io.of('/staff');
 app.set('io', io); 
 app.set('staffIO', io); // TODO register staffIO with session middlware
 
+// Check if any robot when ON_ROUTE when the database shut off
+
+
+
 // Create a thread that assigns routes to robots
 const fiveSeconds = 5000;
 setInterval(async () => {

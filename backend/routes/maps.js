@@ -21,6 +21,7 @@ router.get('/getRobots', checkIsStaff, async (req, res) => {
 		res.status(200).json(data); 
 	}
 	catch (err) {
+		console.log(`ERROR WHEN GETTING ROBOTS ${err}`)
 		res.status(500).json(`Oops! Something went wrong on our end.`);
 	}
 });
@@ -40,6 +41,7 @@ router.post('/getRobotOrders', checkIsStaff, async (req, res) => {
 		res.status(200).send(orders);
 	}
 	catch (err) {
+		console.log(`ERROR WHEN GETTING ROBOT ORDERS ${err}`);
 		res.status(500).json(`Oops! Something went wrong on our end.`);
 	}
 });
@@ -127,9 +129,12 @@ router.post(`/validateAddress`, checkLoggedIn, async (req, res) => {
 			return res.status(400).json("Address is not within 20 miles of store!");
 
 		// Return the formatted address
-		return res.status(200).json(coordinates); 
+		return res.status(200).json({
+			coordinates: coordinates, 
+			address: address
+		}); 
 	} catch (err) {
-		console.log(err);
+		console.log(`ERROR WHEN VALIDATING ADDRESS ${err}`);
 		return res.status(500).json(`Oops! Something went wrong on our end. Try again in 60 seconds.`);
 	}
 });

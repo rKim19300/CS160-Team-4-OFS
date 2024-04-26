@@ -30,7 +30,8 @@ import {
   AlertDialogBody,
   AlertDialogFooter,
   AlertDialogOverlay,
-  useDisclosure
+  useDisclosure,
+  HStack
 } from "@chakra-ui/react";
 import styles from "./CheckoutPage.module.css";
 import axiosInstance from "../axiosInstance";
@@ -172,11 +173,12 @@ function Step1Component({ handleNext }) {
   const [state, setState] = useState(addressInfo["state"] || "");
   const [zipCode, setZipCode] = useState(addressInfo["zipCode"] || "");
   const [errMsg, setErrMsg] = useState("");
-  // const [addressCoords, setAddressCoords] = useState(addressCoordinates["addressCoords"] || {});
 
+  // Hooks for the alert dialogue
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = React.useRef();
-
+  const [ isError, setIsError ] = useState(true);
+  const [ address, setAddress ] = useState("");
 
   const submitForm = async (e) => {
     e.preventDefault();
@@ -192,16 +194,19 @@ function Step1Component({ handleNext }) {
       });
       if (response.status != 200) {
         await setErrMsg(response.data);
+        await setIsError(true);
         await onOpen();
         return;
       }
       else {
-        addressCoordinates = response.data;
-        console.log(response.data);
+        setAddress(response.data.address);
+        console.log(address);
+        addressCoordinates = response.data.coordinates;
       }
     }
     catch (err) {
       console.error(err.message);
+      await setIsError(true);
       setErrMsg("Oops! Something went wrong on our end, please try again in 60 seconds.");
       await onOpen();
       return;
@@ -211,7 +216,9 @@ function Step1Component({ handleNext }) {
     addressInfo = { addressLine1, addressLine2, city, state, zipCode };
 
     // set the "activeStep" state of the parent component by calling handleNext
-    handleNext();
+    // If the user confirms their address
+    await setIsError(false);
+    await onOpen();
   }
 
   return (
@@ -257,17 +264,37 @@ function Step1Component({ handleNext }) {
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-              ERROR!
+              {(isError) ? "ERROR!" : "Address Confirmation"}
             </AlertDialogHeader>
-
             <AlertDialogBody>
-              {errMsg}
+              {
+              (isError) ? 
+              errMsg
+              : 
+              <>
+              Please Confirm your address, 
+              a small mistake can change the intended location <br/><br/>
+                <Box fontWeight="bold">
+                  {address}
+                </Box>
+              </>
+              }
             </AlertDialogBody>
 
             <AlertDialogFooter>
-              <Button colorScheme='red' onClick={onClose} ml={3}>
-                Okay
-              </Button>
+              {(isError) ? <Button colorScheme='red' onClick={onClose} ml={3}>
+                              Okay
+                            </Button> 
+                            :
+                            <HStack>
+                              <Button colorScheme='green' onClick={handleNext}>
+                                Confirm
+                              </Button>
+                              <Button colorScheme='red' onClick={onClose}>
+                              Cancel
+                              </Button>
+                            </HStack>
+                            }
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialogOverlay>
