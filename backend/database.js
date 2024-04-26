@@ -286,9 +286,6 @@ class DB {
         return orders;
     }
 
-    static async get_user_order_history(user_id) {
-        // TODO: FINISH THIS
-    }
     /**
      * Adds and new Order to the data, as well as placing it on a route
      */
@@ -368,8 +365,7 @@ class DB {
     static async get_user_orders(user_id) {
         let all_user_orders = {};
         const order_statuses = ["Ongoing Orders", "Out For Delivery", "Order History"];
-        for (let [statusNum, orderStatus] of order_statuses.entries()) { // equivalent of enumerate() in python
-            // DONT FORGET TO ADD DELIVERY TIME
+        for (let [statusNum, orderStatus] of order_statuses.entries()) { // equivalent to enumerate() in python
             let orders = await db.query("SELECT order_id, cost, created_at, status, time_delivered FROM Orders WHERE user_id = ? AND status = ?", [user_id, statusNum]);
             for (let order of orders) {
                 let prod_imgs = await db.query("SELECT p.image_url FROM Products AS p INNER JOIN Order_items AS oi ON p.product_id = oi.product_id WHERE oi.order_id = ?", [order.order_id]);
