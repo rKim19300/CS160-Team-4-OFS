@@ -9,7 +9,7 @@ import time
 
 LOGIN_URL = "http://localhost:3000"
 PAUSE_TIME = 1
-testCounter = 7
+testCounter = 0
 
 def main():
 
