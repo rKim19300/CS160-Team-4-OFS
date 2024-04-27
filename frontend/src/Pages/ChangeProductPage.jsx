@@ -41,10 +41,6 @@ export default function ChangeProductPage() {
     console.log(selectedCategoryIds);
   };
 
-  const handleRemove = () => {
-    setQuantity(-1);
-  }
-
   async function fetchData() {
     try {
       let response = await axiosInstance.get(`/api/productInfo/${id}`);
@@ -177,12 +173,8 @@ export default function ChangeProductPage() {
                 </div>
               </FormControl>
 
-              <Button className={styles.button} colorScheme="green" type="submit">
+              <Button className={styles.button} align="left" colorScheme="green" type="submit">
                 Save
-              </Button>
-
-              <Button className={styles.button} colorScheme="red" onClick={handleRemove} type="submit">
-                Remove
               </Button>
 
             </form>

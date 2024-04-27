@@ -65,6 +65,110 @@ async function addProducts() {
         2,
         25
     );
+    await DB.add_new_product(
+        "Pasta",
+        "Our pasta noodles offer a delightful blend of firmness and texture that pairs perfectly with your favorite sauces and ingredients",
+        "https://www.realsimple.com/thmb/Q9AoEkcxo5p4R4bF7jyea69GwAU=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/types-of-pasta-noodles-linguine-92e6a63f388e4c0e98325629086cf646.jpg",
+        5.99,
+        3,
+        50
+    );
+    await DB.add_new_product(
+        "Broccoli",
+        "Our broccoli stands out with its fresh, crisp texture and vibrant green color, making it a versatile and nutritious addition to any meal",
+        "https://purepng.com/public/uploads/large/purepng.com-broccolivegetables-broccoli-941524725896rn80y.png",
+        1.85,
+        1.1,
+        40
+    );
+    await DB.add_new_product(
+        "Brown Eggs",
+        "Our brown eggs offer a classic choice for your breakfast table, featuring a rich flavor and firm texture that's perfect for any cooking style",
+        "https://img1.exportersindia.com/product_images/bc-full/2021/12/9665693/brown-eggs-1640669879-6133575.jpeg",
+        5.99,
+        6,
+        20
+    );
+    await DB.add_new_product(
+        "White Eggs",
+        "Our white eggs offer a classic choice for any meal, prized for their versatility and protein-packed goodness",
+        "https://oexmarkets.com/wp-content/uploads/2020/03/white-egg.jpg",
+        5.50,
+        6,
+        30
+    );
+    await DB.add_new_product(
+        "Beef",
+        "Our beef is a culinary cornerstone, renowned for its rich flavor and juicy tenderness that transforms any meal into a savory delight",
+        "https://thumbs.dreamstime.com/b/shin-beef-meat-isolated-white-studio-background-uncooked-organic-48190235.jpg",
+        12.99,
+        5,
+        20
+    );
+    await DB.add_new_product(
+        "Pork Chop",
+        "Our pork chops are a culinary delight, prized for their tender texture and succulent flavor that promises to elevate any meal",
+        "https://shop.kootenay.coop/cdn/shop/products/Boneless-Pork-Chops_dccd6c20-5cba-42d1-a55e-3e7178edb53e.jpg?v=1613857324",
+        6.99,
+        4,
+        25
+    );
+    await DB.add_new_product(
+        "Chicken Breast",
+        "Our chicken breasts are a kitchen staple, prized for their lean protein and versatility in countless recipes",
+        "https://png.pngtree.com/png-clipart/20231018/original/pngtree-isolated-white-background-with-raw-chicken-breast-a-key-photo-png-image_13345132.png",
+        4.99,
+        4,
+        25
+    );
+    await DB.add_new_product(
+        "Milk",
+        "Our milk is sourced from trusted dairy farms and delivered fresh to your table for a delightful drinking experience",
+        "https://target.scene7.com/is/image/Target/GUEST_419f1169-a698-45a1-8d89-ad28136ba841?wid=488&hei=488&fmt=pjpeg",
+        5.99,
+        5,
+        30
+    );
+    await DB.add_new_product(
+        "Corn",
+        "Our corn offers sweet, golden kernels bursting with flavor, perfect for adding a touch of summer to your meals",
+        "https://static.vecteezy.com/system/resources/previews/001/410/232/large_2x/fresh-corn-isolated-on-white-background-free-photo.jpg",
+        2.99,
+        7,
+        30
+    );
+    await DB.add_new_product(
+        "Onions",
+        "Our onions bring a burst of flavor and aromatic richness to your dishes, enhancing every culinary creation with their savory sweetness",
+        "https://storage.googleapis.com/images-fol-prd-83dd8b8.fol.prd.v8.commerce.mi9cloud.com/product-images/detail/4663.jpg",
+        3.99,
+        7,
+        20
+    );
+    await DB.add_new_product(
+        "Potatoes",
+        "Our potatoes boast a hearty texture and rich flavor, perfect for adding depth to any dish",
+        "https://img.freepik.com/premium-photo/potato-isolated-white_362171-1296.jpg",
+        3.99,
+        10,
+        50
+    );
+    await DB.add_new_product(
+        "Bell Peppers",
+        "Our bell peppers offer a burst of vibrant color and crisp, sweet flavor, perfect for adding a pop of freshness to your recipes",
+        "https://thumbs.dreamstime.com/b/red-green-yellow-bell-pepper-isolated-white-background-red-green-yellow-bell-pepper-isolated-white-background-147139427.jpg",
+        3.99,
+        5,
+        27
+    );
+    await DB.add_new_product(
+        "Green Beans",
+        "Our green beans bring a fresh, crisp texture and vibrant color to your dishes, adding a nutritious touch to any meal",
+        "https://e-xportmorocco.com/storage/produits/1645112683.jpeg",
+        4.99,
+        3,
+        15
+    );
 }
 
 async function addCategories() {
@@ -74,7 +178,7 @@ async function addCategories() {
     await DB.add_new_category("Meat");
     await DB.add_new_category("Seafood");
     await DB.add_new_category("Protein");
-    await DB.add_new_category("Snacks & Candy");
+    await DB.add_new_category("Drinks");
     await DB.add_new_category("Frozen");
 }
 
@@ -83,6 +187,21 @@ async function setProductCategories() {
     await DB.set_product_categories(1, [3]);
     await DB.set_product_categories(2, [3]);
     await DB.set_product_categories(3, [5, 6, 8]);
+    await DB.set_product_categories(5, [3]);
+    await DB.set_product_categories(6, [7]);
+    await DB.set_product_categories(7, [7]);
+    await DB.set_product_categories(9, [2]);
+    await DB.set_product_categories(10, [1, 6]);
+    await DB.set_product_categories(11, [1, 6]);
+    await DB.set_product_categories(12, [4, 6]);
+    await DB.set_product_categories(13, [4, 6]);
+    await DB.set_product_categories(14, [4, 6, 8]);
+    await DB.set_product_categories(15, [1, 7]);
+    await DB.set_product_categories(16, [2]);
+    await DB.set_product_categories(17, [2]);
+    await DB.set_product_categories(18, [2]);
+    await DB.set_product_categories(19, [2]);
+    await DB.set_product_categories(20, [2]);
 }
 
 async function addUsers() {

@@ -99,7 +99,7 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
             if (response.status === 200) {
               onSignUpSuccess();   // Tell caller signUp was a success
               if (!createEmployee) // If creating customer, navigate to login
-                navigate("/");   
+                navigate("/login");   
             } 
             else if (response.status === 401 && createEmployee) {
               onOpen(); // Open mployee registration fail pop-up
@@ -267,7 +267,7 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
                 ref={successDialogRef}
                 onClick={() => {
                   setSuccessDialogOpen(false);
-                  navigate("/");
+                  navigate("/login");
                 }}
               >
                 OK
@@ -292,7 +292,7 @@ const SignUpPage = ({ createEmployee=false, onSignUpSuccess = () => {}}) => {
                 colorScheme="red"
                 onClick={async () => {
                   try {
-                    navigate("/");
+                    navigate("/login");
                   } catch (err) {
                     console.error(err);
                   } finally {

@@ -7,7 +7,8 @@ import {
     useLoadScript,
     DirectionsRenderer,
     MarkerF,
-    PolylineF
+    PolylineF,
+    InfoWindowF
 } from '@react-google-maps/api';
 import {
     Flex,
@@ -28,7 +29,15 @@ import {
     AlertDialogBody,
     AlertDialogFooter,
     AlertDialogOverlay,
-    useDisclosure
+    useDisclosure,
+    Table,
+    TableCaption,
+    Thead,
+    Tbody,
+    Tr,
+    Th,
+    Td,
+    TableContainer,
 } from "@chakra-ui/react";
 import styles from "./OrdersMap.module.css";
 import { ArrowBackIcon } from "@chakra-ui/icons";
@@ -41,12 +50,19 @@ const ROBOT1_TAB = 'robot1';
 const ROBOT2_TAB = 'robot2';
 const ORDER_TAB = 'orders';
 
+const NUM_TO_STATUS = {
+    0: "Processing",
+    1: "En Route",
+    2: "Delivered"
+}
+
 export default function OrdersMap() {
 
     // -- Constants --
     const containerStyle = {
         width: '100%',
-        height: '400px',
+        // height: '400px',
+        height: 'max(51vh, 400px)',
     };
 
     // Hard coded SJSU ("store") address
@@ -76,6 +92,9 @@ export default function OrdersMap() {
     const [showRobot1, setShowRobot1] = useState(false);
     const [showRobot2, setShowRobot2] = useState(false);
     const [showOrders, setShowOrders] = useState(true);
+
+    // Holds the order_id of the currently open marker window (each marker represents an order)
+    const [openMarkerWindow, setOpenMarkerWindow] = useState(-1); 
 
     // For error messages
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -107,6 +126,8 @@ export default function OrdersMap() {
             return;
         }
         setDecodedPaths(response.data);
+        // Update orders info so that the order status update can be seen on the `Show Orders` tab
+        await fetchOrders();
     }
 
     // TODO Have this function update the polylines
@@ -237,6 +258,8 @@ export default function OrdersMap() {
                 setCurrentRobot(robotPlaceHolder);
                 break;
         }
+        // When we switch tabs (Shows Orders, Show Robot1, Show Robot2), close marker window if any is open
+        if (openMarkerWindow !== -1) setOpenMarkerWindow(-1);
     }
 
     function robot1Content() {
@@ -258,13 +281,7 @@ export default function OrdersMap() {
                 }
                 {
                     /* Place Robot1 orders on the map */
-                    (robot1Orders !== null) && robot1Orders.map((order, idx) => (
-                        <MarkerF 
-                            key={idx + 'robot1'}
-                            position={{lat: order.latitude, lng: order.longitude}}
-                            title={`${order.order_id}`} 
-                        />
-                    ))
+                    plotMarkers(robot1Orders)
                 }
                 {
                 <MarkerF 
@@ -296,13 +313,7 @@ export default function OrdersMap() {
                 }
                 {
                     /* Place Robot2 orders on the map */
-                    (robot2Orders !== null) && robot2Orders.map((order, idx) => (
-                        <MarkerF 
-                            key={idx}
-                            position={{lat: order.latitude, lng: order.longitude}}
-                            title={`${order.order_id}`} 
-                        />
-                    ))
+                    plotMarkers(robot2Orders)
                 }
                 <MarkerF 
                     position={{lat: robot2.latitude, lng: robot2.longitude}} 
@@ -314,114 +325,189 @@ export default function OrdersMap() {
     }
 
     function orderContent() {
+        // plot all pending orders (Show Orders tab) on the map
+        return plotMarkers(orders);
+    }
+
+    // Helper function to plot list of orders on map
+    function plotMarkers(specifiedOrders) {
         return (
             <>
                 {
                     /* Place orders on the map */
-                    orders && orders.map((order, idx) => (
+                    specifiedOrders && specifiedOrders.map((order, idx) => (
                         <MarkerF 
                             key={idx}
                             position={{lat: order.latitude, lng: order.longitude}}
                             title={`${order.order_id}`} 
-                        />
+                            label={`${order.order_id}`} 
+                            onClick={() => setOpenMarkerWindow(order.order_id)}
+                        >
+                            {openMarkerWindow === order.order_id && 
+                              <InfoWindowF 
+                                onCloseClick={() => setOpenMarkerWindow(-1)}
+                                position={{lat: order.latitude, lng: order.longitude}}
+                              >
+                                <div>
+                                    <span>OrderID: {order.order_id}</span>
+                                    <br />
+                                    <span>Status: {NUM_TO_STATUS[order.status]}</span>
+                                    <br />
+                                    <span>Weight: {order.weight} lbs</span>
+                                    <br />
+                                    <span>Cost: ${order.cost.toFixed(2)}</span>
+                                </div>
+                              </InfoWindowF>
+                            }
+                        </MarkerF>
                     ))
                 }
             </>
         );
     }
 
+
+    function displayOrdersInfoTable(tableCaption, specifiedOrders) {
+        return (
+            <>
+                <TableContainer mt='50px' mx="auto" width="87%" mb={10} whiteSpace="normal">
+                    <Table variant='striped'>
+                        <TableCaption>{tableCaption}</TableCaption>
+                        <Thead>
+                        <Tr>
+                            <Th>Order ID</Th>
+                            <Th>Cost</Th>
+                            <Th>Weight (lbs)</Th>
+                            <Th>Address</Th>
+                            <Th>Status</Th>
+                            <Th>Placed On</Th>
+                        </Tr>
+                        </Thead>
+                        <Tbody>
+                            {specifiedOrders && specifiedOrders.map((order, idx) => {
+                                return (
+                                    <Tr>
+                                        <Td>{ order.order_id }</Td>
+                                        <Td>${ order.cost.toFixed(2) }</Td>
+                                        <Td>{ order.weight }</Td>
+                                        <Td>{ order.address }</Td>
+                                        <Td>{ NUM_TO_STATUS[order.status] }</Td>
+                                        <Td>{ order.created_at }</Td>
+                                    </Tr>
+                                    )
+                            })}
+                        </Tbody>
+                    </Table>
+                </TableContainer>
+                    
+            </>
+        )
+    }
+
     // What the OrdersMap returns
     return (
         <>
-            <Flex className={styles.container}>
-                <Text className={styles.orderText}>
-                    
-                </Text>
-            </Flex>
-            <Flex marginLeft='100' className={styles.MapContainer}>
-                <Box>
-                    <Tabs isLazy={true}>
-                        <TabList>
-                            <Tab 
-                                onClick={() => {handleContent(ORDER_TAB)}}  
+            <Box w='100%'>
+                {showRobot1 ? (
+                    <Text p='20px 0px' className={styles.orderText}>Robot1 Orders</Text>
+                ) : showRobot2 ? (
+                    <Text p='20px 0px' className={styles.orderText}>Robot2 Orders</Text>
+                ) : showOrders ? (
+                    <Text p='20px 0px' className={styles.orderText}>Pending Orders</Text>
+                ) : (
+                    <Text>Not Found</Text>
+                )}
+                <Flex className={styles.MapContainer}>
+                    <Box>
+                        <Tabs isLazy={true}>
+                            <TabList>
+                                <Tab 
+                                    onClick={() => {handleContent(ORDER_TAB)}}  
+                                >
+                                    Show Orders
+                                </Tab>
+                                <Tab 
+                                    onClick={() => {handleContent(ROBOT1_TAB)}} 
+                                >
+                                    Show Robot1
+                                </Tab>
+                                <Tab 
+                                    onClick={() => {handleContent(ROBOT2_TAB)}}  
+                                >
+                                    Show Robot2
+                                </Tab>
+                            </TabList>
+                        </Tabs>
+                    </Box>
+                    <GoogleMap
+                        mapContainerStyle={containerStyle}
+                        center={center}
+                        zoom={10}
+                        onLoad={(map) => {setMap(map)}}
+                        options={{
+                            streetViewControl: false,
+                            mapTypeControl: false,
+                            fullscreenControl: false
+                        }}
+                    >   
+                        {showRobot1 && robot1Content()}
+                        {showOrders && orderContent()}
+                        {showRobot2 && robot2Content()}
+                        <MarkerF 
+                            position={store} 
+                            title={"Store"} 
+                            label="S"
+                        />
+                    </GoogleMap>
+                    <br />
+                    <HStack justifyContent="space-between">
+                        <Box>
+                            <Button onClick={() => {sendRobot(currentRobot.robot_id)}} colorScheme="red">
+                                Send Orders
+                            </Button>
+                        </Box>
+                        <Spacer/>
+                        <Box>
+                            Go To:
+                        </Box>
+                        <Box>
+                            <Button 
+                                onClick={() => {
+                                    map.panTo(store);
+                                    setCenter(store);
+                                    }}>
+                                Store
+                            </Button>
+                        </Box>
+                        <Box>
+                            <Button 
+                                label={"Robot1"} 
+                                onClick={() => {
+                                    map.panTo({lat: robot1.latitude, lng: robot1.longitude});
+                                    setCenter({lat: robot1.latitude, lng: robot1.longitude});
+                                    }}
                             >
-                                Show Orders
-                            </Tab>
-                            <Tab 
-                                onClick={() => {handleContent(ROBOT1_TAB)}} 
+                                Robot1
+                            </Button>
+                        </Box>  
+                        <Box>
+                            <Button 
+                                onClick={() => {
+                                    map.panTo({lat: robot2.latitude, lng: robot2.longitude});
+                                    setCenter({lat: robot2.latitude, lng: robot2.longitude});
+                                    }}
                             >
-                                Show Robot1
-                            </Tab>
-                            <Tab 
-                                onClick={() => {handleContent(ROBOT2_TAB)}}  
-                            >
-                                Show Robot2
-                            </Tab>
-                        </TabList>
-                    </Tabs>
-                </Box>
-                <GoogleMap
-                    mapContainerStyle={containerStyle}
-                    center={center}
-                    zoom={10}
-                    onLoad={(map) => {setMap(map)}}
-                    options={{
-                        streetViewControl: false,
-                        mapTypeControl: false,
-                        fullscreenControl: false
-                    }}
-                >   
-                    {showRobot1 && robot1Content()}
-                    {showOrders && orderContent()}
-                    {showRobot2 && robot2Content()}
-                    <MarkerF 
-                        position={store} 
-                        title={"Store"} 
-                    />
-                </GoogleMap>
-                <br />
-                <HStack justifyContent="space-between">
-                    <Box>
-                        <Button onClick={() => {sendRobot(currentRobot.robot_id)}} colorScheme="red">
-                            Send Orders
-                        </Button>
-                    </Box>
-                    <Spacer/>
-                    <Box>
-                        Go To:
-                    </Box>
-                    <Box>
-                        <Button 
-                            onClick={() => {
-                                map.panTo(store);
-                                setCenter(store);
-                                }}>
-                            Store
-                        </Button>
-                    </Box>
-                    <Box>
-                        <Button 
-                            label={"Robot1"} 
-                            onClick={() => {
-                                map.panTo({lat: robot1.latitude, lng: robot1.longitude});
-                                setCenter({lat: robot1.latitude, lng: robot1.longitude});
-                                }}
-                        >
-                            Robot1
-                        </Button>
-                    </Box>  
-                    <Box>
-                        <Button 
-                            onClick={() => {
-                                map.panTo({lat: robot2.latitude, lng: robot2.longitude});
-                                setCenter({lat: robot2.latitude, lng: robot2.longitude});
-                                }}
-                        >
-                            Robot2
-                        </Button>
-                    </Box>
-                </HStack>
-            </Flex>
+                                Robot2
+                            </Button>
+                        </Box>
+                    </HStack>
+                </Flex>
+
+                {showRobot1 && displayOrdersInfoTable("Robot1 Orders", robot1Orders)}
+                {showOrders && displayOrdersInfoTable("Pending Orders", orders)}
+                {showRobot2 && displayOrdersInfoTable("Robot2 Orders", robot2Orders)}
+            </Box>
+
             <AlertDialog
                 isOpen={isOpen}
                 leastDestructiveRef={cancelRef}

@@ -156,18 +156,18 @@ async function processData(data, dataName) {
     case 'weekRevenue':
       for (let day = new Date().getDay(), i = 0; i < 7; day = ((day + 1) % 7), i++) {
         categories[i] = weekdays[day];
-        resData[i] = data[weekdays[day]];
+        resData[i] = data[weekdays[day]].toFixed(2);
       }
       break;
     case 'monthRevenue':
       for (let month = new Date().getMonth() + 1, i = 0; i < 12; month = ((month + 1) % 12), i++) {
         categories[i] = months[month];
-        resData[i] = data[months[month]];
+        resData[i] = data[months[month]].toFixed(2);
       }
       break;
     case 'yearRevenue':
       categories = data.map(item => item.year);
-      resData = data.map(item => item.revenue);
+      resData = data.map(item => item.revenue.toFixed(2));
       break;
   }
 

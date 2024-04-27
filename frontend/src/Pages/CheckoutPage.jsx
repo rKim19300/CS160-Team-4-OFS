@@ -42,6 +42,7 @@ import {
   FaCcVisa,
   FaCircleCheck,
 } from "react-icons/fa6";
+import { ErrorMessage } from "formik";
 
 const steps = [
   { title: "Delivery", description: "Enter Address" },
@@ -281,14 +282,35 @@ function Step2Component({ handleNext }) {
   const [exp, setExp] = useState(paymentInfo["exp"] || "");
   const [cvv, setCvv] = useState(paymentInfo["cvv"] || "");
   const [zipCode, setZipCode] = useState(paymentInfo["zipCode"] || "");
+  const [errMsg, setErrMsg] = useState("");
+
+  // vars to be used at payment input checks
+  let month = new Date().getMonth();
+  let year = new Date().getFullYear();
 
   const submitForm = (e) => {
     e.preventDefault();
+    let expYear = "20" + exp.split("/")[1];
+    let expMonth = exp.split("/")[0];
     // do payment input checks here
-
-    paymentInfo = { nameOnCard, cardNumber, exp, cvv, zipCode }
-    // update "activeStep" state in parent component
-    handleNext();
+    if (
+      // card number checks
+      (cardNumber.length == 15 && cardNumber[0] == 3) ||
+      (cardNumber.length == 16 && cardNumber[0] == 4 || cardNumber[0] == 5) &&
+      // exp date checks
+      (expYear > year) ||
+      (expYear == year && expMonth > month) &&
+      // cvv checks
+      (cvv.length == 3) &&
+      // zipcode checks
+      (zipCode.length == 5)
+    ){
+      paymentInfo = { nameOnCard, cardNumber, exp, cvv, zipCode }
+      // update "activeStep" state in parent component
+      handleNext();
+    } else {
+      alert("Invalid credit card information!");
+    }
   }
 
   return (
