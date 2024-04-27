@@ -54,6 +54,7 @@ const steps = [
 
 let addressInfo = {};
 let addressCoordinates = {};
+let streetAddress = '';
 let paymentInfo = {};
 let orderItems = [];
 let orderTotal = {};
@@ -80,8 +81,9 @@ export default function CheckoutPage({ variant }) {
   // TODO: display the confirmation error
   const [confirmErr, setConfirmErr] = useState(null);
   const handleConfirm = async () => {
+    console.log(streetAddress);
     let response = await axiosInstance.post("/api/placeOrder", {
-      "street_address": Object.values(addressInfo).map(v => v.trim()).filter(v => v !== "").join(", ").replace(/\s\s+/g, ' '),
+      "street_address": streetAddress,
       "coordinates": addressCoordinates
     });
     if (response.status !== 200) {
@@ -200,8 +202,8 @@ function Step1Component({ handleNext }) {
       }
       else {
         setAddress(response.data.address);
-        console.log(address);
         addressCoordinates = response.data.coordinates;
+        streetAddress = response.data.address;
       }
     }
     catch (err) {
