@@ -322,7 +322,6 @@ class DB {
             if (((wno.total_weight + weight) <= MAX_ROUTE_WEIGHT) 
                 && (wno.order_num < MAX_ROUTE_ORDERS)) {
                 await this.add_order_to_route(route_id, order_id);
-                // TODO check here if the order is ready to be sent
                 return;
             }
         }
@@ -468,7 +467,9 @@ class DB {
         await db.query("INSERT INTO Robot(latitude, longitude) VALUES (?, ?)", [this.store.lat, this.store.lng]);
     }
 
-    // Gets robot data from each robot
+    /**
+     * @returns The robot objects for all robots
+     */
     static async get_all_robots() {
         let q = await db.query("SELECT * FROM Robot ORDER BY robot_id");
         for (let i = 0; i < q.length; i++) {
@@ -545,7 +546,7 @@ class DB {
         // Get the route weight, number of orders, and time since creation
         let wno = await this.get_route_weight_and_order_num(route.route_id);
         let hours_past = await this.hours_since_route_creation(route.route_id);
-
+        console.log(`Total hours past = ${hours_past}`);
         return ((wno.total_weight === 200) || (wno.order_num === 10) || hours_past >= 2);
     }
         
@@ -637,7 +638,6 @@ class DB {
      * @returns  Whether or not the route_id was set
      */
     static async set_route_to_robot(route_id, robot_id) {
-        let has_route = await this.has_route(robot_id);
         if (!(await this.has_route(robot_id))) {
             await db.query("UPDATE Robot SET route_id = ? WHERE robot_id = ?", [route_id, robot_id]);
             await db.query("UPDATE Delivery_routes SET robot_id = ? WHERE route_id = ?", [robot_id, route_id]);
@@ -647,7 +647,6 @@ class DB {
     }
 
     /**
-     * 
      * @param {*} route_id 
      * @returns The order data from the route
      */
@@ -670,12 +669,27 @@ class DB {
      * Assumption: The route has an associated robot that is ON_ROUTE and the route has 
      *             orders. 
      * 
-     * @returns The encoded polylines of the route, sorted by the legs
+     * @returns An array of the encoded polylines of the route, sorted by the legs
      */
     static async get_route_polylines(route_id) {
-        let q = await db.query("SELECT polyline FROM Route_to_orders WHERE route_id = ? ORDER BY leg", [route_id]);
-        return q; 
+        let q = await db.query("SELECT polyline FROM Route_to_orders WHERE route_id = ? ORDER BY leg"
+            , [route_id])
+        return q.map(({ polyline }) => polyline); 
     }
+
+    /**
+     * Gets the durations of the legs of the route, ordered by leg number
+     * 
+     * Assumption: The associated Robot is ON_ROUTE
+     * 
+     * @param {*} route_id     The id associated with the route
+     * @returns An array of the durations of the route sorted by the leg
+     */
+        static async get_route_durations(route_id) {
+            let q = await db.query("SELECT duration FROM Route_to_orders WHERE route_id = ? ORDER BY leg"
+                , [route_id]);
+            return q.map(({ duration }) => duration);
+        }
 
     /**
      * Function to be called when a robot is sent ON_ROUTE. Sets the encoded polylines, 
@@ -811,7 +825,42 @@ class DB {
             strftime('%s', 'now', 'localtime') - strftime('%s', ?) AS past_seconds`, 
             [created_at]))[0].past_seconds;
         
-        return past_seconds * 60 * 60;
+        return past_seconds / (60 * 60);
+    }
+
+    ///////
+    // ROBOT RECOVERY queries
+    ///////
+
+    /**
+     * Updates the ETAs of the legs in the database based on the current time
+     * and the durations that the legs will take the finish. Also reindexes
+     * the legs of the route to start from 0.
+     * 
+     * Assumption: The Robot was ON_ROUTE when the database shut-off
+     * 
+     * @param {*} route_id        The id of the route in which the robot was on
+     * @param {*} durations       The updated durations of the legs that the robot
+     *                            did not finished before shut-off. The duration of 
+     *                            the first leg should be updated.
+     */
+    static async recover_robot_route_data(route_id, durations) {
+
+        // Find the minimum leg of the route
+        let min_leg = (await db.query(`SELECT min(leg) AS leg 
+                                        FROM Route_to_orders
+                                        WHERE route_id = ?`, [route_id]))[0].leg;
+
+        // Update the etas and reindex the legs
+        let total_duration = 0; 
+        for (let i = 0, leg = min_leg; i < durations.length; i++, leg++) {
+            total_duration += durations[i];
+            await db.query(`UPDATE Route_to_orders 
+                            SET eta = datetime('now', '+${total_duration} seconds', 'localtime'),
+                                leg = ?
+                            WHERE route_id = ? AND leg = ?`
+                            , [i, route_id, leg]);
+        }
     }
 
     ///////
