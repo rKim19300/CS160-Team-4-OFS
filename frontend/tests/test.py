@@ -11,7 +11,7 @@ PAUSE_TIME = 1
 
 
 def main():
-    testCounter = 3
+    testCounter = 7
     # Create WebDriver instance
     service = Service(executable_path="./chromedriver.exe")
     driver = webdriver.Chrome(service=service)
@@ -35,11 +35,11 @@ def main():
     # # Test Case: Empty Input Field
     # clickSubmit(driver)
     
-    # # createTestAccount(driver, 0)
-    # # clickButton(driver, "Create Account")
+    # createTestAccount(driver, 6)
+    # clickButton(driver, "Create Account")
     
     # # Test Case: Email Input already exist
-    # createTestAccount(driver, 0)
+    # createTestAccount(driver, 6)
     # clickOk(driver)
     # pause()
     
@@ -47,19 +47,25 @@ def main():
     # createTestAccount(driver, testCounter)
     # pause()
     
-    customerSignIn(driver, testCounter)
+    # customerSignIn(driver, testCounter)
     # clickAllCategories(driver)
     # pause()
     # testEditProfile(driver)
     # pause()
-    testCreateOrder(driver)
-    pause()
-    clickLogo(driver)
-    signOut(driver)
-    
-    # # Test Admin Action
+    # testCreateOrder(driver)
     # pause()
-    # signIn(driver, "admin@admin.com", "admin")
+    # clickLogo(driver)
+    # signOut(driver)
+    
+    # # Add more order
+    # customerSignIn(driver, testCounter - 1)
+    # testCreateOrder1(driver)
+    # clickLogo(driver)
+    # signOut(driver)
+    
+    # Test Admin Action
+    pause()
+    signIn(driver, "admin@admin.com", "admin")
     # clickCustomerView(driver)
     # clickAllCategories(driver)
     # clickEmployeeView(driver)
@@ -67,18 +73,54 @@ def main():
     
     # # Test Remove Product
     # clickInventory(driver)
-    # removeProduct(driver, "Apple")
+    # removeProduct(driver, "Corn")
 
-    # clickOrders(driver)
-    # clickMap(driver)
     # pause()
-    # # clickStore(driver)
-    # signOut(driver)
+    # clickStore(driver)
+    # pause()
     
-    # pause()
+    clickOrders(driver)
+    clickMap(driver)
+    clickButtonByText(driver, "Show Orders")
+    
+    pause()
+    clickButtonByText(driver, "Show Robot2")
+    pause()
+    clickButtonByText(driver, "Show Robot1")
+    
+    pause()
+    clickStore(driver)
+    pause()
+    clickAnalytics(driver)
+    clickEmployees(driver)
+    addEmployeeButton(driver)
+    
+    signOut(driver)
+    
+    pause()
     driver.quit()
     
 """Test Admin Action"""
+
+def clickStore(driver):
+    '''Find and click Store button'''
+    button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CLASS_NAME, "css-0"))
+    )
+    button.click()
+    
+def clickAnalytics(driver):
+    '''Find and click the Analytics button'''
+    clickButton(driver, 'Analytics')
+
+def clickEmployees(driver):
+    '''Find and click the Employees button'''
+    clickButton(driver, 'Employees')
+    
+def addEmployeeButton(driver):
+    '''Find and click the "+" button'''
+    button = driver.find_element(By.CLASS_NAME, 'chakra-icon.css-onkibi')
+    button.click()
 
 def testAddProduct(driver):
     clickInventory(driver)
@@ -113,6 +155,7 @@ def fillProductDetails(driver, product_name, price, weight, quantity):
     fillProductPrice(driver, price)
     fillProductWeight(driver, weight)
     fillProductQuantity(driver, quantity)
+
     
 """Test Customer Action"""
 
@@ -124,10 +167,17 @@ def testEditProfile(driver):
 
 def testCreateOrder(driver):
     '''Successfully create a test Order'''
+    clickButton(driver, "Meat")
+    addToCart(driver, "Beef", 3)
+    addToCart(driver, "Milk", 1)
+    checkOut(driver)
+    
+def testCreateOrder1(driver):
+    '''Successfully create a test Order'''
     clickButton(driver, "Fruits")
     addToCart(driver, "Orange", 3)
     addToCart(driver, "Salmon Fillet", 2)
-    checkOut(driver)
+    checkOut1(driver)
     
 def checkOut(driver):
     '''Check Out an Order in Cart'''
@@ -140,6 +190,16 @@ def checkOut(driver):
     clickNext(driver)
     clickConfirm(driver)
     
+def checkOut1(driver):
+    '''Check Out an Order in Cart'''
+    goToCart(driver)
+    clickButtonByText(driver, 'Checkout')
+    fillDeliveryInfo(driver, "2201 Senter Rd", "", "San Jose", "CA", "95112")
+    clickNext(driver)
+    # clickConfirm(driver)
+    fillInPayment(driver, "Tester Card", "54321 5678 1234 5678", "09/27", "123", "95112")
+    clickNext(driver)
+    clickConfirm(driver)
     
 def fillInPayment(driver, cardName, cardNo, exp, cvv, zipcode):
     fillNameOnCard(driver, cardName)
@@ -270,6 +330,10 @@ def clickLogo(driver):
     )
     logo.click()
     
+def clickSendOrders(driver):
+    '''Find and click Send Orders button'''
+    clickButtonByText(driver, "Send Orders")
+    
 def goToCart(driver):
     '''Find and click Cart'''
     clickButtonByText(driver, 'Cart')
@@ -293,10 +357,6 @@ def clickOrders(driver):
 def clickMap(driver):
     '''Find and click Map button'''
     clickButtonByText(driver, 'Map')
-    
-def clickStore(driver):
-    '''Find and click Store button'''
-    clickButtonByText(driver, 'Store')
     
 def clickCustomerView(driver):
     '''Find and click Customer View button'''
