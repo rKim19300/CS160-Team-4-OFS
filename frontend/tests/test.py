@@ -11,7 +11,7 @@ PAUSE_TIME = 1
 
 
 def main():
-    testCounter = 13
+    testCounter = 16
     # Create WebDriver instance
     service = Service(executable_path="./chromedriver.exe")
     driver = webdriver.Chrome(service=service)
@@ -63,10 +63,11 @@ def main():
     clickInventory(driver)
     removeProduct(driver, "Cucumber")
 
-    # clickOrders(driver)
-    # clickMap(driver)
+    clickOrders(driver)
+    clickMap(driver)
     pause()
     # clickStore(driver)
+    signOut(driver)
     
     pause()
     driver.quit()
@@ -79,7 +80,7 @@ def testAddProduct(driver):
     
     fillProductDetails(driver, "Cucumber", "0.50", "0.5", "20")
     fillProductDescription(driver, "cucumber, (Cucumis sativus), creeping plant of the gourd family (Cucurbitaceae), widely cultivated for its edible fruit.")
-    fillImageURL(driver, "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwh.farm%2Fproducts%2Forganic-cucumbers%2F&psig=AOvVaw1YI_TpnrqS4PS1Dj1qRN6K&ust=1714402760370000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCND09puW5YUDFQAAAAAdAAAAABAY")
+    fillImageURL(driver, "https://mucci-production-user-uploads-bucket.s3.amazonaws.com/images/Product-IMG_MiniCucumbers-rev2.original.png")
     
     # clickFruitsCheckbox(driver)
     clickVegetablesCheckbox(driver)
