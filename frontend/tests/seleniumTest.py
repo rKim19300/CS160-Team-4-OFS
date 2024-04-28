@@ -17,7 +17,10 @@ def main():
     service = Service(executable_path="./chromedriver.exe")
     driver = webdriver.Chrome(service=service)
 
-    driver.get(LOGIN_URL)
+    driver.get(URL)
+    
+    # Landing Page -> Start Now
+    clickSignIn(driver)
     
     # Test Case: empty Input Field
     testEmptyInput(driver)
@@ -47,6 +50,28 @@ def main():
     
     time.sleep(PAUSE_TIME)
     driver.quit()
+
+"""TEST LANDING PAGE"""
+def clickStartNow(driver):
+    '''Find and click Start Now button'''
+    # Wait for page elements to load
+    WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Start Now')]"))
+    )
+    # Find and click Continue
+    continueButton = driver.find_element(By.XPATH, "//*[contains(text(), 'Start Now')]")
+    continueButton.click()
+
+def clickSignIn(driver):
+    '''Find and click Sign In button'''
+    # Wait for page elements to load
+    WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Sign In')]"))
+    )
+    # Find and click Continue
+    continueButton = driver.find_element(By.XPATH, "//*[contains(text(), 'Sign In')]")
+    continueButton.click()
+    
 
 """TEST USER ACTION"""
 def testCustomerAccount(driver):
