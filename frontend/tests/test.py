@@ -11,7 +11,7 @@ PAUSE_TIME = 1
 
 
 def main():
-    testCounter = 16
+    testCounter = 3
     # Create WebDriver instance
     service = Service(executable_path="./chromedriver.exe")
     driver = webdriver.Chrome(service=service)
@@ -20,56 +20,62 @@ def main():
     # Landing Page -> Log In Page
     clickButton(driver, "Sign In")
     
-    # Test Case: empty Input Field
-    clickContinue(driver)
-    clickOk(driver)
-    pause()
+    # # Test Case: empty Input Field
+    # clickContinue(driver)
+    # clickOk(driver)
+    # pause()
     
-    # Test case: Invalid Account Log In
-    signIn(driver, "invalidAccount@test.com", "test")
-    clickOk(driver)
+    # # Test case: Invalid Account Log In
+    # signIn(driver, "invalidAccount@test.com", "test")
+    # clickOk(driver)
     
-    # Log In Page -> Sign Up Page: Create Account
-    clickButton(driver, "Create Account")
+    # # Log In Page -> Sign Up Page: Create Account
+    # clickButton(driver, "Create Account")
     
-    # Test Case: Empty Input Field
-    clickSubmit(driver)
+    # # Test Case: Empty Input Field
+    # clickSubmit(driver)
     
-    # Test Case: Email Input already exist
-    createTestAccount(driver, 0)
-    clickOk(driver)
-    pause()
+    # # createTestAccount(driver, 0)
+    # # clickButton(driver, "Create Account")
     
-    # Test Case: Account successfully created
-    createTestAccount(driver, testCounter)
-    pause()
+    # # Test Case: Email Input already exist
+    # createTestAccount(driver, 0)
+    # clickOk(driver)
+    # pause()
+    
+    # # Test Case: Account successfully created
+    # createTestAccount(driver, testCounter)
+    # pause()
     
     customerSignIn(driver, testCounter)
-    clickAllCategories(driver)
+    # clickAllCategories(driver)
+    # pause()
+    # testEditProfile(driver)
+    # pause()
+    testCreateOrder(driver)
     pause()
-    testEditProfile(driver)
-    # testCreateOrder(driver)
+    clickLogo(driver)
     signOut(driver)
     
-    # Test Admin Action
-    pause()
-    signIn(driver, "admin@admin.com", "admin")
-    clickCustomerView(driver)
-    clickAllCategories(driver)
-    clickEmployeeView(driver)
-    testAddProduct(driver)
+    # # Test Admin Action
+    # pause()
+    # signIn(driver, "admin@admin.com", "admin")
+    # clickCustomerView(driver)
+    # clickAllCategories(driver)
+    # clickEmployeeView(driver)
+    # testAddProduct(driver)
     
-    # Test Remove Product
-    clickInventory(driver)
-    removeProduct(driver, "Cucumber")
+    # # Test Remove Product
+    # clickInventory(driver)
+    # removeProduct(driver, "Apple")
 
-    clickOrders(driver)
-    clickMap(driver)
-    pause()
-    # clickStore(driver)
-    signOut(driver)
+    # clickOrders(driver)
+    # clickMap(driver)
+    # pause()
+    # # clickStore(driver)
+    # signOut(driver)
     
-    pause()
+    # pause()
     driver.quit()
     
 """Test Admin Action"""
@@ -82,7 +88,6 @@ def testAddProduct(driver):
     fillProductDescription(driver, "cucumber, (Cucumis sativus), creeping plant of the gourd family (Cucurbitaceae), widely cultivated for its edible fruit.")
     fillImageURL(driver, "https://mucci-production-user-uploads-bucket.s3.amazonaws.com/images/Product-IMG_MiniCucumbers-rev2.original.png")
     
-    # clickFruitsCheckbox(driver)
     clickVegetablesCheckbox(driver)
     clickSave(driver)
     
@@ -109,73 +114,6 @@ def fillProductDetails(driver, product_name, price, weight, quantity):
     fillProductWeight(driver, weight)
     fillProductQuantity(driver, quantity)
     
-def fillImageURL(driver, url):
-    '''Find and fill in the Image URL input field'''
-    fillInputByLabel(driver, "Image URL", url)
-
-def fillProductDescription(driver, description):
-    '''Find and fill in the Product description input field'''
-    textarea_field = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "textarea.chakra-textarea.css-d3o0p2"))
-    )
-    textarea_field.clear()
-    textarea_field.send_keys(description)
-    
-def fillProductName(driver, product_name):
-    '''Find and fill in the product name'''
-    fillInInput(driver, By.XPATH, "//label[text()='Name']/following-sibling::input", product_name)
-
-def fillProductPrice(driver, price):
-    '''Find and fill in the product price'''
-    fillInInput(driver, By.XPATH, "//label[text()='Price']/following-sibling::div/input", price)
-
-def fillProductWeight(driver, weight):
-    '''Find and fill in the product weight'''
-    fillInInput(driver, By.XPATH, "//label[text()='Weight']/following-sibling::div/input", weight)
-
-def fillProductQuantity(driver, quantity):
-    '''Find and fill in the product quantity'''
-    fillInInput(driver, By.XPATH, "//label[text()='Quantity']/following-sibling::div/input", quantity)
-
-def clickCheckbox(driver, value):
-    '''Find and click a checkbox by its value'''
-    checkbox = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, f"//input[@value='{value}']"))
-    )
-    checkbox.click()
-
-def clickDairyAndEggsCheckbox(driver):
-    '''Find and click the Dairy & Eggs checkbox'''
-    clickCheckbox(driver, "Dairy & Eggs")
-
-def clickVegetablesCheckbox(driver):
-    '''Find and click the Vegetables checkbox'''
-    clickCheckbox(driver, "Vegetables")
-
-def clickFruitsCheckbox(driver):
-    '''Find and click the Fruits checkbox'''
-    clickCheckbox(driver, "Fruits")
-
-def clickMeatCheckbox(driver):
-    '''Find and click the Meat checkbox'''
-    clickCheckbox(driver, "Meat")
-
-def clickSeafoodCheckbox(driver):
-    '''Find and click the Seafood checkbox'''
-    clickCheckbox(driver, "Seafood")
-
-def clickProteinCheckbox(driver):
-    '''Find and click the Protein checkbox'''
-    clickCheckbox(driver, "Protein")
-
-def clickSnacksAndCandyCheckbox(driver):
-    '''Find and click the Snacks & Candy checkbox'''
-    clickCheckbox(driver, "Snacks & Candy")
-
-def clickFrozenCheckbox(driver):
-    '''Find and click the Frozen checkbox'''
-    clickCheckbox(driver, "Frozen")
-    
 """Test Customer Action"""
 
 def testEditProfile(driver):
@@ -187,14 +125,30 @@ def testEditProfile(driver):
 def testCreateOrder(driver):
     '''Successfully create a test Order'''
     clickButton(driver, "Fruits")
-    addToCart(driver, "Apple", 3)
+    addToCart(driver, "Orange", 3)
     addToCart(driver, "Salmon Fillet", 2)
-    
-    goToCart(driver)
     checkOut(driver)
+    
+def checkOut(driver):
+    '''Check Out an Order in Cart'''
+    goToCart(driver)
+    clickButtonByText(driver, 'Checkout')
     fillDeliveryInfo(driver, "1 Washington St", "", "Santa Clara", "CA", "95050")
     clickNext(driver)
-
+    # clickConfirm(driver)
+    fillInPayment(driver, "Test Card", "4321 5678 1234 5678", "02/26", "123", "95112")
+    clickNext(driver)
+    clickConfirm(driver)
+    
+    
+def fillInPayment(driver, cardName, cardNo, exp, cvv, zipcode):
+    fillNameOnCard(driver, cardName)
+    fillCardNumber(driver, cardNo)
+    fillExpiryDate(driver, exp)
+    fillCVV(driver, cvv)
+    fillZipCode(driver, zipcode)
+    
+    
 def fillDeliveryInfo(driver, address1, address2, city, state, zipcode):
     '''Fill in delivery information'''
     fillAddressLine1(driver, address1)
@@ -219,7 +173,7 @@ def clickAllCategories(driver):
     clickButton(driver, "Meat")
     clickButton(driver, "Seafood")
     clickButton(driver, "Protein")
-    clickButton(driver, "Snacks & Candy")
+    clickButton(driver, "Drinks")
     clickButton(driver, "Frozen")
     clickButton(driver, "Buy It Again")
     
@@ -266,15 +220,59 @@ def createTestAccount(driver, testCounter):
     fillConfirmPassword(driver, "P@$$w0rd")
     clickSubmit(driver)
     
+"""Find checkbox and click"""
+
+def clickCheckbox(driver, value):
+    '''Find and click a checkbox by its value'''
+    checkbox = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, f"//input[@value='{value}']"))
+    )
+    checkbox.click()
+
+def clickDairyAndEggsCheckbox(driver):
+    '''Find and click the Dairy & Eggs checkbox'''
+    clickCheckbox(driver, "Dairy & Eggs")
+
+def clickVegetablesCheckbox(driver):
+    '''Find and click the Vegetables checkbox'''
+    clickCheckbox(driver, "Vegetables")
+
+def clickFruitsCheckbox(driver):
+    '''Find and click the Fruits checkbox'''
+    clickCheckbox(driver, "Fruits")
+
+def clickMeatCheckbox(driver):
+    '''Find and click the Meat checkbox'''
+    clickCheckbox(driver, "Meat")
+
+def clickSeafoodCheckbox(driver):
+    '''Find and click the Seafood checkbox'''
+    clickCheckbox(driver, "Seafood")
+
+def clickProteinCheckbox(driver):
+    '''Find and click the Protein checkbox'''
+    clickCheckbox(driver, "Protein")
+
+def clickSnacksAndCandyCheckbox(driver):
+    '''Find and click the Snacks & Candy checkbox'''
+    clickCheckbox(driver, "Snacks & Candy")
+
+def clickFrozenCheckbox(driver):
+    '''Find and click the Frozen checkbox'''
+    clickCheckbox(driver, "Frozen")
+
 """Find and click Buttons"""
+
+def clickLogo(driver):
+    '''Find and click the logo on the top left of the website'''
+    logo = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, '.NavBarCustomer_logoImg__j26-K'))
+    )
+    logo.click()
     
 def goToCart(driver):
     '''Find and click Cart'''
     clickButtonByText(driver, 'Cart')
-    
-def checkOut(driver):
-    '''Find and click Cart'''
-    clickButtonByText(driver, 'Checkout')
     
 def clickProfile(driver):
     '''Find and click Profile button'''
@@ -312,6 +310,10 @@ def clickSave(driver):
     '''Find and click Save button'''
     clickButton(driver, "Save")
     
+def clickConfirm(driver):
+    '''Find and click Confirm'''
+    clickButtonByText(driver, 'Confirm')
+    
 def clickOkay(driver):
     '''Find and click Okay button'''
     clickButton(driver, "Okay")
@@ -319,8 +321,6 @@ def clickOkay(driver):
 def clickNext(driver):
     '''Find and click Next button'''
     clickButton(driver, "Next")
-    
-
     
 def clickOk(driver):
     '''Find and click OK button'''
@@ -360,6 +360,34 @@ def waitForElement(driver, by, locator, timeout=10):
     
 """Find Fields and Send User Input"""
 
+def fillImageURL(driver, url):
+    '''Find and fill in the Image URL input field'''
+    fillInputByLabel(driver, "Image URL", url)
+
+def fillProductDescription(driver, description):
+    '''Find and fill in the Product description input field'''
+    textarea_field = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "textarea.chakra-textarea.css-d3o0p2"))
+    )
+    textarea_field.clear()
+    textarea_field.send_keys(description)
+    
+def fillProductName(driver, product_name):
+    '''Find and fill in the product name'''
+    fillInInput(driver, By.XPATH, "//label[text()='Name']/following-sibling::input", product_name)
+
+def fillProductPrice(driver, price):
+    '''Find and fill in the product price'''
+    fillInInput(driver, By.XPATH, "//label[text()='Price']/following-sibling::div/input", price)
+
+def fillProductWeight(driver, weight):
+    '''Find and fill in the product weight'''
+    fillInInput(driver, By.XPATH, "//label[text()='Weight']/following-sibling::div/input", weight)
+
+def fillProductQuantity(driver, quantity):
+    '''Find and fill in the product quantity'''
+    fillInInput(driver, By.XPATH, "//label[text()='Quantity']/following-sibling::div/input", quantity)
+    
 def fillName(driver, name):
     '''Find and fill the name field'''
     fillInInput(driver, By.XPATH, "//label[contains(text(), 'Name')]/following-sibling::input", name)
@@ -407,6 +435,34 @@ def fillPassword(driver, password):
 def fillConfirmPassword(driver, confirmPassword):
     '''Find Password Field and type in confirmPassword'''
     fillInInput(driver, By.NAME, "confirmPassword", confirmPassword)
+
+def fill_input_field_by_name(driver, name, value):
+    '''Find and fill in the input field by its name'''
+    input_field = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, f"input[name='{name}']"))
+    )
+    input_field.clear()
+    input_field.send_keys(value)
+
+def fillNameOnCard(driver, name):
+    '''Fill in the Name on Card input field'''
+    fill_input_field_by_name(driver, 'nameOnCard', name)
+
+def fillCardNumber(driver, number):
+    '''Fill in the Card Number input field'''
+    fill_input_field_by_name(driver, 'cardNumber', number)
+
+def fillExpiryDate(driver, expiry_date):
+    '''Fill in the Expiry Date input field'''
+    fill_input_field_by_name(driver, 'exp', expiry_date)
+
+def fillCVV(driver, cvv):
+    '''Fill in the CVV input field'''
+    fill_input_field_by_name(driver, 'cvv', cvv)
+
+def fillZipCode(driver, zip_code):
+    '''Fill in the Zip Code input field'''
+    fill_input_field_by_name(driver, 'zipCode', zip_code)
     
 def fillInInput(driver, by, locator, value):
     '''Find input box of specified type and type in value'''
