@@ -17,7 +17,7 @@ def main():
     service = Service(executable_path="./chromedriver.exe")
     driver = webdriver.Chrome(service=service)
 
-    driver.get(URL)
+    driver.get(LOGIN_URL)
     
     # Landing Page -> Start Now
     clickSignIn(driver)
