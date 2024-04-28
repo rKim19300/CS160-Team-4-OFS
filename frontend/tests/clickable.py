@@ -1,17 +1,12 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import  WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-import time
-
 class Click:
     '''include all clickable button in OFS'''
     def __init__(self, driver):
         '''Create object and link to server'''
-        # service = Service(executable_path="./chromedriver.exe")
         self.__driver = driver
         
         # time.sleep(5)
@@ -21,11 +16,7 @@ class Click:
         
     def StartNow(self):
         '''Find and click Start Now button'''
-        WebDriverWait(self.__driver, 5).until(
-            EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Start Now')]"))
-        )
-        startButton = self.__driver.find_element(By.XPATH, "//*[contains(text(), 'Start Now')]")
-        startButton.click()
+        self.click_button("//*[contains(text(), 'Start Now')]")
 
     def SignIn(self):
         '''Find and click Sign In button'''
