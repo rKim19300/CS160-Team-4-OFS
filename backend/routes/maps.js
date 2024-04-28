@@ -3,7 +3,7 @@ const { DB } = require("../database");
 const { SocketRoom, StaffSocketFunctions } = require("../enums/enums");
 const { checkLoggedIn, checkIsStaff } = require("../middleware/authMiddleware");
 const { 
-	check_is_within_allowable_distance,
+	checkIsWithinAllowableDistance,
 	generateRouteData,
 	decodePolyline,
 	validateAddress,
@@ -109,7 +109,7 @@ router.post('/sendRobot', checkIsStaff, async (req, res) => {
  * 
  * @returns The address and it's lat lng coordinates if success
  */
-router.post(`/validateAddress`, checkLoggedIn, async (req, res) => {
+router.post(`/validateAddress`, async (req, res) => {
 
 	let { addressLine1, addressLine2, city, state, zipCode } = req.body;
 
@@ -117,14 +117,13 @@ router.post(`/validateAddress`, checkLoggedIn, async (req, res) => {
 
 		// Check If the address is valid
 		let response = await validateAddress(addressLine1, addressLine2, city, state, zipCode);
-		if (response === undefined) 
-			return res.status(400).json("Invalid address: Address is either entered incorrectly or\
-											not deliverable");
+		if (response.errMessage.length > 0) 
+			return res.status(400).json(`Invalid Address: ${response.errMessage}`);
 		const address = response.address;
 		const coordinates = response.coordinates; 
 
 		// Check if the address is within the correct distance
-		const inRange = await check_is_within_allowable_distance(address);
+		const inRange = await checkIsWithinAllowableDistance(address);
 		if (!inRange) 
 			return res.status(400).json("Address is not within 20 miles of store!");
 

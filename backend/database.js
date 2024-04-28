@@ -393,13 +393,13 @@ class DB {
     */
     static async get_week_revenue() {
         let q = await db.query(`SELECT
-            SUM(CASE WHEN strftime('%w', created_at) = '0' THEN (cost + delivery_fee) ELSE 0 END) AS Sunday,
-            SUM(CASE WHEN strftime('%w', created_at) = '1' THEN (cost + delivery_fee) ELSE 0 END) AS Monday,
-            SUM(CASE WHEN strftime('%w', created_at) = '2' THEN (cost + delivery_fee) ELSE 0 END) AS Tuesday,
-            SUM(CASE WHEN strftime('%w', created_at) = '3' THEN (cost + delivery_fee) ELSE 0 END) AS Wednesday,
-            SUM(CASE WHEN strftime('%w', created_at) = '4' THEN (cost + delivery_fee) ELSE 0 END) AS Thursday,
-            SUM(CASE WHEN strftime('%w', created_at) = '5' THEN (cost + delivery_fee) ELSE 0 END) AS Friday,
-            SUM(CASE WHEN strftime('%w', created_at) = '6' THEN (cost + delivery_fee) ELSE 0 END) AS Saturday
+        COALESCE(SUM(CASE WHEN strftime('%w', created_at) = '0' THEN (cost + delivery_fee) ELSE 0 END), 0) AS Sunday,
+        COALESCE(SUM(CASE WHEN strftime('%w', created_at) = '1' THEN (cost + delivery_fee) ELSE 0 END), 0) AS Monday,
+        COALESCE(SUM(CASE WHEN strftime('%w', created_at) = '2' THEN (cost + delivery_fee) ELSE 0 END), 0) AS Tuesday,
+        COALESCE(SUM(CASE WHEN strftime('%w', created_at) = '3' THEN (cost + delivery_fee) ELSE 0 END), 0) AS Wednesday,
+        COALESCE(SUM(CASE WHEN strftime('%w', created_at) = '4' THEN (cost + delivery_fee) ELSE 0 END), 0) AS Thursday,
+        COALESCE(SUM(CASE WHEN strftime('%w', created_at) = '5' THEN (cost + delivery_fee) ELSE 0 END), 0) AS Friday,
+        COALESCE(SUM(CASE WHEN strftime('%w', created_at) = '6' THEN (cost + delivery_fee) ELSE 0 END), 0) AS Saturday
             FROM Orders
             WHERE created_at BETWEEN datetime('now' , '-8 days') AND datetime('now' , '-1 days')`);
         return q[0];
@@ -413,18 +413,18 @@ class DB {
     */
     static async get_month_revenue() {
         let q = await db.query(`SELECT
-            SUM(CASE WHEN strftime('%m', created_at) = '01' THEN (cost + delivery_fee) ELSE 0 END) AS January,
-            SUM(CASE WHEN strftime('%m', created_at) = '02' THEN (cost + delivery_fee) ELSE 0 END) AS February,
-            SUM(CASE WHEN strftime('%m', created_at) = '03' THEN (cost + delivery_fee) ELSE 0 END) AS March,
-            SUM(CASE WHEN strftime('%m', created_at) = '04' THEN (cost + delivery_fee) ELSE 0 END) AS April,
-            SUM(CASE WHEN strftime('%m', created_at) = '05' THEN (cost + delivery_fee) ELSE 0 END) AS May,
-            SUM(CASE WHEN strftime('%m', created_at) = '06' THEN (cost + delivery_fee) ELSE 0 END) AS June,
-            SUM(CASE WHEN strftime('%m', created_at) = '07' THEN (cost + delivery_fee) ELSE 0 END) AS July, 
-            SUM(CASE WHEN strftime('%m', created_at) = '08' THEN (cost + delivery_fee) ELSE 0 END) AS August,
-            SUM(CASE WHEN strftime('%m', created_at) = '09' THEN (cost + delivery_fee) ELSE 0 END) AS September, 
-            SUM(CASE WHEN strftime('%m', created_at) = '10' THEN (cost + delivery_fee) ELSE 0 END) AS October,
-            SUM(CASE WHEN strftime('%m', created_at) = '11' THEN (cost + delivery_fee) ELSE 0 END) AS November, 
-            SUM(CASE WHEN strftime('%m', created_at) = '12' THEN (cost + delivery_fee) ELSE 0 END) AS December  
+        COALESCE(SUM(CASE WHEN strftime('%m', created_at) = '01' THEN (cost + delivery_fee) ELSE 0 END), 0) AS January,
+        COALESCE(SUM(CASE WHEN strftime('%m', created_at) = '02' THEN (cost + delivery_fee) ELSE 0 END), 0) AS February,
+        COALESCE(SUM(CASE WHEN strftime('%m', created_at) = '03' THEN (cost + delivery_fee) ELSE 0 END), 0) AS March,
+        COALESCE(SUM(CASE WHEN strftime('%m', created_at) = '04' THEN (cost + delivery_fee) ELSE 0 END), 0) AS April,
+        COALESCE(SUM(CASE WHEN strftime('%m', created_at) = '05' THEN (cost + delivery_fee) ELSE 0 END), 0) AS May,
+        COALESCE(SUM(CASE WHEN strftime('%m', created_at) = '06' THEN (cost + delivery_fee) ELSE 0 END), 0) AS June,
+        COALESCE(SUM(CASE WHEN strftime('%m', created_at) = '07' THEN (cost + delivery_fee) ELSE 0 END), 0) AS July, 
+        COALESCE(SUM(CASE WHEN strftime('%m', created_at) = '08' THEN (cost + delivery_fee) ELSE 0 END), 0) AS August,
+        COALESCE(SUM(CASE WHEN strftime('%m', created_at) = '09' THEN (cost + delivery_fee) ELSE 0 END), 0) AS September, 
+        COALESCE(SUM(CASE WHEN strftime('%m', created_at) = '10' THEN (cost + delivery_fee) ELSE 0 END), 0) AS October,
+        COALESCE(SUM(CASE WHEN strftime('%m', created_at) = '11' THEN (cost + delivery_fee) ELSE 0 END), 0) AS November, 
+        COALESCE(SUM(CASE WHEN strftime('%m', created_at) = '12' THEN (cost + delivery_fee) ELSE 0 END), 0) AS December  
             FROM Orders
             WHERE created_at > datetime('now' , '-12 months')`);
         return q[0];
@@ -542,9 +542,11 @@ class DB {
         let route = await this.get_route(robot_id);
         if (route === undefined) return false;
         
+        // Get the route weight, number of orders, and time since creation
         let wno = await this.get_route_weight_and_order_num(route.route_id);
+        let hours_past = await this.hours_since_route_creation(route.route_id);
 
-        return ((wno.total_weight === 200) || (wno.order_num === 10)) ? true : false;
+        return ((wno.total_weight === 200) || (wno.order_num === 10) || hours_past >= 2);
     }
         
     ///////
@@ -697,8 +699,6 @@ class DB {
      */
     static async populate_route_data(robot_id, addresses, polylines, durations, optimizedWaypointOrder) {
 
-        // TODO throw and error if durations is not made of integer values
-
         // Take care of edge case
         if (optimizedWaypointOrder[0] === -1) optimizedWaypointOrder[0] = 0;
 
@@ -791,6 +791,27 @@ class DB {
                                         longitude = ?
                                     WHERE route_id = ?`, 
                                     [this.store.lat, this.store.lng, route_id]);
+    }
+
+    /**
+     * Find the number of hours since a route was created.
+     * 
+     * Assumption: The route exists
+     * 
+     * @param {*} route_id 
+     * 
+     * @returns The number of hours since the route was created
+     */
+    static async hours_since_route_creation(route_id) {
+
+        let created_at = (await db.query(`SELECT created_at FROM Delivery_routes WHERE route_id = ?`, 
+        [route_id]))[0].created_at;
+
+        let past_seconds = (await db.query(`SELECT 
+            strftime('%s', 'now', 'localtime') - strftime('%s', ?) AS past_seconds`, 
+            [created_at]))[0].past_seconds;
+        
+        return past_seconds * 60 * 60;
     }
 
     ///////

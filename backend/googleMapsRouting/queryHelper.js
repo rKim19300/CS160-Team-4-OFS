@@ -2,10 +2,9 @@ const { SocketRoom, StaffSocketFunctions } = require("../enums/enums");
 const { response } = require("express");
 const { DB } = require("../database");
 
-const ORIGIN_ADDRESS = "1 Washington Sq, San Jose, CA 95192";
+const ORIGIN_ADDRESS = "1 Washington Sq, San Jose, CA 95112, USA";
 const MAX_DISTANCE_FROM_ORIGIN = 20;
 const STORE_COORDS = {"latitude":37.3386564,"longitude":-121.8806354};
-const STORE_ADDRESS = "1 Washington Sq, San Jose, CA 95112-3613, USA";
 const API_KEY = process.env.GOOGLE_API_KEY_BACKEND;
 const encodingMap = {
     ' ': '%20',
@@ -24,10 +23,16 @@ const encodingMap = {
  * @param {*} state           The state, usually supposed to be two letters
  * @param {*} zipCode         The zipcode
  * @throws ERROR              If google maps query fails
- * @returns undefined if failed, or address and lat lng in coords object if success.
+ * @returns An object with and errMessage if failed, 
+ *          or address and lat lng in coords object if success (errMessage empty).
  */
 async function validateAddress(addressLine1, addressLine2, city, state, zipCode) {
 
+    // Make sure that the zipcode is 5 digits long
+    if (zipCode.toString().length !== 5)
+        return {errMessage: `Make sure your zipcode is exactly 5 digits`};
+
+    // Query to make sure that the address is deliverable
     const url = `https://addressvalidation.googleapis.com/v1:validateAddress`;
     const reqBody = {
         "address": {
@@ -53,29 +58,29 @@ async function validateAddress(addressLine1, addressLine2, city, state, zipCode)
     if (!response.ok) // 500 if query failed
         throw new Error("Google Maps request failed");
 
-    // Check if the address is accurate enough
-    response = await response.json();
-    console.log(response);
+    response = await response.json(); // Convert to json
+
+    // Fix Address
+    const address = await fixAddress(response.result.geocode.placeId);
+    
+    // Check if the address is accurate enough or is not the store
     let lat = response.result.geocode.location.latitude;
     let lng = response.result.geocode.location.longitude;
     const verdict = response.result.verdict.geocodeGranularity; 
-    if (verdict !== 'PREMISE' && verdict !== 'SUB_PREMISE')   // If not accurate enough 400
-        return undefined;
-    else if (lat === STORE_COORDS.latitude && lng === STORE_COORDS.longitude)
-        return undefined;
-    else 
-        return {
-            address: response.result.address.formattedAddress,
-            coordinates: {lat: lat, lng: lng}
+    if ((verdict !== 'PREMISE' && verdict !== 'SUB_PREMISE') || (address === ORIGIN_ADDRESS))  
+        return {errMessage: 'Sorry, it seems that your address is non-deliverable'};
+    return {
+        address: address,
+        coordinates: {lat: lat, lng: lng},
+        errMessage: ''
     }; 
-    // TODO reject store coords
 }
 
 /**
  * @param {*} address 
  * @returns 
  */
-async function check_is_within_allowable_distance(address) {
+async function checkIsWithinAllowableDistance(address) {
     try {
         const encodedAddress = encodeAddress(address); // Encode unsafe characters
         let res = await fetch(`https://maps.googleapis.com/maps/api/distancematrix/json?destinations=
@@ -90,6 +95,12 @@ async function check_is_within_allowable_distance(address) {
         console.log(`GOOGMAPS: ERROR WHEN CHECKING DISTANCE FROM ORIGIN: ${err}`);
         return false;
     }
+}
+
+async function fixAddress(placeId) {
+    const res = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=formatted_address&key=${API_KEY}`);
+    if (!res.ok) throw new Error("Failed to get data");
+    return (await res.json()).result.formatted_address;
 }
 
 /**
@@ -315,7 +326,7 @@ async function decodePolyline(encodedPolyline) {
 
 module.exports = { 
     generateRouteData, 
-    check_is_within_allowable_distance, 
+    checkIsWithinAllowableDistance, 
     decodePolyline, 
     validateAddress,
     sendRobot
