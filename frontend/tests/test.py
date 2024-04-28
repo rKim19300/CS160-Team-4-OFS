@@ -7,11 +7,11 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 URL = "http://localhost:3000"
-PAUSE_TIME = 2
+PAUSE_TIME = 1
 
 
 def main():
-    testCounter = 5
+    testCounter = 11
     # Create WebDriver instance
     service = Service(executable_path="./chromedriver.exe")
     driver = webdriver.Chrome(service=service)
@@ -20,28 +20,33 @@ def main():
     # Landing Page -> Log In Page
     clickButton(driver, "Sign In")
     
-    # Test case: Invalid Account Log In
-    signIn(driver, "invalidAccount@test.com", "test")
-    clickOk(driver)
+    # # Test Case: empty Input Field
+    # clickContinue(driver)
+    # clickOk(driver)
+    # pause()
     
-    # Log In Page -> Sign Up Page: Create Account
-    clickButton(driver, "Create Account")
+    # # Test case: Invalid Account Log In
+    # signIn(driver, "invalidAccount@test.com", "test")
+    # clickOk(driver)
     
-    # Test Case: Empty Input Field
-    clickSubmit(driver)
+    # # Log In Page -> Sign Up Page: Create Account
+    # clickButton(driver, "Create Account")
     
-    # Test Case: Email Input already exist
-    createTestAccount(driver, 0)
-    clickOk(driver)
-    pause()
+    # # Test Case: Empty Input Field
+    # clickSubmit(driver)
     
-    # Test Case: Account successfully created
-    createTestAccount(driver, testCounter)
-    pause()
+    # # Test Case: Email Input already exist
+    # createTestAccount(driver, 0)
+    # clickOk(driver)
+    # pause()
+    
+    # # Test Case: Account successfully created
+    # createTestAccount(driver, testCounter)
+    # pause()
     
     customerSignIn(driver, testCounter)
-    clickAllCategories(driver)
-    
+    # clickAllCategories(driver)
+    testCreateOrder(driver)
     # Test Admin Action
     # pause()
     # signIn(driver, "admin@admin.com", "admin")
@@ -49,6 +54,55 @@ def main():
     pause()
     driver.quit()
     
+"""Test Customer Action"""
+
+def testCreateOrder(driver):
+    clickButton(driver, "Fruits")
+    addToCart(driver, "Apple")
+    
+def addToCart(driver, item):
+    '''Add item To Cart'''
+    clickButton(driver, item)
+    increaseQuantity(driver)
+    increaseQuantity(driver)
+    pause()
+    changeQuantity(driver, 2)
+    clickButton(driver, "Add To Cart")
+    clickOk(driver)
+    
+def clickAllCategories(driver):
+    clickButton(driver, "All Products")
+    clickButton(driver, "Dairy & Eggs")
+    clickButton(driver, "Vegetables")
+    clickButton(driver, "Fruits")
+    clickButton(driver, "Meat")
+    clickButton(driver, "Seafood")
+    clickButton(driver, "Protein")
+    clickButton(driver, "Snacks & Candy")
+    clickButton(driver, "Frozen")
+    clickButton(driver, "Buy It Again")
+    
+def changeQuantity(driver, amount):
+    '''Find the Quantity field and fill in the specified amount'''
+    fillInInput(driver, By.CSS_SELECTOR, ".chakra-numberinput__field", str(amount))
+
+def increaseQuantity(driver):
+    '''Find and click the increase button'''
+    clickBySelector(driver, ".css-1m5jnul:not([disabled])")
+
+def decreaseQuantity(driver):
+    '''Find and click the decrease button'''
+    clickBySelector(driver, ".css-1m5jnul[disabled]")
+
+def clickBySelector(driver, selector):
+    '''Find and click the button based on the given selector'''
+    # Wait for the button to be clickable
+    button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
+    # Click the button
+    button.click()
+    
+"""Test Authentification"""
+
 def customerSignIn(driver, testCounter):
     email = "test" + str(testCounter) + "@test.com"
     password = "P@$$w0rd"
@@ -71,19 +125,6 @@ def createTestAccount(driver, testCounter):
     fillConfirmPassword(driver, "P@$$w0rd")
     clickSubmit(driver)
     
-def clickAllCategories(driver):
-    clickButton(driver, "All Products")
-    clickButton(driver, "Dairy & Eggs")
-    clickButton(driver, "Vegetables")
-    clickButton(driver, "Fruits")
-    clickButton(driver, "Meat")
-    clickButton(driver, "Seafood")
-    clickButton(driver, "Protein")
-    clickButton(driver, "Snacks & Candy")
-    clickButton(driver, "Frozen")
-    clickButton(driver, "Buy It Again")
-
-    
 """Find and click Buttons"""
 
 def clickButton(driver, text):
@@ -95,10 +136,6 @@ def clickButton(driver, text):
 def waitForElement(driver, by, locator, timeout=10):
     '''Wait for element to be present and visible'''
     return WebDriverWait(driver, timeout).until(EC.presence_of_element_located((by, locator)))
-
-def addToCart(driver):
-    '''Find and click Add To Cart'''
-    clickButton(driver, "Add To Cart")
 
 def goToCart(driver):
     '''Find and click Cart'''
