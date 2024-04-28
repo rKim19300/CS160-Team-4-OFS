@@ -546,7 +546,7 @@ class DB {
         // Get the route weight, number of orders, and time since creation
         let wno = await this.get_route_weight_and_order_num(route.route_id);
         let hours_past = await this.hours_since_route_creation(route.route_id);
-
+        console.log(`Total hours past = ${hours_past}`);
         return ((wno.total_weight === 200) || (wno.order_num === 10) || hours_past >= 2);
     }
         
@@ -825,7 +825,7 @@ class DB {
             strftime('%s', 'now', 'localtime') - strftime('%s', ?) AS past_seconds`, 
             [created_at]))[0].past_seconds;
         
-        return past_seconds * 60 * 60;
+        return past_seconds / (60 * 60);
     }
 
     ///////
