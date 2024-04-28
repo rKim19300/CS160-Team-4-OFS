@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 import time
 
-LOGIN_URL = "http://localhost:3000"
+LOGIN_URL = "http://localhost:3000/login"
 PAUSE_TIME = 1
 testCounter = 0
 
