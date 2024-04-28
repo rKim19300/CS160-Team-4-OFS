@@ -11,7 +11,7 @@ PAUSE_TIME = 1
 
 
 def main():
-    testCounter = 11
+    testCounter = 1
     # Create WebDriver instance
     service = Service(executable_path="./chromedriver.exe")
     driver = webdriver.Chrome(service=service)
@@ -46,6 +46,8 @@ def main():
     
     customerSignIn(driver, testCounter)
     # clickAllCategories(driver)
+    pause()
+    # testEditProfile(driver)
     testCreateOrder(driver)
     # Test Admin Action
     # pause()
@@ -56,17 +58,46 @@ def main():
     
 """Test Customer Action"""
 
-def testCreateOrder(driver):
-    clickButton(driver, "Fruits")
-    addToCart(driver, "Apple")
+def testEditProfile(driver):
+    '''Customer Edit Name'''
+    # clickProfile(driver)
+    clickButtonByText(driver, 'Profile')  # To go to the profile page
     
-def addToCart(driver, item):
+    fillName(driver, "Change Name")
+    clickSave(driver)
+    clickButtonByText(driver, 'Sign Out')  # To sign out
+
+def testCreateOrder(driver):
+    '''Successfully create a test Order'''
+    clickButton(driver, "Fruits")
+    addToCart(driver, "Apple", 3)
+    addToCart(driver, "Salmon Fillet", 2)
+    
+    goToCart(driver)
+    checkOut(driver)
+    fillDeliveryInfo(driver, "1 Washington St", "", "Santa Clara", "CA", "95050")
+    clickNext(driver)
+
+def fillDeliveryInfo(driver, address1, address2, city, state, zipcode):
+    '''Fill in delivery information'''
+    fillAddressLine1(driver, address1)
+    fillAddressLine2(driver, address2)
+    fillCity(driver, city)
+    fillState(driver, state)
+    fillZipCode(driver, zipcode)
+    
+def goToCart(driver):
+    '''Find and click Cart'''
+    clickButtonByText(driver, 'Cart')
+    
+def checkOut(driver):
+    '''Find and click Cart'''
+    clickButtonByText(driver, 'Checkout')
+    
+def addToCart(driver, item, amount):
     '''Add item To Cart'''
     clickButton(driver, item)
-    increaseQuantity(driver)
-    increaseQuantity(driver)
-    pause()
-    changeQuantity(driver, 2)
+    changeQuantity(driver, amount)
     clickButton(driver, "Add To Cart")
     clickOk(driver)
     
@@ -137,14 +168,22 @@ def waitForElement(driver, by, locator, timeout=10):
     '''Wait for element to be present and visible'''
     return WebDriverWait(driver, timeout).until(EC.presence_of_element_located((by, locator)))
 
-def goToCart(driver):
-    '''Find and click Cart'''
-    clickButton(driver, "Cart")
+def clickProfile(driver):
+    '''Find and click Profile button'''
+    clickButton(driver, "Profile")
     
-def checkOut(driver):
-    '''Find and click Checkout'''
-    clickButton(driver, "Checkout")
-
+def clickSave(driver):
+    '''Find and click Save button'''
+    clickButton(driver, "Save")
+    
+def clickOkay(driver):
+    '''Find and click Okay button'''
+    clickButton(driver, "Okay")
+    
+def clickNext(driver):
+    '''Find and click Next button'''
+    clickButton(driver, "Next")
+    
 def clickOk(driver):
     '''Find and click OK button'''
     clickButton(driver, "OK")
@@ -157,7 +196,38 @@ def clickSubmit(driver):
     '''Find and click Submit button'''
     clickButton(driver, "Submit")
 
+def clickButtonByText(driver, buttonText):
+    '''Find and click a button with specified text'''
+    button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, f"//button[contains(text(),'{buttonText}')]"))
+    )
+    button.click()
+    
 """Find Fields and Send User Input"""
+
+def fillName(driver, name):
+    '''Find and fill the name field'''
+    fillInInput(driver, By.XPATH, "//label[contains(text(), 'Name')]/following-sibling::input", name)
+
+def fillAddressLine1(driver, address):
+    '''Fill in Address Line 1'''
+    fillInInput(driver, By.NAME, "addressLine1", address)
+    
+def fillAddressLine2(driver, address):
+    '''Fill in Address Line 2'''
+    fillInInput(driver, By.NAME, "addressLine2", address)
+    
+def fillCity(driver, city):
+    '''Fill in City'''
+    fillInInput(driver, By.NAME, "city", city)
+
+def fillState(driver, state):
+    '''Fill in State'''
+    fillInInput(driver, By.NAME, "state", state)
+
+def fillZipCode(driver, zipcode):
+    '''Fill in Zip Code'''
+    fillInInput(driver, By.NAME, "zipCode", zipcode)
 
 def fillInEmail(driver, email):
     '''Find email box and type in email'''
