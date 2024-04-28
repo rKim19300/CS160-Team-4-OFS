@@ -11,7 +11,7 @@ PAUSE_TIME = 1
 
 
 def main():
-    testCounter = 1
+    testCounter = 13
     # Create WebDriver instance
     service = Service(executable_path="./chromedriver.exe")
     driver = webdriver.Chrome(service=service)
@@ -20,52 +20,168 @@ def main():
     # Landing Page -> Log In Page
     clickButton(driver, "Sign In")
     
-    # # Test Case: empty Input Field
-    # clickContinue(driver)
-    # clickOk(driver)
-    # pause()
+    # Test Case: empty Input Field
+    clickContinue(driver)
+    clickOk(driver)
+    pause()
     
-    # # Test case: Invalid Account Log In
-    # signIn(driver, "invalidAccount@test.com", "test")
-    # clickOk(driver)
+    # Test case: Invalid Account Log In
+    signIn(driver, "invalidAccount@test.com", "test")
+    clickOk(driver)
     
-    # # Log In Page -> Sign Up Page: Create Account
-    # clickButton(driver, "Create Account")
+    # Log In Page -> Sign Up Page: Create Account
+    clickButton(driver, "Create Account")
     
-    # # Test Case: Empty Input Field
-    # clickSubmit(driver)
+    # Test Case: Empty Input Field
+    clickSubmit(driver)
     
-    # # Test Case: Email Input already exist
-    # createTestAccount(driver, 0)
-    # clickOk(driver)
-    # pause()
+    # Test Case: Email Input already exist
+    createTestAccount(driver, 0)
+    clickOk(driver)
+    pause()
     
-    # # Test Case: Account successfully created
-    # createTestAccount(driver, testCounter)
-    # pause()
+    # Test Case: Account successfully created
+    createTestAccount(driver, testCounter)
+    pause()
     
     customerSignIn(driver, testCounter)
-    # clickAllCategories(driver)
+    clickAllCategories(driver)
     pause()
-    # testEditProfile(driver)
-    testCreateOrder(driver)
+    testEditProfile(driver)
+    # testCreateOrder(driver)
+    signOut(driver)
+    
     # Test Admin Action
-    # pause()
-    # signIn(driver, "admin@admin.com", "admin")
+    pause()
+    signIn(driver, "admin@admin.com", "admin")
+    clickCustomerView(driver)
+    clickAllCategories(driver)
+    clickEmployeeView(driver)
+    testAddProduct(driver)
+    
+    # Test Remove Product
+    clickInventory(driver)
+    removeProduct(driver, "Cucumber")
+
+    # clickOrders(driver)
+    # clickMap(driver)
+    pause()
+    # clickStore(driver)
     
     pause()
     driver.quit()
+    
+"""Test Admin Action"""
+
+def testAddProduct(driver):
+    clickInventory(driver)
+    clickAddProduct(driver)
+    
+    fillProductDetails(driver, "Cucumber", "0.50", "0.5", "20")
+    fillProductDescription(driver, "cucumber, (Cucumis sativus), creeping plant of the gourd family (Cucurbitaceae), widely cultivated for its edible fruit.")
+    fillImageURL(driver, "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwh.farm%2Fproducts%2Forganic-cucumbers%2F&psig=AOvVaw1YI_TpnrqS4PS1Dj1qRN6K&ust=1714402760370000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCND09puW5YUDFQAAAAAdAAAAABAY")
+    
+    # clickFruitsCheckbox(driver)
+    clickVegetablesCheckbox(driver)
+    clickSave(driver)
+    
+def removeProduct(driver, product_name):
+    '''Find and click the Remove button for the specified product'''
+    removeXpath = f"//td[text()='{product_name}']/following-sibling::td/button[contains(text(), 'Remove')]"
+    removeButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, removeXpath))
+    )
+    removeButton.click()
+    
+def clickEditProduct(driver, product_name):
+    '''Find and click the Edit button for the specified product'''
+    editXpath = f"//td[text()='{product_name}']/following-sibling::td/a/button[contains(text(), 'Edit')]"
+    editButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, editXpath))
+    )
+    editButton.click()
+
+def fillProductDetails(driver, product_name, price, weight, quantity):
+    '''Find and fill in product details'''
+    fillProductName(driver, product_name)
+    fillProductPrice(driver, price)
+    fillProductWeight(driver, weight)
+    fillProductQuantity(driver, quantity)
+    
+def fillImageURL(driver, url):
+    '''Find and fill in the Image URL input field'''
+    fillInputByLabel(driver, "Image URL", url)
+
+def fillProductDescription(driver, description):
+    '''Find and fill in the Product description input field'''
+    textarea_field = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "textarea.chakra-textarea.css-d3o0p2"))
+    )
+    textarea_field.clear()
+    textarea_field.send_keys(description)
+    
+def fillProductName(driver, product_name):
+    '''Find and fill in the product name'''
+    fillInInput(driver, By.XPATH, "//label[text()='Name']/following-sibling::input", product_name)
+
+def fillProductPrice(driver, price):
+    '''Find and fill in the product price'''
+    fillInInput(driver, By.XPATH, "//label[text()='Price']/following-sibling::div/input", price)
+
+def fillProductWeight(driver, weight):
+    '''Find and fill in the product weight'''
+    fillInInput(driver, By.XPATH, "//label[text()='Weight']/following-sibling::div/input", weight)
+
+def fillProductQuantity(driver, quantity):
+    '''Find and fill in the product quantity'''
+    fillInInput(driver, By.XPATH, "//label[text()='Quantity']/following-sibling::div/input", quantity)
+
+def clickCheckbox(driver, value):
+    '''Find and click a checkbox by its value'''
+    checkbox = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, f"//input[@value='{value}']"))
+    )
+    checkbox.click()
+
+def clickDairyAndEggsCheckbox(driver):
+    '''Find and click the Dairy & Eggs checkbox'''
+    clickCheckbox(driver, "Dairy & Eggs")
+
+def clickVegetablesCheckbox(driver):
+    '''Find and click the Vegetables checkbox'''
+    clickCheckbox(driver, "Vegetables")
+
+def clickFruitsCheckbox(driver):
+    '''Find and click the Fruits checkbox'''
+    clickCheckbox(driver, "Fruits")
+
+def clickMeatCheckbox(driver):
+    '''Find and click the Meat checkbox'''
+    clickCheckbox(driver, "Meat")
+
+def clickSeafoodCheckbox(driver):
+    '''Find and click the Seafood checkbox'''
+    clickCheckbox(driver, "Seafood")
+
+def clickProteinCheckbox(driver):
+    '''Find and click the Protein checkbox'''
+    clickCheckbox(driver, "Protein")
+
+def clickSnacksAndCandyCheckbox(driver):
+    '''Find and click the Snacks & Candy checkbox'''
+    clickCheckbox(driver, "Snacks & Candy")
+
+def clickFrozenCheckbox(driver):
+    '''Find and click the Frozen checkbox'''
+    clickCheckbox(driver, "Frozen")
     
 """Test Customer Action"""
 
 def testEditProfile(driver):
     '''Customer Edit Name'''
-    # clickProfile(driver)
-    clickButtonByText(driver, 'Profile')  # To go to the profile page
-    
+    clickProfile(driver)
     fillName(driver, "Change Name")
     clickSave(driver)
-    clickButtonByText(driver, 'Sign Out')  # To sign out
 
 def testCreateOrder(driver):
     '''Successfully create a test Order'''
@@ -85,14 +201,7 @@ def fillDeliveryInfo(driver, address1, address2, city, state, zipcode):
     fillCity(driver, city)
     fillState(driver, state)
     fillZipCode(driver, zipcode)
-    
-def goToCart(driver):
-    '''Find and click Cart'''
-    clickButtonByText(driver, 'Cart')
-    
-def checkOut(driver):
-    '''Find and click Cart'''
-    clickButtonByText(driver, 'Checkout')
+
     
 def addToCart(driver, item, amount):
     '''Add item To Cart'''
@@ -124,13 +233,6 @@ def increaseQuantity(driver):
 def decreaseQuantity(driver):
     '''Find and click the decrease button'''
     clickBySelector(driver, ".css-1m5jnul[disabled]")
-
-def clickBySelector(driver, selector):
-    '''Find and click the button based on the given selector'''
-    # Wait for the button to be clickable
-    button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
-    # Click the button
-    button.click()
     
 """Test Authentification"""
 
@@ -145,6 +247,13 @@ def signIn(driver, email, password):
     fillInPassword(driver, password)
     clickContinue(driver)
     
+def signOut(driver):
+    '''Find and click the Sign Out button'''
+    signOutButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(., 'Sign Out')]"))
+    )
+    signOutButton.click()
+    
 def createTestAccount(driver, testCounter):
     '''Create test account'''
     name = "test" + str(testCounter)
@@ -157,20 +266,46 @@ def createTestAccount(driver, testCounter):
     clickSubmit(driver)
     
 """Find and click Buttons"""
-
-def clickButton(driver, text):
-    '''Find and click a button with dynamic text'''
-    button = waitForElement(driver, By.XPATH, f"//*[contains(text(), '{text}')]")
-    pause()
-    button.click()
-
-def waitForElement(driver, by, locator, timeout=10):
-    '''Wait for element to be present and visible'''
-    return WebDriverWait(driver, timeout).until(EC.presence_of_element_located((by, locator)))
-
+    
+def goToCart(driver):
+    '''Find and click Cart'''
+    clickButtonByText(driver, 'Cart')
+    
+def checkOut(driver):
+    '''Find and click Cart'''
+    clickButtonByText(driver, 'Checkout')
+    
 def clickProfile(driver):
     '''Find and click Profile button'''
-    clickButton(driver, "Profile")
+    clickButtonByText(driver, 'Profile')
+    
+def clickInventory(driver):
+    '''Find and click Inventory button'''
+    clickButtonByText(driver, 'Inventory')
+    
+def clickAddProduct(driver):
+    '''Find and click Add Product button'''
+    clickButtonByText(driver, 'Add Product')
+
+def clickOrders(driver):
+    '''Find and click Orders button'''
+    clickButtonByText(driver, 'Orders')
+
+def clickMap(driver):
+    '''Find and click Map button'''
+    clickButtonByText(driver, 'Map')
+    
+def clickStore(driver):
+    '''Find and click Store button'''
+    clickButtonByText(driver, 'Store')
+    
+def clickCustomerView(driver):
+    '''Find and click Customer View button'''
+    clickButtonByText(driver, 'Customer View')
+    
+def clickEmployeeView(driver):
+    '''Find and click Employee View button'''
+    clickButtonByText(driver, 'Employee View')
     
 def clickSave(driver):
     '''Find and click Save button'''
@@ -183,6 +318,8 @@ def clickOkay(driver):
 def clickNext(driver):
     '''Find and click Next button'''
     clickButton(driver, "Next")
+    
+
     
 def clickOk(driver):
     '''Find and click OK button'''
@@ -202,6 +339,23 @@ def clickButtonByText(driver, buttonText):
         EC.element_to_be_clickable((By.XPATH, f"//button[contains(text(),'{buttonText}')]"))
     )
     button.click()
+    
+def clickBySelector(driver, selector):
+    '''Find and click the button based on the given selector'''
+    # Wait for the button to be clickable
+    button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
+    # Click the button
+    button.click()
+    
+def clickButton(driver, text):
+    '''Find and click a button with dynamic text'''
+    button = waitForElement(driver, By.XPATH, f"//*[contains(text(), '{text}')]")
+    pause()
+    button.click()
+
+def waitForElement(driver, by, locator, timeout=10):
+    '''Wait for element to be present and visible'''
+    return WebDriverWait(driver, timeout).until(EC.presence_of_element_located((by, locator)))
     
 """Find Fields and Send User Input"""
 
@@ -266,6 +420,15 @@ def fillInInput(driver, by, locator, value):
     input_field.send_keys(Keys.DELETE)
     input_field.send_keys(value)
 
+def fillInputByLabel(driver, label, value):
+    '''Find and fill in an input field by its label'''
+    input_field = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, f"//label[contains(text(), '{label}')]/following-sibling::input"))
+    )
+    # input_field.clear()
+    input_field.send_keys(Keys.CONTROL, 'a')
+    input_field.send_keys(Keys.DELETE)
+    input_field.send_keys(value)
     
 def pause():
     time.sleep(PAUSE_TIME)
