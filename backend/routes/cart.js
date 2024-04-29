@@ -17,10 +17,16 @@ router.post(
     try {
         let { product_id, quantity } = req.body;
         quantity = parseInt(quantity);
+        // get product info and return error message if there was a problem fetching info
+        let { productInfo, errMsg } = await DB.get_product_info(product_id);
+        if (errMsg) return res.status(400).send(errMsg);
+        // check if product out of stock
+        if (productInfo.quantity <= 0) return res.status(400).send("Out of stock");
         let cart_id = await DB.get_cart_id(req.user_id);
-        let [isBelowWeightLimit, msg1] = await HelperFuncs.check_cart_will_be_below_weight_limit(cart_id, product_id, quantity, MAX_CART_WEIGHT);
+        // do checks to make sure cart quantity and weight amounts are allowed
+        let [isBelowWeightLimit, msg1] = await HelperFuncs.check_cart_will_be_below_weight_limit(cart_id, productInfo, quantity, MAX_CART_WEIGHT, "ADD");
         if (!isBelowWeightLimit) return res.status(400).send(msg1);
-        let [isCartLTEinventoryAmt, msg2] = await HelperFuncs.check_cart_quantity_will_be_lte_inventory_amt(cart_id, product_id, quantity);
+        let [isCartLTEinventoryAmt, msg2] = await HelperFuncs.check_cart_quantity_will_be_lte_inventory_amt(cart_id, productInfo, quantity);
         if (!isCartLTEinventoryAmt) return res.status(400).send(msg2);
         await DB.insert_item_into_cart(cart_id, product_id, quantity);
         return res.status(200).send("Successfully added item to cart");
@@ -52,12 +58,19 @@ router.post(
     try {
         let { product_id, quantity } = req.body;
         quantity = parseInt(quantity);
-        // since when we are modifying cart quantity, we are directly setting the amount in the cart, we only need to check if the specified `quantity` variable <= inventory amount
+        // get product info and return error message if there was a problem fetching info
+        let { productInfo, errMsg } = await DB.get_product_info(product_id);
+        if (errMsg) return res.status(400).send(errMsg);
+        // check if product out of stock
+        if (productInfo.quantity <= 0) return res.status(400).send("Out of stock");
         let cart_id = await DB.get_cart_id(req.user_id);
-        let [isCartBelowWeightLimit, msg1] = await HelperFuncs.check_cart_will_be_below_weight_limit(cart_id, product_id, quantity, MAX_CART_WEIGHT);
+        // do checks to make sure cart quantity and weight amounts are allowed
+        let [isCartBelowWeightLimit, msg1] = await HelperFuncs.check_cart_will_be_below_weight_limit(cart_id, productInfo, quantity, MAX_CART_WEIGHT, "MODIFY");
         if (!isCartBelowWeightLimit) return res.status(400).send(msg1);
-        let [isQuantityLTEinventoryAmt, msg2] = await HelperFuncs.check_quantity_lte_inventory_amt(quantity, product_id);
-        if (!isQuantityLTEinventoryAmt) return res.status(400).send(msg2);
+        // since when we are modifying cart quantity, we are directly setting the amount in the cart, we only need to check if the specified `quantity` variable <= inventory amount
+        if (quantity > productInfo.quantity) {
+            return res.status(400).send(`Maximum quantity allowed in cart: ${productInfo.quantity}`);
+        }
         await DB.modify_cart_item_quantity(cart_id, product_id, quantity);
         return res.status(200).send("Successfully modified cart item quantity");
     } catch (err) {
@@ -70,7 +83,7 @@ router.get("/viewCart", checkLoggedIn, async (req, res) => {
     try {
         let cart_id = await DB.get_cart_id(req.user_id);
         let cartItems = await DB.get_cart_items(cart_id);
-        let { cartWeight, subtotal_cost, deliveryFee, taxAmount } = await HelperFuncs.get_cart_summary(cart_id);
+        let { cartWeight, subtotal_cost, deliveryFee, taxAmount } = await DB.get_cart_summary(cart_id);
         return res.status(200).json({
             cartItems,
             "summary": {

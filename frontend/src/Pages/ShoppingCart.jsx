@@ -84,6 +84,11 @@ export default function ShoppingCart({ isOpen, onClose, btnRef }) {
     console.log(quantity);
     const { product_id } = product;
     // Before making request to backend, check if `quantity` is within the valid bounds
+    if (product.inventoryAmt <= 0) {
+        setCartItemErrMsg(`Out of stock`);
+        addProdErr(product_id);
+        return;
+    }
     if (quantity > product.inventoryAmt) {
       setCartItemErrMsg(`Maximum quantity allowed in cart: ${product.inventoryAmt}`);
       addProdErr(product_id);

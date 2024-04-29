@@ -283,6 +283,15 @@ class DB {
         return q.length > 0 ? parseInt(q[0]["quantity"]) : 0;
     }
 
+    static async get_cart_summary(cart_id) {
+        let cartWeight = await this.get_cart_weight(cart_id);
+        let subtotal_cost = Math.round((await this.get_cart_subtotal_cost(cart_id)) * 100) / 100;
+        let deliveryFee = cartWeight < 20 ? 0 : 10;
+        let taxAmount = Math.round(subtotal_cost) / 100;
+        let ordered_at = await this.get_current_time(); 
+        return { cartWeight, subtotal_cost, deliveryFee, taxAmount, ordered_at };
+    }
+
     ///////
     // ORDER queries
     ///////
