@@ -7,11 +7,11 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 URL = "http://localhost:3000"
-PAUSE_TIME = 1
+PAUSE_TIME = 2
 
 
 def main():
-    testCounter = 7
+    testCounter = 8
     # Create WebDriver instance
     service = Service(executable_path="./chromedriver.exe")
     driver = webdriver.Chrome(service=service)
@@ -20,48 +20,45 @@ def main():
     # Landing Page -> Log In Page
     clickButton(driver, "Sign In")
     
-    # # Test Case: empty Input Field
-    # clickContinue(driver)
-    # clickOk(driver)
-    # pause()
+    # Test Case: empty Input Field
+    clickContinue(driver)
+    clickOk(driver)
+    pause()
     
-    # # Test case: Invalid Account Log In
-    # signIn(driver, "invalidAccount@test.com", "test")
-    # clickOk(driver)
+    # Test case: Invalid Account Log In
+    signIn(driver, "invalidAccount@test.com", "test")
+    clickOk(driver)
     
-    # # Log In Page -> Sign Up Page: Create Account
-    # clickButton(driver, "Create Account")
+    # Log In Page -> Sign Up Page: Create Account
+    clickButton(driver, "Create Account")
     
-    # # Test Case: Empty Input Field
-    # clickSubmit(driver)
+    # Test Case: Empty Input Field
+    clickSubmit(driver)
     
-    # createTestAccount(driver, 6)
-    # clickButton(driver, "Create Account")
+    # Test Case: Email Input already exist
+    createAccount(driver, "admin", "admin@admin.com")
+    clickOk(driver)
+    pause()
     
-    # # Test Case: Email Input already exist
-    # createTestAccount(driver, 6)
-    # clickOk(driver)
-    # pause()
+    # Test Case: Account successfully created
+    createTestAccount(driver, testCounter)
+    pause()
     
-    # # Test Case: Account successfully created
-    # createTestAccount(driver, testCounter)
-    # pause()
+    customerSignIn(driver, testCounter)
+    clickAllCategories(driver)
+    pause()
+    testEditProfile(driver)
+    pause()
+    testCreateOrder(driver)
+    pause()
+    clickLogo(driver)
+    signOut(driver)
     
-    # customerSignIn(driver, testCounter)
-    # clickAllCategories(driver)
-    # pause()
-    # testEditProfile(driver)
-    # pause()
-    # testCreateOrder(driver)
-    # pause()
-    # clickLogo(driver)
-    # signOut(driver)
-    
-    # # Add more order
-    # customerSignIn(driver, testCounter - 1)
-    # testCreateOrder1(driver)
-    # clickLogo(driver)
-    # signOut(driver)
+    # Add more order
+    customerSignIn(driver, testCounter - 1)
+    testCreateOrder1(driver)
+    clickLogo(driver)
+    signOut(driver)
     
     # Test Admin Action
     pause()
@@ -250,7 +247,14 @@ def decreaseQuantity(driver):
     clickBySelector(driver, ".css-1m5jnul[disabled]")
     
 """Test Authentification"""
-
+def createAccount(driver, name, email):
+    '''Create an account'''
+    fillUsername(driver, name)
+    fillEmail(driver, email)
+    fillPassword(driver, "P@$$w0rd")
+    fillConfirmPassword(driver, "P@$$w0rd")
+    clickSubmit(driver)
+    
 def customerSignIn(driver, testCounter):
     email = "test" + str(testCounter) + "@test.com"
     password = "P@$$w0rd"
