@@ -11,7 +11,8 @@ PAUSE_TIME = 1
 
 
 def main():
-    testCounter = 13
+    testCounter = 14
+    itemToRemove = "Apple"
     # Create WebDriver instance
     service = Service(executable_path="./chromedriver.exe")
     driver = webdriver.Chrome(service=service)
@@ -26,6 +27,8 @@ def main():
     pause()
     
     # Test case: Invalid Account Log In
+    signIn(driver, "invalidEmail", "test")
+    pause()
     signIn(driver, "invalidAccount@test.com", "test")
     clickOk(driver)
     
@@ -42,40 +45,43 @@ def main():
     
     # Test Case: Account successfully created
     createTestAccount(driver, testCounter)
-    clickOk(driver)
     pause()
     
     customerSignIn(driver, testCounter)
-    # clickAllCategories(driver)
-    # pause()
-    # testEditProfile(driver)
-    # pause()
+    clickAllCategories(driver)
+    pause()
+    testEditProfile(driver)
+    pause()
+    clickLogo(driver)
+    testOrderOutOfRange(driver)
     testCreateOrder(driver)
     pause()
     clickLogo(driver)
     signOut(driver)
     
     # Add more order
-    customerSignIn(driver, testCounter - 1)
+    customerSignIn(driver, testCounter)
     testCreateOrder1(driver)
+    add5Orders(driver)
     clickLogo(driver)
     signOut(driver)
     
     # Test Admin Action
     pause()
     signIn(driver, "admin@admin.com", "admin")
-    # clickCustomerView(driver)
-    # clickAllCategories(driver)
-    # clickEmployeeView(driver)
+    clickCustomerView(driver)
+    clickAllCategories(driver)
+    clickEmployeeView(driver)
+    # Test Add Product
     testAddProduct(driver)
     
-    # # Test Remove Product
-    # clickInventory(driver)
-    # removeProduct(driver, "Corn")
+    # Test Remove Product
+    clickInventory(driver)
+    removeProduct(driver, itemToRemove)
 
-    # pause()
-    # clickStore(driver)
-    # pause()
+    pause()
+    clickStore(driver)
+    pause()
     
     clickOrders(driver)
     clickMap(driver)
@@ -85,60 +91,81 @@ def main():
     clickButtonByText(driver, "Show Robot2")
     pause()
     clickButtonByText(driver, "Show Robot1")
-    
+    pause()
+    clickButton(driver, "Send Orders")
+    pause()
     pause()
     clickStore(driver)
     pause()
     clickAnalytics(driver)
+    # Add click Analytics details
+    clickButton(driver, "Year")
+    clickButton(driver, "Month")
+    clickButton(driver, "Week")
+    pause()
     clickEmployees(driver)
     addEmployeeButton(driver)
-    
+    testAddEmployee(driver, testCounter)
+    pause()
+    # removeEmployee(driver, testCounter)
     signOut(driver)
-    
     pause()
     driver.quit()
     
 """Test Admin Action"""
 
-def clickStore(driver):
-    '''Find and click Store button'''
-    button = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CLASS_NAME, "css-0"))
-    )
-    button.click()
-    
-def clickAnalytics(driver):
-    '''Find and click the Analytics button'''
-    clickButton(driver, 'Analytics')
-
-def clickEmployees(driver):
-    '''Find and click the Employees button'''
-    clickButton(driver, 'Employees')
+def testAddEmployee(driver, testCounter):
+    '''Create test account'''
+    name = "Employee" + str(testCounter)
+    email = "Employee" + str(testCounter) + "@employee.com"
+    createAccount(driver, name, email)
     
 def addEmployeeButton(driver):
     '''Find and click the "+" button'''
     button = driver.find_element(By.CLASS_NAME, 'chakra-icon.css-onkibi')
     button.click()
-
+    
+# def removeEmployee(driver, employeeId):
+#     '''Find and remove an employee by ID'''
+#     try:
+#         # Find the employee ID element
+#         employeeIdElement = WebDriverWait(driver, 10).until(
+#             EC.visibility_of_element_located((By.XPATH, f"//div[contains(text(), 'ID #{employeeId}')]"))
+#         )
+#         # Find the dropdown button using the provided class
+#         dropdownButton = employeeIdElement.find_element(By.CLASS_NAME, "css-26wy9z")
+#         # Click the dropdown button
+#         dropdownButton.click()
+        
+#         # Find and click the "Remove" option
+#         removeOption = WebDriverWait(driver, 10).until(
+#             EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Remove')]"))
+#         )
+#         removeOption.click()
+#         print(f"Employee with ID #{employeeId} has been removed successfully.")
+#     except:
+#         print(f"Employee with ID #{employeeId} was not found.")
+        
 def testAddProduct(driver):
+    '''Create a few product and add to inventory'''
     clickInventory(driver)
     clickAddProduct(driver)
-    addProduct(driver, "Cucumber", 1.25, 0.5, 20, "https://mucci-production-user-uploads-bucket.s3.amazonaws.com/images/Product-IMG_MiniCucumbers-rev2.original.png","Vegetables")
-    # fillProductDetails(driver, "Cucumber", "0.50", "0.5", "20")
-    # fillProductDescription(driver, "cucumber, (Cucumis sativus), creeping plant of the gourd family (Cucurbitaceae), widely cultivated for its edible fruit.")
-    # fillImageURL(driver, "https://mucci-production-user-uploads-bucket.s3.amazonaws.com/images/Product-IMG_MiniCucumbers-rev2.original.png")
-    # clickCheckbox("Vegetables")
-    # clickVegetablesCheckbox(driver)
-    clickSave(driver)
+    addProduct(driver, "Cucumber", "1.25", "0.5", "20", "http://www.plantgrower.org/uploads/6/5/5/4/65545169/published/cucumber-slices.jpg?1516496438","Vegetables")
+    clickInventory(driver)
+    clickAddProduct(driver)
+    addProduct(driver, "Water Melon", "1.00", "1.25", "30", "https://www.watermelon.org/wp-content/uploads/2019/12/Seedless-Watermelon-Slice-2000x1500.jpg","Fruits")
+    clickInventory(driver)
+    clickAddProduct(driver)
+    addProduct(driver, "Lamb Chop", "2.00", "2.25", "15", "https://www.themeatguy.jp/media/wysiwyg/cookingstudio/recipe/36/36_lamb_00.jpg","Frozen")
     
 def addProduct(driver, itemName, price, weight, quantity, image, type):
+    '''Add product to Inventory'''
     clickInventory(driver)
     clickAddProduct(driver)
-    
     fillProductDetails(driver, itemName, price, weight, quantity)
     fillProductDescription(driver, itemName + " " + type)
     fillImageURL(driver, image)
-    clickCheckbox(type)
+    clickCheckbox(driver, type)
     clickSave(driver)
     
 def removeProduct(driver, product_name):
@@ -149,14 +176,6 @@ def removeProduct(driver, product_name):
     )
     removeButton.click()
     
-def clickEditProduct(driver, product_name):
-    '''Find and click the Edit button for the specified product'''
-    editXpath = f"//td[text()='{product_name}']/following-sibling::td/a/button[contains(text(), 'Edit')]"
-    editButton = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, editXpath))
-    )
-    editButton.click()
-
 def fillProductDetails(driver, product_name, price, weight, quantity):
     '''Find and fill in product details'''
     fillProductName(driver, product_name)
@@ -166,6 +185,51 @@ def fillProductDetails(driver, product_name, price, weight, quantity):
 
     
 """Test Customer Action"""
+def testOrderOutOfRange(driver):
+    addToCart(driver, "Pasta", 1)
+    # payment = ["Test Card One", "3321 567898 65678", "02/26", "1234", "95112"]
+    address = ["39035 Fremont Hub", "", "Fremont", "CA", "94538"] # invalid address
+    
+    goToCart(driver)
+    clickButtonByText(driver, 'Checkout')
+    fillDeliveryInfo(driver, address[0], address[2], address[2], address[3], address[4])
+    clickNext(driver)
+    clickOkay(driver)
+    clickLogo(driver)
+    
+def add5Orders(driver):
+    '''CheckOut 5 orders'''
+    address1 = ["777 Story Rd", "", "San Jose", "CA", "95122"]
+    payment1 = ["Test Card One", "3321 567898 65678", "02/26", "1234", "95112"]
+    address2 = ["1750 Story Rd", "", "San Jose", "CA", "95122"]
+    payment2 = ["Test Card Two", "4321 5678 1234 5678", "02/29", "123", "93212"]
+    address3 = ["535 N 5th St", "", "San Jose", "CA", "95112"] #, , CA 
+    payment3 = ["Test Card Three", "5321 5678 1234 5678", "02/27", "123", "92148"]
+    address4 = ["5095 Almaden Expy", "", "San Jose", "CA", "95118"]
+    payment4 = ["Test Card Four", "4321 5678 1234 5678", "02/26", "123", "95123"]
+    address5 = ["2200 Eastridge Loop", "Suite 1103", "San Jose", "CA", "95122"]
+    payment5 = ["Test Card Five", "4321 5678 1234 5678", "02/28", "123", "95111"]
+    
+    addToCart(driver, "Salmon Fillet", 3)
+    addToCart(driver, "Pasta", 1)
+    checkOut(driver, address1, payment1)
+    
+    addToCart(driver, "Brown Eggs", 3)
+    addToCart(driver, "Onions", 1)
+    addToCart(driver, "Bell Peppers", 1)
+    checkOut(driver, address2, payment2)
+    
+    addToCart(driver, "Green Beans", 2)
+    addToCart(driver, "Pork Chop", 2)
+    checkOut(driver, address3, payment3)
+    
+    addToCart(driver, "Milk", 2)
+    addToCart(driver, "Pasta", 1)
+    checkOut(driver, address4, payment4)
+    
+    addToCart(driver, "Potatoes", 1)
+    addToCart(driver, "Chicken Breast", 1)
+    checkOut(driver, address5, payment5)
 
 def testEditProfile(driver):
     '''Customer Edit Name'''
@@ -178,7 +242,7 @@ def testCreateOrder(driver):
     clickButton(driver, "Meat")
     addToCart(driver, "Beef", 3)
     addToCart(driver, "Milk", 1)
-    checkOut(driver)
+    checkOut1(driver)
     
 def testCreateOrder1(driver):
     '''Successfully create a test Order'''
@@ -187,27 +251,26 @@ def testCreateOrder1(driver):
     addToCart(driver, "Salmon Fillet", 2)
     checkOut1(driver)
     
-def checkOut(driver):
+def checkOut(driver, address, payment):
     '''Check Out an Order in Cart'''
     goToCart(driver)
     clickButtonByText(driver, 'Checkout')
-    fillDeliveryInfo(driver, "1 Washington St", "", "Santa Clara", "CA", "95050")
+    fillDeliveryInfo(driver, address[0], address[2], address[2], address[3], address[4])
+    
     clickNext(driver)
     clickConfirm(driver)
-    fillInPayment(driver, "Test Card", "4321 5678 1234 5678", "02/26", "123", "95112")
+    fillInPayment(driver, payment[0], payment[1], payment[2], payment[3], payment[4])
+    
     clickNext(driver)
     clickConfirm(driver)
+    pause()
+    clickLogo(driver)
     
 def checkOut1(driver):
     '''Check Out an Order in Cart'''
-    goToCart(driver)
-    clickButtonByText(driver, 'Checkout')
-    fillDeliveryInfo(driver, "2201 Senter Rd", "", "San Jose", "CA", "95112")
-    clickNext(driver)
-    # clickConfirm(driver)
-    fillInPayment(driver, "Tester Card", "54321 5678 1234 5678", "09/27", "123", "95112")
-    clickNext(driver)
-    clickConfirm(driver)
+    address = ["1 Washington St", "", "Santa Clara", "CA", "95050"]
+    payment = ["Test Card", "4321 5678 1234 5678", "02/26", "123", "95112"]
+    checkOut(driver, address, payment)
     
 def fillInPayment(driver, cardName, cardNo, exp, cvv, zipcode):
     fillNameOnCard(driver, cardName)
@@ -294,6 +357,7 @@ def createTestAccount(driver, testCounter):
     fillPassword(driver, "P@$$w0rd")
     fillConfirmPassword(driver, "P@$$w0rd")
     clickSubmit(driver)
+    clickOk(driver)
     
 """Find checkbox and click"""
 
@@ -302,6 +366,7 @@ def clickCheckbox(driver, value):
     checkbox = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, f"//input[@value='{value}']"))
     )
+    pause()
     checkbox.click()
 
 def clickDairyAndEggsCheckbox(driver):
@@ -381,6 +446,29 @@ def clickEmployeeView(driver):
     '''Find and click Employee View button'''
     clickButtonByText(driver, 'Employee View')
     
+def clickEditProduct(driver, product_name):
+    '''Find and click the Edit button for the specified product'''
+    editXpath = f"//td[text()='{product_name}']/following-sibling::td/a/button[contains(text(), 'Edit')]"
+    editButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, editXpath))
+    )
+    editButton.click()
+
+def clickStore(driver):
+    '''Find and click Store button'''
+    button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CLASS_NAME, "css-0"))
+    )
+    button.click()
+    
+def clickAnalytics(driver):
+    '''Find and click the Analytics button'''
+    clickButton(driver, 'Analytics')
+
+def clickEmployees(driver):
+    '''Find and click the Employees button'''
+    clickButton(driver, 'Employees')
+    
 def clickSave(driver):
     '''Find and click Save button'''
     clickButton(driver, "Save")
@@ -414,13 +502,14 @@ def clickButtonByText(driver, buttonText):
     button = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, f"//button[contains(text(),'{buttonText}')]"))
     )
+    pause()
     button.click()
     
 def clickBySelector(driver, selector):
     '''Find and click the button based on the given selector'''
     # Wait for the button to be clickable
     button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
-    # Click the button
+    pause()
     button.click()
     
 def clickButton(driver, text):
