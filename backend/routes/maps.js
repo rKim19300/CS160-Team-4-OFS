@@ -3,7 +3,7 @@ const { DB } = require("../database");
 const { SocketRoom, StaffSocketFunctions } = require("../enums/enums");
 const { checkLoggedIn, checkIsStaff } = require("../middleware/authMiddleware");
 const { 
-	check_is_within_allowable_distance,
+	checkIsWithinAllowableDistance,
 	generateRouteData,
 	decodePolyline,
 	validateAddress,
@@ -21,6 +21,7 @@ router.get('/getRobots', checkIsStaff, async (req, res) => {
 		res.status(200).json(data); 
 	}
 	catch (err) {
+		console.log(`ERROR WHEN GETTING ROBOTS ${err}`)
 		res.status(500).json(`Oops! Something went wrong on our end.`);
 	}
 });
@@ -40,6 +41,7 @@ router.post('/getRobotOrders', checkIsStaff, async (req, res) => {
 		res.status(200).send(orders);
 	}
 	catch (err) {
+		console.log(`ERROR WHEN GETTING ROBOT ORDERS ${err}`);
 		res.status(500).json(`Oops! Something went wrong on our end.`);
 	}
 });
@@ -107,7 +109,7 @@ router.post('/sendRobot', checkIsStaff, async (req, res) => {
  * 
  * @returns The address and it's lat lng coordinates if success
  */
-router.post(`/validateAddress`, checkLoggedIn, async (req, res) => {
+router.post(`/validateAddress`, async (req, res) => {
 
 	let { addressLine1, addressLine2, city, state, zipCode } = req.body;
 
@@ -115,21 +117,23 @@ router.post(`/validateAddress`, checkLoggedIn, async (req, res) => {
 
 		// Check If the address is valid
 		let response = await validateAddress(addressLine1, addressLine2, city, state, zipCode);
-		if (response === undefined) 
-			return res.status(400).json("Invalid address: Address is either entered incorrectly or\
-											not deliverable");
+		if (response.errMessage.length > 0) 
+			return res.status(400).json(`Invalid Address: ${response.errMessage}`);
 		const address = response.address;
 		const coordinates = response.coordinates; 
 
 		// Check if the address is within the correct distance
-		const inRange = await check_is_within_allowable_distance(address);
+		const inRange = await checkIsWithinAllowableDistance(address);
 		if (!inRange) 
 			return res.status(400).json("Address is not within 20 miles of store!");
 
 		// Return the formatted address
-		return res.status(200).json(coordinates); 
+		return res.status(200).json({
+			coordinates: coordinates, 
+			address: address
+		}); 
 	} catch (err) {
-		console.log(err);
+		console.log(`ERROR WHEN VALIDATING ADDRESS ${err}`);
 		return res.status(500).json(`Oops! Something went wrong on our end. Try again in 60 seconds.`);
 	}
 });

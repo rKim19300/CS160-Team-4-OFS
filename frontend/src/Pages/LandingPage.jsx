@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Flex,
   Text,
@@ -92,11 +92,10 @@ function NavBar() {
     <Grid
       templateAreas={`"nav main button"`}
       gridTemplateColumns={"10vw 1fr 10vw"}
-      h="11vh"
+      h="12vh"
       width="100%"
-      gap="1"
       color="blackAlpha.700"
-      fontWeight="bold"
+      alignItems="center"
     >
       <GridItem pl="2" area={"nav"}>
         <a href="/landing">

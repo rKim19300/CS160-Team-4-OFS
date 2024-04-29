@@ -9,7 +9,7 @@ const cors = require("cors");
 
 const { DB } = require("./database");
 const { checkIsStaff } = require("./middleware/authMiddleware");
-const { sendRobot } = require('./googleMapsRouting/queryHelper');
+const { sendRobot, recoverRobot } = require('./googleMapsRouting/queryHelper');
 
 const authRoute = require("./routes/auth");
 const productsRoute = require("./routes/products");
@@ -78,6 +78,17 @@ const staffIO = io.of('/staff');
 // Make socket available where the app is 
 app.set('io', io); 
 app.set('staffIO', io); // TODO register staffIO with session middlware
+
+// Check if any robot when ON_ROUTE when the database shut off
+(async () => {
+  let robots = await DB.get_all_robots();
+  for (let i = 0; i < robots.length; i++) {
+    if ((await DB.is_on_route(robots[i].robot_id))) {
+      console.log(`Recovering Robot (ID ${robots[i].robot_id}). . .`);
+      await recoverRobot(robots[i], io);
+    }
+  }
+})();
 
 // Create a thread that assigns routes to robots
 const fiveSeconds = 5000;

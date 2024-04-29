@@ -2,10 +2,9 @@ const { SocketRoom, StaffSocketFunctions } = require("../enums/enums");
 const { response } = require("express");
 const { DB } = require("../database");
 
-const ORIGIN_ADDRESS = "1 Washington Sq, San Jose, CA 95192";
+const ORIGIN_ADDRESS = "1 Washington Sq, San Jose, CA 95112, USA";
 const MAX_DISTANCE_FROM_ORIGIN = 20;
 const STORE_COORDS = {"latitude":37.3386564,"longitude":-121.8806354};
-const STORE_ADDRESS = "1 Washington Sq, San Jose, CA 95112-3613, USA";
 const API_KEY = process.env.GOOGLE_API_KEY_BACKEND;
 const encodingMap = {
     ' ': '%20',
@@ -24,10 +23,16 @@ const encodingMap = {
  * @param {*} state           The state, usually supposed to be two letters
  * @param {*} zipCode         The zipcode
  * @throws ERROR              If google maps query fails
- * @returns undefined if failed, or address and lat lng in coords object if success.
+ * @returns An object with and errMessage if failed, 
+ *          or address and lat lng in coords object if success (errMessage empty).
  */
 async function validateAddress(addressLine1, addressLine2, city, state, zipCode) {
 
+    // Make sure that the zipcode is 5 digits long
+    if (zipCode.toString().length !== 5)
+        return {errMessage: `Make sure your zipcode is exactly 5 digits`};
+
+    // Query to make sure that the address is deliverable
     const url = `https://addressvalidation.googleapis.com/v1:validateAddress`;
     const reqBody = {
         "address": {
@@ -53,26 +58,29 @@ async function validateAddress(addressLine1, addressLine2, city, state, zipCode)
     if (!response.ok) // 500 if query failed
         throw new Error("Google Maps request failed");
 
-    // Check if the address is accurate enough
-    response = await response.json();
+    response = await response.json(); // Convert to json
+
+    // Fix Address
+    const address = await fixAddress(response.result.geocode.placeId);
+    
+    // Check if the address is accurate enough or is not the store
     let lat = response.result.geocode.location.latitude;
     let lng = response.result.geocode.location.longitude;
     const verdict = response.result.verdict.geocodeGranularity; 
-    if (verdict !== 'PREMISE' && verdict !== 'SUB_PREMISE')   // If not accurate enough 400
-        return undefined;
-    else 
-        return {
-            address: response.result.address.formattedAddress,
-            coordinates: {lat: lat, lng: lng}
+    if ((verdict !== 'PREMISE' && verdict !== 'SUB_PREMISE') || (address === ORIGIN_ADDRESS))  
+        return {errMessage: 'Sorry, it seems that your address is non-deliverable'};
+    return {
+        address: address,
+        coordinates: {lat: lat, lng: lng},
+        errMessage: ''
     }; 
-    // TODO reject store coords
 }
 
 /**
  * @param {*} address 
  * @returns 
  */
-async function check_is_within_allowable_distance(address) {
+async function checkIsWithinAllowableDistance(address) {
     try {
         const encodedAddress = encodeAddress(address); // Encode unsafe characters
         let res = await fetch(`https://maps.googleapis.com/maps/api/distancematrix/json?destinations=
@@ -87,6 +95,12 @@ async function check_is_within_allowable_distance(address) {
         console.log(`GOOGMAPS: ERROR WHEN CHECKING DISTANCE FROM ORIGIN: ${err}`);
         return false;
     }
+}
+
+async function fixAddress(placeId) {
+    const res = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=formatted_address&key=${API_KEY}`);
+    if (!res.ok) throw new Error("Failed to get data");
+    return (await res.json()).result.formatted_address;
 }
 
 /**
@@ -123,10 +137,6 @@ async function generateRouteData(addresses) {
         "units": "IMPERIAL"
     };
     try {
-        // set the intermediate points for the req body
-        /*for (let address of addresses) {
-            reqBody["intermediates"].push({ address })
-        }*/
         // make the request
         let res = await fetch(`https://routes.googleapis.com/directions/v2:computeRoutes`, {
             method: "POST",
@@ -200,6 +210,8 @@ async function sendRobot(robot_id, staffIO) {
 /**
  * Sets the robot on route
  * 
+ * Assumption: The legs are indexeds starting at 0, and do not skip integers
+ * 
  * @param {*} robot_id      The robot on the route being traversed
  * @param {*} route_id      The ID of the route being traversed
  * @param {*} durations     An array containing the durations of each of the legs in seconds
@@ -257,6 +269,60 @@ function onRouteHelper(robot_id, route_id, durations, decodedRoute, io, leg) {
     }, update_rate * 1000); // TODO change this back to 5 seconds
 }
 
+/**
+ * Recovers the robot if it was ON_ROUTE what the database was shut off.
+ * Assumption: Already checked that the Robot status is ON_ROUTE
+ * 
+ * @param {*} robot_id   The entire robot object
+ * @param {*} staffIO   The IO for the socket
+ */
+async function recoverRobot(robot, staffIO) {
+    try {
+        const route_id = robot.route_id
+
+        // Get the durations and polylines of the route
+        console.log("Querying the route polylines and durations. . .");
+        let polylines = await DB.get_route_polylines(route_id);
+        let durations = await DB.get_route_durations(route_id);
+
+        // Decode the polylines
+        console.log("Decoding the route polylines. . .");
+        for (let i = 0; i < polylines.length; i++) 
+            polylines[i] = (await decodePolyline(polylines[i]));
+        
+        // Find the index where the robot stopped within the first polyline 
+        let stop_index = 0;
+        let first_polyline = polylines[0];
+        while ((first_polyline[stop_index].lat != robot.latitude) && 
+                (first_polyline[stop_index].lng != robot.longitude)) {
+            stop_index++;
+            if (stop_index > first_polyline.length) throw new Error(`Failed to find first index`);
+        }
+
+        // Adjust the duration of the first leg 
+        durations[0] = Math.ceil((1 - ((stop_index + 1) / first_polyline.length)) * durations[0]);
+
+        // Slice the polyline array of the first leg
+        polylines[0] = polylines[0].slice(stop_index, polylines[0].length);
+
+        // Update the etas of the legs in the database
+        /*
+            NOTE: We don't update the duration of first leg in database because 
+                  subsequent shutoffs could unnecessarily shrink the duration toward 0. 
+        */
+        await DB.recover_robot_route_data(route_id, durations);
+
+        // Send robot ON_ROUTE
+        console.log(`Sending robot (ID ${robot.robot_id}) ON_ROUTE`);
+        await onRoute(robot.robot_id, route_id, durations, polylines, staffIO);
+    } 
+    catch (err) {
+        console.log(`ERROR WHEN RECOVERING ROBOT: ${err}`);
+    }
+
+
+}
+
 async function decodePolyline(encodedPolyline) {
     let points = [];
     let index = 0;
@@ -289,6 +355,7 @@ async function decodePolyline(encodedPolyline) {
     }
     return points;
 }
+
 (async () => {
 
 })();
@@ -296,8 +363,9 @@ async function decodePolyline(encodedPolyline) {
 
 module.exports = { 
     generateRouteData, 
-    check_is_within_allowable_distance, 
+    checkIsWithinAllowableDistance, 
     decodePolyline, 
     validateAddress,
-    sendRobot
+    sendRobot, 
+    recoverRobot
 };

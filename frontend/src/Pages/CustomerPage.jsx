@@ -93,7 +93,7 @@ function CustomerPageBody({ category, products }) {
     <Flex className={styles.bodyContainer}>
       <Text className={styles.categoryText}>{category}</Text>
       {/* <ProductCarousel products={products} /> */}
-      <Grid templateColumns="repeat(5, 1fr)" gap="48px" marginTop="16px">
+      <Grid templateColumns="repeat(5, 1fr)" gap="32px" marginTop="16px">
         {products.map((product, idx) => (
           <ProductItem key={idx} product={product} />
         ))}
