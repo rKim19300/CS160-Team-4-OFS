@@ -98,7 +98,7 @@ function NavBar() {
       alignItems="center"
     >
       <GridItem pl="2" area={"nav"}>
-        <a href="/landing">
+        <a href="/">
           <img className={styles.logoImg} src="/logo.png" />
         </a>
       </GridItem>
