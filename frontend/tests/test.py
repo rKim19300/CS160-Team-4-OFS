@@ -7,11 +7,11 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 URL = "http://localhost:3000"
-PAUSE_TIME = 2
+PAUSE_TIME = 1
 
 
 def main():
-    testCounter = 8
+    testCounter = 13
     # Create WebDriver instance
     service = Service(executable_path="./chromedriver.exe")
     driver = webdriver.Chrome(service=service)
@@ -42,13 +42,14 @@ def main():
     
     # Test Case: Account successfully created
     createTestAccount(driver, testCounter)
+    clickOk(driver)
     pause()
     
     customerSignIn(driver, testCounter)
-    clickAllCategories(driver)
-    pause()
-    testEditProfile(driver)
-    pause()
+    # clickAllCategories(driver)
+    # pause()
+    # testEditProfile(driver)
+    # pause()
     testCreateOrder(driver)
     pause()
     clickLogo(driver)
@@ -66,7 +67,7 @@ def main():
     # clickCustomerView(driver)
     # clickAllCategories(driver)
     # clickEmployeeView(driver)
-    # testAddProduct(driver)
+    testAddProduct(driver)
     
     # # Test Remove Product
     # clickInventory(driver)
@@ -122,12 +123,22 @@ def addEmployeeButton(driver):
 def testAddProduct(driver):
     clickInventory(driver)
     clickAddProduct(driver)
+    addProduct(driver, "Cucumber", 1.25, 0.5, 20, "https://mucci-production-user-uploads-bucket.s3.amazonaws.com/images/Product-IMG_MiniCucumbers-rev2.original.png","Vegetables")
+    # fillProductDetails(driver, "Cucumber", "0.50", "0.5", "20")
+    # fillProductDescription(driver, "cucumber, (Cucumis sativus), creeping plant of the gourd family (Cucurbitaceae), widely cultivated for its edible fruit.")
+    # fillImageURL(driver, "https://mucci-production-user-uploads-bucket.s3.amazonaws.com/images/Product-IMG_MiniCucumbers-rev2.original.png")
+    # clickCheckbox("Vegetables")
+    # clickVegetablesCheckbox(driver)
+    clickSave(driver)
     
-    fillProductDetails(driver, "Cucumber", "0.50", "0.5", "20")
-    fillProductDescription(driver, "cucumber, (Cucumis sativus), creeping plant of the gourd family (Cucurbitaceae), widely cultivated for its edible fruit.")
-    fillImageURL(driver, "https://mucci-production-user-uploads-bucket.s3.amazonaws.com/images/Product-IMG_MiniCucumbers-rev2.original.png")
+def addProduct(driver, itemName, price, weight, quantity, image, type):
+    clickInventory(driver)
+    clickAddProduct(driver)
     
-    clickVegetablesCheckbox(driver)
+    fillProductDetails(driver, itemName, price, weight, quantity)
+    fillProductDescription(driver, itemName + " " + type)
+    fillImageURL(driver, image)
+    clickCheckbox(type)
     clickSave(driver)
     
 def removeProduct(driver, product_name):
@@ -182,7 +193,7 @@ def checkOut(driver):
     clickButtonByText(driver, 'Checkout')
     fillDeliveryInfo(driver, "1 Washington St", "", "Santa Clara", "CA", "95050")
     clickNext(driver)
-    # clickConfirm(driver)
+    clickConfirm(driver)
     fillInPayment(driver, "Test Card", "4321 5678 1234 5678", "02/26", "123", "95112")
     clickNext(driver)
     clickConfirm(driver)
