@@ -1,6 +1,6 @@
 # CS160-Team-4-OFS
 
-We created this Online Food Delivery Service website that allows users to shop online (browse through items, add to cart, place orders, etc) and simulate having their orders delivered to them by autonomous delivery robots.
+This is an online food delivery service website where users can shop online (browse through items, add to cart, place orders, etc) and simulate having their orders delivered to them by autonomous delivery robots.
 
 ## User Guide
 
