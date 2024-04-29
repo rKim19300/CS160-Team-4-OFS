@@ -106,11 +106,13 @@ function ProductItem({ product }) {
   return (
     <Flex className={styles.productItem}>
       <img className={styles.prodImg} src={product.image_url} />
-      <Link to={`/customer/productInfo/${product.product_id}`}>
-        <Text className={styles.productTitle}>{product.name}</Text>
-      </Link>
-      <Text className={styles.productPrice}>${product.price.toFixed(2)}</Text>
-      <Text className={styles.productWeight}>{product.weight} lbs</Text>
+      <Flex flexDirection="column">
+        <Link to={`/customer/productInfo/${product.product_id}`}>
+          <Text className={styles.productTitle}>{product.name}</Text>
+        </Link>
+        <Text className={styles.productPrice}>${product.price.toFixed(2)}</Text>
+        <Text className={styles.productWeight}>{product.weight} lbs</Text>
+      </Flex>
     </Flex>
   );
 }
