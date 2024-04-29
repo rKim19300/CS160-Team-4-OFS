@@ -35,7 +35,9 @@ export default function LogInPage() {
     let response = await axiosInstance.post("/api/login", { email, password });
     let data = response.data; // if successful, json obj of user data { email, user_type, username, user_id }
     if (response.status === 200) {
-      navigate(data.user_type === UserType.CUSTOMER ? "/customer" : "/employee");
+      navigate(
+        data.user_type === UserType.CUSTOMER ? "/customer" : "/employee"
+      );
     } else {
       setErrMsg(data);
       setErrorDialogOpen(true);
@@ -75,14 +77,14 @@ export default function LogInPage() {
             </Button>
           </form>
 
-          <a>
+          {/* <a>
             <Text
               className={styles.bottomText}
               _hover={{ textDecoration: "underline" }}
             >
               Forgot Password?
             </Text>
-          </a>
+          </a> */}
 
           <a href="./SignUp">
             <Text
