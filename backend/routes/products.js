@@ -29,7 +29,7 @@ router.get("/products/category_name=:categoryName", async (req, res) => {
 router.get("/searchProducts", async (req, res) => {
     try {
         let { query } = req.query;
-        let matchingResults = await DB.search_products_by_name(query);
+        let matchingResults = await DB.search_available_products_by_name(query);
         return res.status(200).json(matchingResults);
     } catch (err) {
         console.log(`ERROR WHEN SEARCHING PRODUCTS: ${err}`);
