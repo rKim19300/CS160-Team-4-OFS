@@ -25,6 +25,18 @@ router.get("/products/category_name=:categoryName", async (req, res) => {
     }
 });
 
+// Endpoint that the searchbar on the frontend uses
+router.get("/searchProducts", async (req, res) => {
+    try {
+        let { query } = req.query;
+        let matchingResults = await DB.search_available_products_by_name(query);
+        return res.status(200).json(matchingResults);
+    } catch (err) {
+        console.log(`ERROR WHEN SEARCHING PRODUCTS: ${err}`);
+        return res.status(400).send("Something went wrong when searching products");
+    }
+});
+
 router.get("/productInfo/:prodID", checkLoggedIn, async (req, res) => {
     try {
         let product_id = req.params.prodID;
@@ -58,7 +70,15 @@ router.post("/addCategory", checkIsStaff, async (req, res) => {
     }
 });
 
-router.post("/addProduct", checkIsStaff, async (req, res) => {
+router.post("/addProduct", checkIsStaff,
+    validateReqBody([
+        body("name").notEmpty().withMessage("Missing required product name"),
+        body("image_url").notEmpty().withMessage("Missing required image_url"),
+        body("price").isFloat({ min: 0.01, max: 100 }).withMessage("Price must be between $0.01 and $100"),
+        body("weight").isFloat({ min: 0.1, max: 100 }).withMessage("Weight must be between 0.1 and 100 lbs"),
+        body("quantity").isInt({ min: 1, max: 100 }).withMessage("Quantity must be an integer between 1 and 100")
+    ]),
+    async (req, res) => {
     try {
         let { name, description, image_url, price, weight, quantity, category_ids } = req.body;
         let product_id = await DB.add_new_product(name, description, image_url, price, weight, quantity);
@@ -66,6 +86,9 @@ router.post("/addProduct", checkIsStaff, async (req, res) => {
         return res.status(200).send("Successfully inserted product into database");
     } catch (err) {
         console.log(`ERROR WHEN ADDING PRODUCT: ${err}`);
+        if (err.message.includes("UNIQUE constraint failed")) {
+            return res.status(400).send(`Product name already exists`);
+        }
         return res.status(400).send("Something went wrong when adding a product");
     }
 });
@@ -90,6 +113,9 @@ router.post("/updateProduct/:prodID", checkIsStaff,
         return res.status(200).send("Successfully updated product info");
     } catch (err) {
         console.log(`ERROR WHEN UPDATING PRODUCT: ${err}`);
+        if (err.message.includes("UNIQUE constraint failed")) {
+            return res.status(400).send(`Product name already exists`);
+        }
         return res.status(400).send("Something went wrong when updating the product");
     }
 });

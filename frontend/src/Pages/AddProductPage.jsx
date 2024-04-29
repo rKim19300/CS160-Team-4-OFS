@@ -11,7 +11,8 @@ import {
   Image,
   Textarea,
   NumberInput,
-  NumberInputField
+  NumberInputField,
+  Tooltip
 } from "@chakra-ui/react";
 import styles from "./ChangeProductPage.module.css";
 import { useParams, useNavigate } from "react-router-dom";
@@ -73,6 +74,16 @@ export default function AddProductPage() {
     }
   };
 
+  // whether or not to show the red box telling the user that their input is wrong
+  const [showToolTip, setShowToolTip] = useState({
+      weight: false,
+      price: false,
+      quantity: false
+  });
+  const isInvalidWeight = weight !== "" && (weight < 0.1 || weight > 100);
+  const isInvalidPrice = price !== "" && (price < 0.01 || price > 100);
+  const isInvalidQuantity = quantity !== "" && (quantity < 1 || quantity > 100);
+
   return (
     <Flex className={styles.container} width="100%">
       <Toaster position="bottom-right" reverseOrder={false} />
@@ -97,38 +108,68 @@ export default function AddProductPage() {
                   isRequired={true}
                 />
                 <FormLabel className={styles.formText}>Price</FormLabel>
-                <NumberInput
-                  fontSize="16px"
-                  value={price}
-                  precision={2}
-                  onChange={(val) => setPrice(val)}
-                  min={0.01}
-                  max={100}
-                  isRequired={true}
+                <Tooltip
+                  hasArrow
+                  label="Please enter a price between 0.01 and 100"
+                  isOpen={showToolTip.price && isInvalidPrice}
+                  placement="bottom"
+                  bg='red.600'
                 >
-                  <NumberInputField />
-                </NumberInput>
+                  <NumberInput
+                    fontSize="16px"
+                    value={price}
+                    precision={2}
+                    onChange={(val) => setPrice(val)}
+                    isRequired={true}
+                    isInvalid={isInvalidPrice}
+                    onBlur={() => setShowToolTip({ ...showToolTip, price: isInvalidPrice })}
+                    onFocus={() => setShowToolTip({ ...showToolTip, price: false })}
+                  >
+                    <NumberInputField />
+                  </NumberInput>
+                </Tooltip>
                 <FormLabel className={styles.formText}>Weight</FormLabel>
-                <NumberInput
-                  fontSize="16px"
-                  value={weight}
-                  precision={1}
-                  onChange={(val) => setWeight(val)}
-                  min={0.1}
-                  max={100}
-                  isRequired={true}
+                <Tooltip
+                  hasArrow
+                  label="Please enter a weight between 0.1 and 100"
+                  isOpen={showToolTip.weight && isInvalidWeight}
+                  placement="bottom"
+                  bg='red.600'
                 >
-                  <NumberInputField />
-                </NumberInput>
+                  <NumberInput
+                    fontSize="16px"
+                    value={weight}
+                    precision={1}
+                    onChange={(val) => setWeight(val)}
+                    isRequired={true}
+                    isInvalid={isInvalidWeight}
+                    onBlur={() => setShowToolTip({ ...showToolTip, weight: isInvalidWeight })}
+                    onFocus={() => setShowToolTip({ ...showToolTip, weight: false })}
+                  >
+                    <NumberInputField />
+                  </NumberInput>
+                </Tooltip>
                 <FormLabel className={styles.formText}>Quantity</FormLabel>
-                <NumberInput
-                  fontSize="16px"
-                  value={quantity}
-                  onChange={(val) => setQuantity(val)}
-                  isRequired={true}
+                <Tooltip
+                  hasArrow
+                  label="Please enter a quantity between 1 and 100"
+                  isOpen={showToolTip.quantity && isInvalidQuantity}
+                  placement="bottom"
+                  bg='red.600'
                 >
-                  <NumberInputField />
-                </NumberInput>
+                  <NumberInput
+                    fontSize="16px"
+                    value={quantity}
+                    precision={0}
+                    onChange={(val) => setQuantity(val)}
+                    isRequired={true}
+                    isInvalid={isInvalidQuantity}
+                    onBlur={() => setShowToolTip({ ...showToolTip, quantity: isInvalidQuantity })}
+                    onFocus={() => setShowToolTip({ ...showToolTip, quantity: false })}
+                  >
+                    <NumberInputField />
+                  </NumberInput>
+                </Tooltip>
                 <FormLabel className={styles.formText}>Image URL</FormLabel>
                 <Input
                   type="text"
@@ -156,7 +197,7 @@ export default function AddProductPage() {
                 </div>
               </FormControl>
 
-              <Button className={styles.button} colorScheme="green" type="submit">
+              <Button className={styles.button} colorScheme="green" type="submit" isDisabled={isInvalidQuantity || isInvalidPrice || isInvalidWeight}>
                 Save
               </Button>
             </form>

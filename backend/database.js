@@ -28,7 +28,7 @@ function setup_tables() {
     db.exec(`
         CREATE TABLE IF NOT EXISTS Users (
             user_id         INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-            email           VARCHAR(100) UNIQUE NOT NULL,
+            email           VARCHAR(100) UNIQUE COLLATE NOCASE NOT NULL,
             username        VARCHAR(50) NOT NULL,
             password        VARCHAR(60) NOT NULL,
             user_type       INTEGER DEFAULT 0 NOT NULL
@@ -36,7 +36,7 @@ function setup_tables() {
 
         CREATE TABLE IF NOT EXISTS Products (
             product_id      INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-            name            VARCHAR(50) UNIQUE NOT NULL,
+            name            VARCHAR(50) UNIQUE COLLATE NOCASE NOT NULL,
             description     TEXT NOT NULL,
             image_url       TEXT NOT NULL,
             price           REAL NOT NULL,
@@ -194,6 +194,11 @@ class DB {
 
     static async subtract_product_inventory_quantity(product_id, quantity) {
         await db.query("UPDATE Products SET quantity = quantity - ? WHERE product_id = ?", [quantity, product_id]);
+    }
+
+    static async search_available_products_by_name(query) {
+        let matchingProds = await db.query("SELECT product_id, name FROM Products WHERE name LIKE ? COLLATE NOCASE AND quantity > -1", ['%'+query+'%']);
+        return matchingProds;
     }
 
     static async get_products_with_category_name(category_name) {
