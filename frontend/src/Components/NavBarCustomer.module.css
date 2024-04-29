@@ -41,3 +41,7 @@
   border-radius: 20px !important;
   margin-left: 24px;
 }
+
+.searchBar {
+  width: 220px;
+}

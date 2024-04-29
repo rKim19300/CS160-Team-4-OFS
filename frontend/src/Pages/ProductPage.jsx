@@ -35,24 +35,29 @@ export default function ProductPage() {
   const cancelRef = useRef();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        let response = await axiosInstance.get(`/api/productInfo/${id}`);
-        console.log(response);
-        let data = response.data;
-        console.log(data);
-        if (response.status !== 200) {
-          setErrMsg(data);
-          return;
-        }
-        setProductInfo(data);
-      } catch (err) {
-        console.error(err);
+  async function fetchData() {
+    try {
+      let response = await axiosInstance.get(`/api/productInfo/${id}`);
+      console.log(response);
+      let data = response.data;
+      console.log(data);
+      if (response.status !== 200) {
+        setErrMsg(data);
+        return;
       }
+      setProductInfo(data);
+    } catch (err) {
+      console.error(err);
     }
+  }
+
+  useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [id]);
 
   const addToCart = async () => {
     try {
