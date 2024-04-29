@@ -2,7 +2,7 @@
     flex-direction: column;
     justify-self: left;
     justify-content: space-between;
-    height: 100vh;
+    height: auto;
 }
 
 .menuContent {
