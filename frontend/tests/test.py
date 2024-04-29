@@ -7,16 +7,17 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 URL = "http://localhost:3000"
-PAUSE_TIME = 1
+PAUSE_TIME = 2
 
 
 def main():
-    testCounter = 14
+    testCounter = 6
     itemToRemove = "Apple"
     # Create WebDriver instance
     service = Service(executable_path="./chromedriver.exe")
     driver = webdriver.Chrome(service=service)
     driver.get(URL)
+    scrollPage(driver, PAUSE_TIME)
     
     # Landing Page -> Log In Page
     clickButton(driver, "Sign In")
@@ -44,6 +45,9 @@ def main():
     pause()
     
     # Test Case: Account successfully created
+    createTestAccount(driver, testCounter - 1)
+    pause()
+    clickButton(driver, "Create Account")
     createTestAccount(driver, testCounter)
     pause()
     
@@ -60,7 +64,7 @@ def main():
     signOut(driver)
     
     # Add more order
-    customerSignIn(driver, testCounter)
+    customerSignIn(driver, testCounter - 1)
     testCreateOrder1(driver)
     add5Orders(driver)
     clickLogo(driver)
@@ -73,6 +77,7 @@ def main():
     clickAllCategories(driver)
     clickEmployeeView(driver)
     # Test Add Product
+    scrollPage(driver, PAUSE_TIME)
     testAddProduct(driver)
     
     # Test Remove Product
@@ -306,7 +311,6 @@ def clickAllCategories(driver):
     clickButton(driver, "Protein")
     clickButton(driver, "Drinks")
     clickButton(driver, "Frozen")
-    clickButton(driver, "Buy It Again")
     
 def changeQuantity(driver, amount):
     '''Find the Quantity field and fill in the specified amount'''
@@ -650,7 +654,37 @@ def fillInputByLabel(driver, label, value):
     input_field.send_keys(Keys.CONTROL, 'a')
     input_field.send_keys(Keys.DELETE)
     input_field.send_keys(value)
+
+def scrollPage(driver, duration):
+    # Get the initial scroll position
+    last_scroll_position = driver.execute_script("return document.body.scrollHeight")
     
+    # Calculate the increment for scrolling
+    scroll_increment = 100  # Adjust this value for slower or faster scrolling
+    
+    # Scroll down the page slowly until reaching the bottom
+    while True:
+        # Scroll down by a small increment
+        driver.execute_script(f"window.scrollBy(0, {scroll_increment});")
+        
+        # Wait for a short time to simulate slow scrolling
+        time.sleep(0.1)  # Adjust this value for smoother or slower scrolling
+        
+        # Get the current scroll position
+        current_scroll_position = driver.execute_script("return window.pageYOffset;")
+        
+        # Check if we've reached the bottom of the page
+        if current_scroll_position == last_scroll_position:
+            break
+        
+        last_scroll_position = current_scroll_position
+    
+    # Wait for the specified duration
+    time.sleep(duration)
+    
+    # Scroll back up to the top of the page
+    driver.execute_script("window.scrollTo(0, 0);")
+
 def pause():
     time.sleep(PAUSE_TIME)
     
