@@ -7,10 +7,10 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 URL = "http://localhost:3000"
-PAUSE_TIME = 2
+PAUSE_TIME = 1
 
 def main():
-    testCounter = 100
+    testCounter = 5
     itemToRemove = "Apple"
     searchItem = "Orange"
     # Create WebDriver instance
@@ -18,11 +18,12 @@ def main():
     driver = webdriver.Chrome(service=service)
     driver.get(URL)
     pause()
+
     scrollPage(driver, PAUSE_TIME)
     
     # Landing Page -> Log In Page
     clickButton(driver, "Sign In")
-    
+    pause()
     # Test Case: empty Input Field
     clickContinue(driver)
     clickOk(driver)
@@ -55,30 +56,17 @@ def main():
     # Customer Action
     customerSignIn(driver, testCounter)
     pause()
-    
-    testSearchBar(driver, searchItem)
-    changeQuantity(driver, 10)
-    clickButton(driver, "Add To Cart")
-    clickOk(driver)
-    
-    clickAllCategories(driver)
-    pause()
-    testEditProfile(driver)
-    pause()
-    clickLogo(driver)
-    
-    # Test Case: Check Out Address out or range
-    testOrderOutOfRange(driver)
-    
-    # Test Case successfully checkout order
+
+    # Test Search bar and Case successfully checkout order
     testCreateOrder(driver)
     pause()
     clickLogo(driver)
+    testOrderOutOfRange(driver)
     signOut(driver)
     
     # Add more order
     customerSignIn(driver, testCounter - 1)
-
+    
     addMoreOrders(driver)
     clickLogo(driver)
     signOut(driver)
@@ -89,6 +77,7 @@ def main():
     clickCustomerView(driver)
     clickAllCategories(driver)
     clickEmployeeView(driver)
+    
     # Test Add Product
     scrollPage(driver, PAUSE_TIME)
     testAddProduct(driver)
@@ -116,7 +105,6 @@ def main():
     signOut(driver)
     
     # Test Employee action
-    
     testEmployeeEmail = "Employee" + str(testCounter) + "@employee.com"
     pause()
     signIn(driver, testEmployeeEmail, "P@$$w0rd")
@@ -143,6 +131,9 @@ def main():
     
     scrollPage(driver, PAUSE_TIME)
     pause()
+    
+    clickOrders(driver)
+    scrollPage(driver, PAUSE_TIME)
     
     # removeEmployee(driver, testCounter) not work yet
     signOut(driver)
@@ -261,12 +252,10 @@ def addMoreOrders(driver):
     payment7 = ["Test Card One", "3321 567898 65678", "02/26", "1234", "95112"]
     address8 = ["325 Willow St", "", "San Jose", "CA", "95110"]
     payment8 = ["Test Card Two", "4321 5678 1234 5678", "02/29", "123", "93212"]
-    address9 = ["87 N San Pedro St", "", "San Jose", "CA", "95110"]
+    address9 = ["515 S 10th St", "", "San Jose", "CA", "95112"]
     payment9 = ["Test Card", "4321 5678 1234 5678", "02/26", "123", "95112"]
-    address10 = ["111 W Alma Ave", "", "San Jose", "CA", "95110"] 
+    address10 = ["360 E Reed St", "", "San Jose", "CA", "95112"] 
     payment10 = ["Test Card One", "3321 567898 65678", "02/26", "1234", "95112"]
-    address11 = ["325 Willow St", "", "San Jose", "CA", "95110"]
-    payment11 = ["Test Card Two", "4321 5678 1234 5678", "02/29", "123", "93212"]
     
     clickButton(driver, "Fruits")
     addToCart(driver, "Orange", 3)
@@ -293,6 +282,29 @@ def addMoreOrders(driver):
     addToCart(driver, "Potatoes", 1)
     addToCart(driver, "Chicken Breast", 1)
     checkOut(driver, address5, payment5)
+    
+    clickButton(driver, "Fruits")
+    addToCart(driver, "Orange", 3)
+    addToCart(driver, "Salmon Fillet", 2)
+    checkOut(driver, address6, payment6)
+    
+    addToCart(driver, "Salmon Fillet", 3)
+    addToCart(driver, "Pasta", 1)
+    checkOut(driver, address7, payment7)
+    
+    addToCart(driver, "Brown Eggs", 3)
+    addToCart(driver, "Onions", 1)
+    addToCart(driver, "Bell Peppers", 1)
+    checkOut(driver, address8, payment8)
+    
+    addToCart(driver, "Green Beans", 2)
+    addToCart(driver, "Pork Chop", 2)
+    checkOut(driver, address9, payment9)
+    
+    addToCart(driver, "Milk", 2)
+    addToCart(driver, "Pasta", 1)
+    checkOut(driver, address10, payment10)
+    
 
 def testEditProfile(driver):
     '''Customer Edit Name'''
