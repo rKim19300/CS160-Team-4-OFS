@@ -7,10 +7,10 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 URL = "http://localhost:3000"
-PAUSE_TIME = 1
+PAUSE_TIME = 2
 
 def main():
-    testCounter = 60
+    testCounter = 100
     itemToRemove = "Apple"
     searchItem = "Orange"
     # Create WebDriver instance
@@ -261,6 +261,12 @@ def addMoreOrders(driver):
     payment7 = ["Test Card One", "3321 567898 65678", "02/26", "1234", "95112"]
     address8 = ["325 Willow St", "", "San Jose", "CA", "95110"]
     payment8 = ["Test Card Two", "4321 5678 1234 5678", "02/29", "123", "93212"]
+    address9 = ["87 N San Pedro St", "", "San Jose", "CA", "95110"]
+    payment9 = ["Test Card", "4321 5678 1234 5678", "02/26", "123", "95112"]
+    address10 = ["111 W Alma Ave", "", "San Jose", "CA", "95110"] 
+    payment10 = ["Test Card One", "3321 567898 65678", "02/26", "1234", "95112"]
+    address11 = ["325 Willow St", "", "San Jose", "CA", "95110"]
+    payment11 = ["Test Card Two", "4321 5678 1234 5678", "02/29", "123", "93212"]
     
     clickButton(driver, "Fruits")
     addToCart(driver, "Orange", 3)
