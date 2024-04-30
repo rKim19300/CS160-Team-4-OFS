@@ -57,11 +57,11 @@ export default function SideBarCustomer({
             </Button>
           </Link>
         ))}
-        <Link to="/customer/Buy%20It%20Again">
+        {/* <Link to="/customer/Buy%20It%20Again">
           <Button className={styles.productButton} variant="ghost">
             Buy It Again
           </Button>
-        </Link>
+        </Link> */}
 
         <Link to="orders">
           <Button variant="ghost" onClick={() => handleSpecialView("orders")}>
