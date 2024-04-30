@@ -119,6 +119,7 @@ export default function ProductPage() {
                 defaultValue={1}
                 min={1}
                 max={productInfo.quantity}
+                clampValueOnBlur={false}
               >
                 <NumberInputField ref={quantityRef} />
                 <NumberInputStepper>

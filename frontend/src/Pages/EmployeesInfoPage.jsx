@@ -62,9 +62,7 @@ export default function Employees() {
     async function fetchData() {
       try {
           let response = await axiosInstance.get(`/api/employees`);
-          console.log(response);
           let data = response.data;
-          console.log(data);
           if (response.status !== 200) {
               setErrMsg(data);
               return;
@@ -236,7 +234,6 @@ function EmployeeGridCard({ employee, fetchData, reset }) {
                         let response = await axiosInstance.post(`/api/removeEmployee`, {
                           user_id: employee.user_id
                         });
-                        console.log(response);
                         if (response.status !== 200) {
                             return;
                         }

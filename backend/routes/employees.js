@@ -17,7 +17,6 @@ router.get("/employees", checkIsManager, async (req, res) => {
 router.post('/removeEmployee', checkIsManager, async (req, res) => {
     try { 
         let { user_id } = req.body;
-        console.log(user_id);
         await DB.remove_user_by_id(user_id);
         return res.status(200).send("Employee removal successful");
     }

@@ -32,7 +32,7 @@ router.post('/getRobotOrders', checkIsStaff, async (req, res) => {
 
 		let route = await DB.get_route(robot_id); // Get robot's route
 		if (route === undefined) {
-			res.status(400).send("No route to get orders from");
+			res.status(200).send([]);
 			return;
 		}
 

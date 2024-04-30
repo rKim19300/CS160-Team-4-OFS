@@ -66,8 +66,6 @@ export default function Analytics() {
                 console.error(`Failed to get ${dataNames[i]} data`);
                 return;
             }
-            
-            console.log(res.data);
 
             // Process the response data
             let data = await processData(res.data, dataNames[i]);

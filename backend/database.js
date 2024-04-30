@@ -100,7 +100,6 @@ function setup_tables() {
           route_id        INTEGER, /* Fill on order placed */
           latitude        TEXT NOT NULL,
           longitude       TEXT NOT NULL,
-          weight          REAL DEFAULT 0 NOT NULL,
           status          INTEGER DEFAULT 0 NOT NULL, 
           FOREIGN KEY (route_id) REFERENCES Delivery_routes(route_id)
         );
@@ -121,7 +120,7 @@ function setup_tables() {
           eta             TEXT, /* Fill on route start */
           leg             INTEGER, /* Fill on route start */
           FOREIGN KEY (route_id) REFERENCES Delivery_routes(route_id),
-          FOREIGN KEY (order_id) REFERENCES Categories(order_id),
+          FOREIGN KEY (order_id) REFERENCES Orders(order_id),
           UNIQUE (route_id, order_id)
         );
     `,
@@ -281,6 +280,15 @@ class DB {
     static async get_cart_item_quantity(cart_id, product_id) {
         let q = await db.query("SELECT quantity FROM Cart_items WHERE cart_id = ? AND product_id = ?", [cart_id, product_id]);
         return q.length > 0 ? parseInt(q[0]["quantity"]) : 0;
+    }
+
+    static async get_cart_summary(cart_id) {
+        let cartWeight = await this.get_cart_weight(cart_id);
+        let subtotal_cost = Math.round((await this.get_cart_subtotal_cost(cart_id)) * 100) / 100;
+        let deliveryFee = cartWeight < 20 ? 0 : 10;
+        let taxAmount = Math.round(subtotal_cost) / 100;
+        let ordered_at = await this.get_current_time(); 
+        return { cartWeight, subtotal_cost, deliveryFee, taxAmount, ordered_at };
     }
 
     ///////
@@ -551,7 +559,7 @@ class DB {
         // Get the route weight, number of orders, and time since creation
         let wno = await this.get_route_weight_and_order_num(route.route_id);
         let hours_past = await this.hours_since_route_creation(route.route_id);
-        console.log(`Total hours past = ${hours_past}`);
+
         return ((wno.total_weight === 200) || (wno.order_num === 10) || hours_past >= 2);
     }
         

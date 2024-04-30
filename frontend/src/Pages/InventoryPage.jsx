@@ -126,7 +126,7 @@ export default function Inventory() {
             Add Product
         </Button>
         </Link>
-        <Heading align="left">Unavailable Products</Heading>
+        <Heading align="left" paddingTop="32px">Unavailable Products</Heading>
         <TableContainer>
             <Table variant='striped'>
                 <TableCaption>Items Unavailable For Sale</TableCaption>
