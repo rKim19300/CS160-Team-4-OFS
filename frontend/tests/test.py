@@ -9,14 +9,15 @@ import time
 URL = "http://localhost:3000"
 PAUSE_TIME = 2
 
-
 def main():
-    testCounter = 6
+    testCounter = 5
     itemToRemove = "Apple"
+    searchItem = "Orange"
     # Create WebDriver instance
     service = Service(executable_path="./chromedriver.exe")
     driver = webdriver.Chrome(service=service)
     driver.get(URL)
+    pause()
     scrollPage(driver, PAUSE_TIME)
     
     # Landing Page -> Log In Page
@@ -51,13 +52,25 @@ def main():
     createTestAccount(driver, testCounter)
     pause()
     
+    # Customer Action
     customerSignIn(driver, testCounter)
+    pause()
+    
+    testSearchBar(driver, searchItem)
+    # clickButton(driver, item)
+    changeQuantity(driver, 10)
+    clickButton(driver, "Add To Cart")
+    clickOk(driver)
     clickAllCategories(driver)
     pause()
     testEditProfile(driver)
     pause()
     clickLogo(driver)
+    
+    # Test Case: Check Out Address out or range
     testOrderOutOfRange(driver)
+    
+    # Test Case successfully checkout order
     testCreateOrder(driver)
     pause()
     clickLogo(driver)
@@ -65,8 +78,8 @@ def main():
     
     # Add more order
     customerSignIn(driver, testCounter - 1)
-    testCreateOrder1(driver)
-    add5Orders(driver)
+
+    addMoreOrders(driver)
     clickLogo(driver)
     signOut(driver)
     
@@ -83,26 +96,12 @@ def main():
     # Test Remove Product
     clickInventory(driver)
     removeProduct(driver, itemToRemove)
-
-    pause()
-    clickStore(driver)
     pause()
     
-    clickOrders(driver)
-    clickMap(driver)
-    clickButtonByText(driver, "Show Orders")
-    
-    pause()
-    clickButtonByText(driver, "Show Robot2")
-    pause()
-    clickButtonByText(driver, "Show Robot1")
-    pause()
-    clickButton(driver, "Send Orders")
-    pause()
-    pause()
     clickStore(driver)
     pause()
     clickAnalytics(driver)
+    
     # Add click Analytics details
     clickButton(driver, "Year")
     clickButton(driver, "Month")
@@ -112,7 +111,34 @@ def main():
     addEmployeeButton(driver)
     testAddEmployee(driver, testCounter)
     pause()
-    # removeEmployee(driver, testCounter)
+    signOut(driver)
+    
+    # Test Employee action
+    
+    testEmployeeEmail = "Employee" + str(testCounter) + "@employee.com"
+    pause()
+    signIn(driver, testEmployeeEmail, "P@$$w0rd")
+    clickCustomerView(driver)
+    scrollPage(driver)
+    # clickAllCategories(driver)
+    clickEmployeeView(driver)
+    clickStore(driver)
+    pause()
+    
+    clickOrders(driver)
+    clickMap(driver)
+    clickButtonByText(driver, "Show Orders")
+    pause()
+    
+    clickButtonByText(driver, "Show Robot1")
+    pause()
+    clickButtonByText(driver, "Show Robot2")
+    pause()
+    clickButton(driver, "Send Orders")
+    pause()
+    scrollPage(driver, PAUSE_TIME)
+
+    # removeEmployee(driver, testCounter) not work yet
     signOut(driver)
     pause()
     driver.quit()
@@ -187,10 +213,10 @@ def fillProductDetails(driver, product_name, price, weight, quantity):
     fillProductPrice(driver, price)
     fillProductWeight(driver, weight)
     fillProductQuantity(driver, quantity)
-
     
 """Test Customer Action"""
 def testOrderOutOfRange(driver):
+    '''Test Case location Out Of Range'''
     addToCart(driver, "Pasta", 1)
     # payment = ["Test Card One", "3321 567898 65678", "02/26", "1234", "95112"]
     address = ["39035 Fremont Hub", "", "Fremont", "CA", "94538"] # invalid address
@@ -202,18 +228,25 @@ def testOrderOutOfRange(driver):
     clickOkay(driver)
     clickLogo(driver)
     
-def add5Orders(driver):
-    '''CheckOut 5 orders'''
+def addMoreOrders(driver):
+    '''CheckOut multiple orders'''
+    address0 = ["1 Washington St", "", "Santa Clara", "CA", "95050"]
+    payment0 = ["Test Card", "4321 5678 1234 5678", "02/26", "123", "95112"]
     address1 = ["777 Story Rd", "", "San Jose", "CA", "95122"]
     payment1 = ["Test Card One", "3321 567898 65678", "02/26", "1234", "95112"]
     address2 = ["1750 Story Rd", "", "San Jose", "CA", "95122"]
     payment2 = ["Test Card Two", "4321 5678 1234 5678", "02/29", "123", "93212"]
-    address3 = ["535 N 5th St", "", "San Jose", "CA", "95112"] #, , CA 
+    address3 = ["535 N 5th St", "", "San Jose", "CA", "95112"]
     payment3 = ["Test Card Three", "5321 5678 1234 5678", "02/27", "123", "92148"]
     address4 = ["5095 Almaden Expy", "", "San Jose", "CA", "95118"]
     payment4 = ["Test Card Four", "4321 5678 1234 5678", "02/26", "123", "95123"]
     address5 = ["2200 Eastridge Loop", "Suite 1103", "San Jose", "CA", "95122"]
     payment5 = ["Test Card Five", "4321 5678 1234 5678", "02/28", "123", "95111"]
+    
+    clickButton(driver, "Fruits")
+    addToCart(driver, "Orange", 3)
+    addToCart(driver, "Salmon Fillet", 2)
+    checkOut(driver, address0, payment0)
     
     addToCart(driver, "Salmon Fillet", 3)
     addToCart(driver, "Pasta", 1)
@@ -244,17 +277,12 @@ def testEditProfile(driver):
 
 def testCreateOrder(driver):
     '''Successfully create a test Order'''
+    address = ["400 S Third St", "", "San Jose", "CA", "95112"]
+    payment = ["Test Card Two", "4321 5678 1234 5678", "02/29", "123", "93212"]
     clickButton(driver, "Meat")
     addToCart(driver, "Beef", 3)
     addToCart(driver, "Milk", 1)
-    checkOut1(driver)
-    
-def testCreateOrder1(driver):
-    '''Successfully create a test Order'''
-    clickButton(driver, "Fruits")
-    addToCart(driver, "Orange", 3)
-    addToCart(driver, "Salmon Fillet", 2)
-    checkOut1(driver)
+    checkOut(driver, address, payment)
     
 def checkOut(driver, address, payment):
     '''Check Out an Order in Cart'''
@@ -271,19 +299,13 @@ def checkOut(driver, address, payment):
     pause()
     clickLogo(driver)
     
-def checkOut1(driver):
-    '''Check Out an Order in Cart'''
-    address = ["1 Washington St", "", "Santa Clara", "CA", "95050"]
-    payment = ["Test Card", "4321 5678 1234 5678", "02/26", "123", "95112"]
-    checkOut(driver, address, payment)
-    
 def fillInPayment(driver, cardName, cardNo, exp, cvv, zipcode):
+    '''Fill in payment information'''
     fillNameOnCard(driver, cardName)
     fillCardNumber(driver, cardNo)
     fillExpiryDate(driver, exp)
     fillCVV(driver, cvv)
     fillZipCode(driver, zipcode)
-    
     
 def fillDeliveryInfo(driver, address1, address2, city, state, zipcode):
     '''Fill in delivery information'''
@@ -293,7 +315,6 @@ def fillDeliveryInfo(driver, address1, address2, city, state, zipcode):
     fillState(driver, state)
     fillZipCode(driver, zipcode)
 
-    
 def addToCart(driver, item, amount):
     '''Add item To Cart'''
     clickButton(driver, item)
@@ -363,48 +384,6 @@ def createTestAccount(driver, testCounter):
     clickSubmit(driver)
     clickOk(driver)
     
-"""Find checkbox and click"""
-
-def clickCheckbox(driver, value):
-    '''Find and click a checkbox by its value'''
-    checkbox = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, f"//input[@value='{value}']"))
-    )
-    pause()
-    checkbox.click()
-
-def clickDairyAndEggsCheckbox(driver):
-    '''Find and click the Dairy & Eggs checkbox'''
-    clickCheckbox(driver, "Dairy & Eggs")
-
-def clickVegetablesCheckbox(driver):
-    '''Find and click the Vegetables checkbox'''
-    clickCheckbox(driver, "Vegetables")
-
-def clickFruitsCheckbox(driver):
-    '''Find and click the Fruits checkbox'''
-    clickCheckbox(driver, "Fruits")
-
-def clickMeatCheckbox(driver):
-    '''Find and click the Meat checkbox'''
-    clickCheckbox(driver, "Meat")
-
-def clickSeafoodCheckbox(driver):
-    '''Find and click the Seafood checkbox'''
-    clickCheckbox(driver, "Seafood")
-
-def clickProteinCheckbox(driver):
-    '''Find and click the Protein checkbox'''
-    clickCheckbox(driver, "Protein")
-
-def clickSnacksAndCandyCheckbox(driver):
-    '''Find and click the Snacks & Candy checkbox'''
-    clickCheckbox(driver, "Snacks & Candy")
-
-def clickFrozenCheckbox(driver):
-    '''Find and click the Frozen checkbox'''
-    clickCheckbox(driver, "Frozen")
-
 """Find and click Buttons"""
 
 def clickLogo(driver):
@@ -655,6 +634,48 @@ def fillInputByLabel(driver, label, value):
     input_field.send_keys(Keys.DELETE)
     input_field.send_keys(value)
 
+"""Find checkbox and click"""
+
+def clickCheckbox(driver, value):
+    '''Find and click a checkbox by its value'''
+    checkbox = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, f"//input[@value='{value}']"))
+    )
+    pause()
+    checkbox.click()
+
+def clickDairyAndEggsCheckbox(driver):
+    '''Find and click the Dairy & Eggs checkbox'''
+    clickCheckbox(driver, "Dairy & Eggs")
+
+def clickVegetablesCheckbox(driver):
+    '''Find and click the Vegetables checkbox'''
+    clickCheckbox(driver, "Vegetables")
+
+def clickFruitsCheckbox(driver):
+    '''Find and click the Fruits checkbox'''
+    clickCheckbox(driver, "Fruits")
+
+def clickMeatCheckbox(driver):
+    '''Find and click the Meat checkbox'''
+    clickCheckbox(driver, "Meat")
+
+def clickSeafoodCheckbox(driver):
+    '''Find and click the Seafood checkbox'''
+    clickCheckbox(driver, "Seafood")
+
+def clickProteinCheckbox(driver):
+    '''Find and click the Protein checkbox'''
+    clickCheckbox(driver, "Protein")
+
+def clickSnacksAndCandyCheckbox(driver):
+    '''Find and click the Snacks & Candy checkbox'''
+    clickCheckbox(driver, "Snacks & Candy")
+
+def clickFrozenCheckbox(driver):
+    '''Find and click the Frozen checkbox'''
+    clickCheckbox(driver, "Frozen")
+
 def scrollPage(driver, duration):
     # Get the initial scroll position
     last_scroll_position = driver.execute_script("return document.body.scrollHeight")
@@ -684,7 +705,15 @@ def scrollPage(driver, duration):
     
     # Scroll back up to the top of the page
     driver.execute_script("window.scrollTo(0, 0);")
-
+    
+def testSearchBar(driver, itemName):
+    ''' Use Search bar to find the given itemName'''
+    wait = WebDriverWait(driver, 10)
+    searchBar = wait.until(EC.visibility_of_element_located((By.ID, "react-select-3-input")))
+    searchBar.send_keys(itemName)
+    pause()
+    searchBar.send_keys(Keys.ENTER)
+    
 def pause():
     time.sleep(PAUSE_TIME)
     
