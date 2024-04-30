@@ -56,3 +56,8 @@ Below are the credentials for the two `manager` accounts (doesn't matter which o
 * email: `johndoe@gmail.com`, password: `password`
 
 > When you create an account through the signup page, you are making a `customer` account. Only `managers` can create `employee` accounts through their private dashboard
+
+
+## Demo
+
+[https://drive.google.com/file/d/1m7qFAKbfneDhALq54WVmTPY3VvbCT7Ev/view?usp=sharing](https://drive.google.com/file/d/1m7qFAKbfneDhALq54WVmTPY3VvbCT7Ev/view?usp=sharing)
