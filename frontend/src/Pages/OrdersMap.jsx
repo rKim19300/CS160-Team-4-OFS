@@ -168,7 +168,6 @@ export default function OrdersMap() {
 
     const fetchRobotOrders = async () => {
         try {
-            console.log(`Robot 1 ID ${robot1.robot_id}`);
             let response1 = await axiosInstance.post('/api/getRobotOrders', {
                 robot_id: robot1.robot_id
             });
@@ -182,8 +181,6 @@ export default function OrdersMap() {
             (response2.status !== 200) ?
                console.error("something went wrong when fetching robot2's orders") :
                 setRobot2Orders(response2.data);
-            console.log(robot1Orders);
-            console.log(`Robot orders 2 ${robot2Orders}`);
         }
         catch (err) {
             console.error(err);
@@ -386,7 +383,7 @@ export default function OrdersMap() {
                         <Tbody>
                             {specifiedOrders && specifiedOrders.map((order, idx) => {
                                 return (
-                                    <Tr>
+                                    <Tr key={idx}>
                                         <Td>{ order.order_id }</Td>
                                         <Td>${ order.cost.toFixed(2) }</Td>
                                         <Td>{ order.weight }</Td>
