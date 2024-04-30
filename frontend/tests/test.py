@@ -7,10 +7,10 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 URL = "http://localhost:3000"
-PAUSE_TIME = 2
+PAUSE_TIME = 1
 
 def main():
-    testCounter = 1
+    testCounter = 60
     itemToRemove = "Apple"
     searchItem = "Orange"
     # Create WebDriver instance
@@ -225,7 +225,7 @@ def testOrderOutOfRange(driver):
     '''Test Case location Out Of Range'''
     
     testSearchBar(driver, "Milk")
-    changeQuantity(driver, 10)
+    changeQuantity(driver, 1)
     clickButton(driver, "Add To Cart")
     clickOk(driver)
     
@@ -242,7 +242,7 @@ def testOrderOutOfRange(driver):
     
 def addMoreOrders(driver):
     '''CheckOut multiple orders'''
-    address0 = ["1 Washington St", "", "Santa Clara", "CA", "95050"]
+    address0 = ["140 E San Carlos St", "", "San Jose", "CA", "95112"]
     payment0 = ["Test Card", "4321 5678 1234 5678", "02/26", "123", "95112"]
     address1 = ["777 Story Rd", "", "San Jose", "CA", "95122"]
     payment1 = ["Test Card One", "3321 567898 65678", "02/26", "1234", "95112"]
@@ -254,6 +254,13 @@ def addMoreOrders(driver):
     payment4 = ["Test Card Four", "4321 5678 1234 5678", "02/26", "123", "95123"]
     address5 = ["2200 Eastridge Loop", "Suite 1103", "San Jose", "CA", "95122"]
     payment5 = ["Test Card Five", "4321 5678 1234 5678", "02/28", "123", "95111"]
+    
+    address6 = ["87 N San Pedro St", "", "San Jose", "CA", "95110"]
+    payment6 = ["Test Card", "4321 5678 1234 5678", "02/26", "123", "95112"]
+    address7 = ["111 W Alma Ave", "", "San Jose", "CA", "95110"] 
+    payment7 = ["Test Card One", "3321 567898 65678", "02/26", "1234", "95112"]
+    address8 = ["325 Willow St", "", "San Jose", "CA", "95110"]
+    payment8 = ["Test Card Two", "4321 5678 1234 5678", "02/29", "123", "93212"]
     
     clickButton(driver, "Fruits")
     addToCart(driver, "Orange", 3)
