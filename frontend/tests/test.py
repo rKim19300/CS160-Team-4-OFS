@@ -7,11 +7,11 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 URL = "http://localhost:3000"
-PAUSE_TIME = 1
+PAUSE_TIME = 2
 
 def main():
-    testCounter = 10
-    itemToRemove = "Orange"
+    testCounter = 1
+    itemToRemove = "Apple"
     searchItem = "Orange"
     # Create WebDriver instance
     service = Service(executable_path="./chromedriver.exe")
