@@ -7,11 +7,11 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 URL = "http://localhost:3000"
-PAUSE_TIME = 2
+PAUSE_TIME = 1
 
 def main():
-    testCounter = 5
-    itemToRemove = "Apple"
+    testCounter = 10
+    itemToRemove = "Orange"
     searchItem = "Orange"
     # Create WebDriver instance
     service = Service(executable_path="./chromedriver.exe")
@@ -57,10 +57,10 @@ def main():
     pause()
     
     testSearchBar(driver, searchItem)
-    # clickButton(driver, item)
     changeQuantity(driver, 10)
     clickButton(driver, "Add To Cart")
     clickOk(driver)
+    
     clickAllCategories(driver)
     pause()
     testEditProfile(driver)
@@ -95,8 +95,10 @@ def main():
     
     # Test Remove Product
     clickInventory(driver)
+    pause()
     removeProduct(driver, itemToRemove)
     pause()
+    scrollPage(driver, PAUSE_TIME)
     
     clickStore(driver)
     pause()
@@ -119,25 +121,29 @@ def main():
     pause()
     signIn(driver, testEmployeeEmail, "P@$$w0rd")
     clickCustomerView(driver)
-    scrollPage(driver)
+    scrollPage(driver, PAUSE_TIME)
+    
     # clickAllCategories(driver)
     clickEmployeeView(driver)
-    clickStore(driver)
-    pause()
     
     clickOrders(driver)
     clickMap(driver)
+    
     clickButtonByText(driver, "Show Orders")
     pause()
     
     clickButtonByText(driver, "Show Robot1")
     pause()
+    scrollPage(driver, PAUSE_TIME)
+    
     clickButtonByText(driver, "Show Robot2")
     pause()
     clickButton(driver, "Send Orders")
     pause()
+    
     scrollPage(driver, PAUSE_TIME)
-
+    pause()
+    
     # removeEmployee(driver, testCounter) not work yet
     signOut(driver)
     pause()
@@ -155,27 +161,6 @@ def addEmployeeButton(driver):
     '''Find and click the "+" button'''
     button = driver.find_element(By.CLASS_NAME, 'chakra-icon.css-onkibi')
     button.click()
-    
-# def removeEmployee(driver, employeeId):
-#     '''Find and remove an employee by ID'''
-#     try:
-#         # Find the employee ID element
-#         employeeIdElement = WebDriverWait(driver, 10).until(
-#             EC.visibility_of_element_located((By.XPATH, f"//div[contains(text(), 'ID #{employeeId}')]"))
-#         )
-#         # Find the dropdown button using the provided class
-#         dropdownButton = employeeIdElement.find_element(By.CLASS_NAME, "css-26wy9z")
-#         # Click the dropdown button
-#         dropdownButton.click()
-        
-#         # Find and click the "Remove" option
-#         removeOption = WebDriverWait(driver, 10).until(
-#             EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Remove')]"))
-#         )
-#         removeOption.click()
-#         print(f"Employee with ID #{employeeId} has been removed successfully.")
-#     except:
-#         print(f"Employee with ID #{employeeId} was not found.")
         
 def testAddProduct(driver):
     '''Create a few product and add to inventory'''
@@ -214,9 +199,36 @@ def fillProductDetails(driver, product_name, price, weight, quantity):
     fillProductWeight(driver, weight)
     fillProductQuantity(driver, quantity)
     
+# def removeEmployee(driver, employeeId):
+#     '''Find and remove an employee by ID'''
+#     try:
+#         # Find the employee ID element
+#         employeeIdElement = WebDriverWait(driver, 10).until(
+#             EC.visibility_of_element_located((By.XPATH, f"//div[contains(text(), 'ID #{employeeId}')]"))
+#         )
+#         # Find the dropdown button using the provided class
+#         dropdownButton = employeeIdElement.find_element(By.CLASS_NAME, "css-26wy9z")
+#         # Click the dropdown button
+#         dropdownButton.click()
+        
+#         # Find and click the "Remove" option
+#         removeOption = WebDriverWait(driver, 10).until(
+#             EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Remove')]"))
+#         )
+#         removeOption.click()
+#         print(f"Employee with ID #{employeeId} has been removed successfully.")
+#     except:
+#         print(f"Employee with ID #{employeeId} was not found.")
+
 """Test Customer Action"""
 def testOrderOutOfRange(driver):
     '''Test Case location Out Of Range'''
+    
+    testSearchBar(driver, "Milk")
+    changeQuantity(driver, 10)
+    clickButton(driver, "Add To Cart")
+    clickOk(driver)
+    
     addToCart(driver, "Pasta", 1)
     # payment = ["Test Card One", "3321 567898 65678", "02/26", "1234", "95112"]
     address = ["39035 Fremont Hub", "", "Fremont", "CA", "94538"] # invalid address
