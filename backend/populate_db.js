@@ -14,7 +14,7 @@ async function addProducts() {
         "Our apples offer a delightful blend of crispness and sweetness, making them perfect for snacking or enhancing your favorite recipes",
         "https://static.wikia.nocookie.net/the-snack-encyclopedia/images/7/7d/Apple.png",
         0.5,
-        1.2,
+        100,//1.2,
         50
     );
     await DB.add_new_product(

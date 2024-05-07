@@ -91,7 +91,7 @@ app.set('staffIO', io); // TODO register staffIO with session middlware
 })();
 
 // Create a thread that assigns routes to robots
-const fiveSeconds = 5000;
+const fiveSeconds = 500;
 setInterval(async () => {
 
   // Query the database for the robots and routes

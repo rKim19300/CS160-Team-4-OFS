@@ -99,7 +99,8 @@ router.post('/sendRobot', checkIsStaff, async (req, res) => {
 		res.status(200).json();
 	}
 	catch (err) {
-		res.status(500).json("Something went wrong on our end, please try again later.");
+		// res.status(500).json("Something went wrong on our end, please try again later.");
+		res.status(500).json(`${err} + ${console.trace()}`);
 		console.error(`ERROR WHEN SENDING ROBOTS: ${err}`);
 	}
 });
