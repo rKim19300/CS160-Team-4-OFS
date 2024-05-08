@@ -108,26 +108,34 @@ export default function OrdersMap() {
 
     // -- Data Calls --
     const sendRobot = async (robot_id) => {
+        try {
+            // Check on tab with robot
+            if (robot_id < 0) {
+                await setErrMsg("There is no robot to send out on this tab.");
+                await onOpen();
+                return;
+            }
 
-        // Check on tab with robot
-        if (robot_id < 0) {
-            await setErrMsg("There is no robot to send out on this tab.");
-            await onOpen();
-            return;
+            let response = await axiosInstance.post('/api/sendRobot', {
+                robot_id: robot_id
+            });
+
+            if (response.status !== 200) {
+                setErrMsg(response.data);
+                await onOpen();
+                return;
+            }
+            setDecodedPaths(response.data);
+
+            // Update orders info so that the order status update can be seen on the `Show Orders` tab
+            await fetchOrders();
         }
-
-        let response = await axiosInstance.post('/api/sendRobot', {
-            robot_id: robot_id
-        });
-
-        if (response.status !== 200) {
-            setErrMsg(response.data);
+        catch (err) {
+            setErrMsg(`Something went wrong on our end, please try again in 60 seconds. 
+                        If this issue persists after a few tries, please call tech support
+                        at 098-765-4321.`);
             await onOpen();
-            return;
         }
-        setDecodedPaths(response.data);
-        // Update orders info so that the order status update can be seen on the `Show Orders` tab
-        await fetchOrders();
     }
 
     // TODO Have this function update the polylines
@@ -465,7 +473,7 @@ export default function OrdersMap() {
                         </Box>
                         <Spacer/>
                         <Box>
-                            Go To:
+                            Pan To:
                         </Box>
                         <Box>
                             <Button 
@@ -476,27 +484,24 @@ export default function OrdersMap() {
                                 Store
                             </Button>
                         </Box>
+                        {currentRobot.robot_id !== -1 && 
                         <Box>
                             <Button 
-                                label={"Robot1"} 
+                                label={"Robot"} 
                                 onClick={() => {
-                                    map.panTo({lat: robot1.latitude, lng: robot1.longitude});
-                                    setCenter({lat: robot1.latitude, lng: robot1.longitude});
+                                    if (currentRobot.robot_id === robot1.robot_id) {
+                                        map.panTo({lat: robot1.latitude, lng: robot1.longitude});
+                                        setCenter({lat: robot1.latitude, lng: robot1.longitude});
+                                    }
+                                    else {
+                                        map.panTo({lat: robot2.latitude, lng: robot2.longitude});
+                                        setCenter({lat: robot2.latitude, lng: robot2.longitude});
+                                    }
                                     }}
                             >
-                                Robot1
+                                Robot
                             </Button>
-                        </Box>  
-                        <Box>
-                            <Button 
-                                onClick={() => {
-                                    map.panTo({lat: robot2.latitude, lng: robot2.longitude});
-                                    setCenter({lat: robot2.latitude, lng: robot2.longitude});
-                                    }}
-                            >
-                                Robot2
-                            </Button>
-                        </Box>
+                        </Box>}  
                     </HStack>
                 </Flex>
 

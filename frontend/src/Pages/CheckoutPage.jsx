@@ -209,7 +209,9 @@ function Step1Component({ handleNext }) {
     catch (err) {
       console.error(err.message);
       await setIsError(true);
-      setErrMsg("Oops! Something went wrong on our end, please try again in 60 seconds.");
+      setErrMsg(`Oops! Something went wrong on our end. Please try again in 60 seconds. 
+                  If this issue persists after a few attempts, please make us aware of the 
+                  issue at ofsdelivery@ofs.com.`);
       await onOpen();
       return;
     }

@@ -99,7 +99,9 @@ router.post('/sendRobot', checkIsStaff, async (req, res) => {
 		res.status(200).json();
 	}
 	catch (err) {
-		res.status(500).json("Something went wrong on our end, please try again later.");
+		res.status(500).json(`Something went wrong on our end, please try again in 60 seconds. 
+								If this issue persists after a few attempts, please call tech support
+								at 098-765-4321.`);
 		console.error(`ERROR WHEN SENDING ROBOTS: ${err}`);
 	}
 });
@@ -134,7 +136,9 @@ router.post(`/validateAddress`, async (req, res) => {
 		}); 
 	} catch (err) {
 		console.log(`ERROR WHEN VALIDATING ADDRESS ${err}`);
-		return res.status(500).json(`Oops! Something went wrong on our end. Try again in 60 seconds.`);
+		res.status(500).json(`Oops! Something went wrong on our end. Try again in 60 seconds. 
+										If the issue persists, please make us aware of the 
+										issue at ofsdelivery@ofs.com.`);
 	}
 });
 
