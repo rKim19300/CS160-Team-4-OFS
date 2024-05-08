@@ -31,11 +31,10 @@ import {
   AlertDialogFooter,
   AlertDialogOverlay,
   useDisclosure,
-  HStack
+  HStack,
 } from "@chakra-ui/react";
 import styles from "./CheckoutPage.module.css";
 import axiosInstance from "../axiosInstance";
-import NavBarCustomer from "../Components/NavBarCustomer";
 import {
   FaCartShopping,
   FaTrashCan,
@@ -54,7 +53,7 @@ const steps = [
 
 let addressInfo = {};
 let addressCoordinates = {};
-let streetAddress = '';
+let streetAddress = "";
 let paymentInfo = {};
 let orderItems = [];
 let orderTotal = {};
@@ -83,8 +82,8 @@ export default function CheckoutPage({ variant }) {
   const handleConfirm = async () => {
     console.log(streetAddress);
     let response = await axiosInstance.post("/api/placeOrder", {
-      "street_address": streetAddress,
-      "coordinates": addressCoordinates
+      street_address: streetAddress,
+      coordinates: addressCoordinates,
     });
     if (response.status !== 200) {
       setConfirmErr(response.data);
@@ -114,7 +113,7 @@ export default function CheckoutPage({ variant }) {
 
   return (
     <Flex className={styles.container}>
-      <NavBarCustomer />
+      <NavBar />
       <Flex className={styles.contentContainer}>
         <Stepper size="lg" colorScheme="green" index={activeStep}>
           {steps.map((step, index) => (
@@ -147,7 +146,7 @@ export default function CheckoutPage({ variant }) {
           )}
           {!isLastStep && !isConfirmationStep && (
             <Button
-              form={ activeStep === 0 ? "addressForm" : "paymentForm"}
+              form={activeStep === 0 ? "addressForm" : "paymentForm"}
               type="submit"
               // onClick={handleNext}
               className={styles.nextButton}
@@ -169,8 +168,12 @@ export default function CheckoutPage({ variant }) {
 }
 
 function Step1Component({ handleNext }) {
-  const [addressLine1, setAddressLine1] = useState(addressInfo["addressLine1"] || "");
-  const [addressLine2, setAddressLine2] = useState(addressInfo["addressLine2"] || "");
+  const [addressLine1, setAddressLine1] = useState(
+    addressInfo["addressLine1"] || ""
+  );
+  const [addressLine2, setAddressLine2] = useState(
+    addressInfo["addressLine2"] || ""
+  );
   const [city, setCity] = useState(addressInfo["city"] || "");
   const [state, setState] = useState(addressInfo["state"] || "");
   const [zipCode, setZipCode] = useState(addressInfo["zipCode"] || "");
@@ -179,34 +182,32 @@ function Step1Component({ handleNext }) {
   // Hooks for the alert dialogue
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = React.useRef();
-  const [ isError, setIsError ] = useState(true);
-  const [ address, setAddress ] = useState("");
+  const [isError, setIsError] = useState(true);
+  const [address, setAddress] = useState("");
 
   const submitForm = async (e) => {
     e.preventDefault();
 
     // Check if the address is valid
     try {
-      let response = await axiosInstance.post('/api/validateAddress', {
+      let response = await axiosInstance.post("/api/validateAddress", {
         addressLine1: addressLine1,
-        addressLine2: addressLine2, 
+        addressLine2: addressLine2,
         city: city,
         state: state,
-        zipCode: zipCode
+        zipCode: zipCode,
       });
       if (response.status != 200) {
         await setErrMsg(response.data);
         await setIsError(true);
         await onOpen();
         return;
-      }
-      else {
+      } else {
         setAddress(response.data.address);
         addressCoordinates = response.data.coordinates;
         streetAddress = response.data.address;
       }
-    }
-    catch (err) {
+    } catch (err) {
       console.error(err.message);
       await setIsError(true);
       setErrMsg(`Oops! Something went wrong on our end. Please try again in 60 seconds. 
@@ -216,14 +217,14 @@ function Step1Component({ handleNext }) {
       return;
     }
 
-    // set the addressInfo 
+    // set the addressInfo
     addressInfo = { addressLine1, addressLine2, city, state, zipCode };
 
     // set the "activeStep" state of the parent component by calling handleNext
     // If the user confirms their address
     await setIsError(false);
     await onOpen();
-  }
+  };
 
   return (
     <Flex className={styles.formContainer}>
@@ -235,26 +236,60 @@ function Step1Component({ handleNext }) {
       <form id="addressForm" onSubmit={submitForm}>
         <FormControl>
           <FormLabel className={styles.formText}>Address Line 1</FormLabel>
-          <Input type="text" fontSize="16px" required name="addressLine1" value={addressLine1} onChange={e => setAddressLine1(e.target.value)} />
+          <Input
+            type="text"
+            fontSize="16px"
+            required
+            name="addressLine1"
+            value={addressLine1}
+            onChange={(e) => setAddressLine1(e.target.value)}
+          />
 
           <FormLabel className={styles.formText}>Address Line 2</FormLabel>
-          <Input type="text" fontSize="16px" name="addressLine2" value={addressLine2} onChange={e => setAddressLine2(e.target.value)} />
+          <Input
+            type="text"
+            fontSize="16px"
+            name="addressLine2"
+            value={addressLine2}
+            onChange={(e) => setAddressLine2(e.target.value)}
+          />
         </FormControl>
 
         <Flex justifyContent="space-between" paddingTop="8px">
           <Flex flexDirection="column">
             <FormLabel className={styles.formText}>City</FormLabel>
-            <Input type="text" fontSize="16px" required name="city" value={city} onChange={e => setCity(e.target.value)} />
+            <Input
+              type="text"
+              fontSize="16px"
+              required
+              name="city"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+            />
           </Flex>
 
           <Flex flexDirection="column">
             <FormLabel className={styles.formText}>State</FormLabel>
-            <Input type="text" fontSize="16px" required name="state" value={state} onChange={e => setState(e.target.value)} />
+            <Input
+              type="text"
+              fontSize="16px"
+              required
+              name="state"
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+            />
           </Flex>
 
           <Flex flexDirection="column">
             <FormLabel className={styles.formText}>Zip Code</FormLabel>
-            <Input type="number" fontSize="16px" required name="zipCode" value={zipCode} onChange={e => setZipCode(e.target.value)} />
+            <Input
+              type="number"
+              fontSize="16px"
+              required
+              name="zipCode"
+              value={zipCode}
+              onChange={(e) => setZipCode(e.target.value)}
+            />
           </Flex>
         </Flex>
       </form>
@@ -263,42 +298,41 @@ function Step1Component({ handleNext }) {
         isOpen={isOpen}
         leastDestructiveRef={cancelRef}
         onClose={onClose}
-        isCentered={true} 
+        isCentered={true}
       >
         <AlertDialogOverlay>
           <AlertDialogContent>
-            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-              {(isError) ? "ERROR!" : "Address Confirmation"}
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              {isError ? "ERROR!" : "Address Confirmation"}
             </AlertDialogHeader>
             <AlertDialogBody>
-              {
-              (isError) ? 
-              errMsg
-              : 
-              <>
-              Please Confirm your address, 
-              a small mistake can change the intended location <br/><br/>
-                <Box fontWeight="bold">
-                  {address}
-                </Box>
-              </>
-              }
+              {isError ? (
+                errMsg
+              ) : (
+                <>
+                  Please Confirm your address, a small mistake can change the
+                  intended location <br />
+                  <br />
+                  <Box fontWeight="bold">{address}</Box>
+                </>
+              )}
             </AlertDialogBody>
 
             <AlertDialogFooter>
-              {(isError) ? <Button colorScheme='red' onClick={onClose} ml={3}>
-                              Okay
-                            </Button> 
-                            :
-                            <HStack>
-                              <Button colorScheme='green' onClick={handleNext}>
-                                Confirm
-                              </Button>
-                              <Button colorScheme='red' onClick={onClose}>
-                              Cancel
-                              </Button>
-                            </HStack>
-                            }
+              {isError ? (
+                <Button colorScheme="red" onClick={onClose} ml={3}>
+                  Okay
+                </Button>
+              ) : (
+                <HStack>
+                  <Button colorScheme="green" onClick={handleNext}>
+                    Confirm
+                  </Button>
+                  <Button colorScheme="red" onClick={onClose}>
+                    Cancel
+                  </Button>
+                </HStack>
+              )}
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialogOverlay>
@@ -327,22 +361,24 @@ function Step2Component({ handleNext }) {
     if (
       // card number checks
       (cardNumber.length == 15 && cardNumber[0] == 3) ||
-      (cardNumber.length == 16 && cardNumber[0] == 4 || cardNumber[0] == 5) &&
-      // exp date checks
-      (expYear > year) ||
-      (expYear == year && expMonth > month) &&
-      // cvv checks
-      (cvv.length == 3) &&
-      // zipcode checks
-      (zipCode.length == 5)
-    ){
-      paymentInfo = { nameOnCard, cardNumber, exp, cvv, zipCode }
+      (((cardNumber.length == 16 && cardNumber[0] == 4) ||
+        cardNumber[0] == 5) &&
+        // exp date checks
+        expYear > year) ||
+      (expYear == year &&
+        expMonth > month &&
+        // cvv checks
+        cvv.length == 3 &&
+        // zipcode checks
+        zipCode.length == 5)
+    ) {
+      paymentInfo = { nameOnCard, cardNumber, exp, cvv, zipCode };
       // update "activeStep" state in parent component
       handleNext();
     } else {
       alert("Invalid credit card information!");
     }
-  }
+  };
 
   return (
     <Flex className={styles.formContainer}>
@@ -353,26 +389,61 @@ function Step2Component({ handleNext }) {
       <form id="paymentForm" onSubmit={submitForm}>
         <FormControl>
           <FormLabel className={styles.formText}>Name on Card</FormLabel>
-          <Input type="text" fontSize="16px" required name="nameOnCard" value={nameOnCard} onChange={e => setNameOnCard(e.target.value)} />
+          <Input
+            type="text"
+            fontSize="16px"
+            required
+            name="nameOnCard"
+            value={nameOnCard}
+            onChange={(e) => setNameOnCard(e.target.value)}
+          />
 
           <FormLabel className={styles.formText}>Card Number</FormLabel>
-          <Input type="number" fontSize="16px" required name="cardNumber" value={cardNumber} onChange={e => setCardNumber(e.target.value)} />
+          <Input
+            type="number"
+            fontSize="16px"
+            required
+            name="cardNumber"
+            value={cardNumber}
+            onChange={(e) => setCardNumber(e.target.value)}
+          />
         </FormControl>
 
         <Flex justifyContent="space-between" paddingTop="8px">
           <Flex flexDirection="column">
             <FormLabel className={styles.formText}>Expiry Date</FormLabel>
-            <Input type="text" fontSize="16px" required name="exp" value={exp} onChange={e => setExp(e.target.value)} />
+            <Input
+              type="text"
+              fontSize="16px"
+              required
+              name="exp"
+              value={exp}
+              onChange={(e) => setExp(e.target.value)}
+            />
           </Flex>
 
           <Flex flexDirection="column">
             <FormLabel className={styles.formText}>CVV</FormLabel>
-            <Input type="number" fontSize="16px" required name="cvv" value={cvv} onChange={e => setCvv(e.target.value)} />
+            <Input
+              type="number"
+              fontSize="16px"
+              required
+              name="cvv"
+              value={cvv}
+              onChange={(e) => setCvv(e.target.value)}
+            />
           </Flex>
 
           <Flex flexDirection="column">
             <FormLabel className={styles.formText}>Zip Code</FormLabel>
-            <Input type="number" fontSize="16px" required name="zipCode" value={zipCode} onChange={e => setZipCode(e.target.value)} />
+            <Input
+              type="number"
+              fontSize="16px"
+              required
+              name="zipCode"
+              value={zipCode}
+              onChange={(e) => setZipCode(e.target.value)}
+            />
           </Flex>
         </Flex>
       </form>
@@ -527,6 +598,9 @@ function CartItem({ product, removeItemFromCart, modifyCartItemQuantity }) {
 function Step4Component() {
   return (
     <Flex className={styles.formContainer}>
+      <a href="/customer">
+        <Text className={styles.backText}>Back to Home</Text>
+      </a>
       <Flex alignItems="center" gap="12px">
         <Text className={styles.titleText} color="#ff914d">
           Order Confirmed!
@@ -553,7 +627,8 @@ function Step4Component() {
         taxAmount={orderTotal.taxAmount}
       />
       <Text className={styles.warningText}>
-        Paid by card ending in <span>{paymentInfo["cardNumber"].slice(-4)}</span>
+        Paid by card ending in{" "}
+        <span>{paymentInfo["cardNumber"].slice(-4)}</span>
       </Text>
     </Flex>
   );
@@ -603,5 +678,17 @@ function PriceSummary({ subtotal, deliveryFee, taxAmount }) {
         </Text>
       </Flex>
     </Flex>
+  );
+}
+
+function NavBar() {
+  return (
+    <>
+      <Flex className={styles.navBarContainer}>
+        <a href="/customer" className={styles.linkWrapper}>
+          <img className={styles.logoImg} src="/logo.png" />
+        </a>
+      </Flex>
+    </>
   );
 }
