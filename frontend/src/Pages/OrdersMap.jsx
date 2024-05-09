@@ -358,7 +358,7 @@ export default function OrdersMap() {
                                     <br />
                                     <span>Status: {NUM_TO_STATUS[order.status]}</span>
                                     <br />
-                                    <span>Weight: {order.weight} lbs</span>
+                                    <span>Weight: {order.weight.toFixed(2)} lbs</span>
                                     <br />
                                     <span>Cost: ${order.cost.toFixed(2)}</span>
                                 </div>
@@ -394,7 +394,7 @@ export default function OrdersMap() {
                                     <Tr key={idx}>
                                         <Td>{ order.order_id }</Td>
                                         <Td>${ order.cost.toFixed(2) }</Td>
-                                        <Td>{ order.weight }</Td>
+                                        <Td>{ order.weight.toFixed(2) }</Td>
                                         <Td>{ order.address }</Td>
                                         <Td>{ NUM_TO_STATUS[order.status] }</Td>
                                         <Td>{ order.created_at }</Td>

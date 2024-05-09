@@ -32,6 +32,10 @@ import {
   AlertDialogOverlay,
   useDisclosure,
   HStack,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from "@chakra-ui/react";
 import styles from "./CheckoutPage.module.css";
 import axiosInstance from "../axiosInstance";
@@ -43,6 +47,7 @@ import {
   FaCircleCheck,
 } from "react-icons/fa6";
 import { ErrorMessage } from "formik";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 
 const steps = [
   { title: "Delivery", description: "Enter Address" },
@@ -57,6 +62,10 @@ let streetAddress = "";
 let paymentInfo = {};
 let orderItems = [];
 let orderTotal = {};
+
+// vars to be used at payment input checks
+let month = new Date().getMonth();
+let year = new Date().getFullYear();
 
 export default function CheckoutPage({ variant }) {
   const { activeStep, setActiveStep } = useSteps({
@@ -344,14 +353,25 @@ function Step1Component({ handleNext }) {
 function Step2Component({ handleNext }) {
   const [nameOnCard, setNameOnCard] = useState(paymentInfo["nameOnCard"] || "");
   const [cardNumber, setCardNumber] = useState(paymentInfo["cardNumber"] || "");
-  const [exp, setExp] = useState(paymentInfo["exp"] || "");
   const [cvv, setCvv] = useState(paymentInfo["cvv"] || "");
   const [zipCode, setZipCode] = useState(paymentInfo["zipCode"] || "");
   const [errMsg, setErrMsg] = useState("");
 
-  // vars to be used at payment input checks
-  let month = new Date().getMonth();
-  let year = new Date().getFullYear();
+  let currDate;
+  let date = new Date();
+  let year = date.getFullYear();
+  // if(date.getMonth() < 10){
+  //   let month = "0" + date.getMonth();
+  // } else {
+  //   let month = date.getMonth();
+  // }
+  let month = date.getMonth() + 1;
+  if (month < 10) {
+    currDate = year + "-0" + month;
+  } else {
+    currDate = year + "-" + month;
+  }
+  console.log(currDate);
 
   const submitForm = (e) => {
     e.preventDefault();
@@ -407,20 +427,12 @@ A valid CVV number either has 3 or 4 digits`);
             name="cardNumber"
             value={cardNumber}
             onChange={(e) => setCardNumber(e.target.value)}
-          />
+          />  
         </FormControl>
 
-        <Flex justifyContent="space-between" paddingTop="8px">
-          <Flex flexDirection="column">
-            <FormLabel className={styles.formText}>Expiry Date</FormLabel>
-            <Input
-              type="text"
-              fontSize="16px"
-              required
-              name="exp"
-              value={exp}
-              onChange={(e) => setExp(e.target.value)}
-            />
+        <Flex alignItems="end" paddingTop="8px">
+          <Flex flexDirection="row">
+            <input type="month" min={currDate} required={true} ></input>
           </Flex>
 
           <Flex flexDirection="column">
@@ -446,7 +458,7 @@ A valid CVV number either has 3 or 4 digits`);
               onChange={(e) => setZipCode(e.target.value)}
             />
           </Flex>
-        </Flex>
+          </Flex>
       </form>
     </Flex>
   );
