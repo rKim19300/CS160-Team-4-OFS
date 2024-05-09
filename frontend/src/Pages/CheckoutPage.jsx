@@ -355,29 +355,30 @@ function Step2Component({ handleNext }) {
 
   const submitForm = (e) => {
     e.preventDefault();
-    let expYear = "20" + exp.split("/")[1];
-    let expMonth = exp.split("/")[0];
     // do payment input checks here
-    if (
-      // card number checks
-      (cardNumber.length == 15 && cardNumber[0] == 3) ||
-      (((cardNumber.length == 16 && cardNumber[0] == 4) ||
-        cardNumber[0] == 5) &&
-        // exp date checks
-        expYear > year) ||
-      (expYear == year &&
-        expMonth > month &&
-        // cvv checks
-        cvv.length == 3 &&
-        // zipcode checks
-        zipCode.length == 5)
-    ) {
-      paymentInfo = { nameOnCard, cardNumber, exp, cvv, zipCode };
-      // update "activeStep" state in parent component
-      handleNext();
-    } else {
-      alert("Invalid credit card information!");
+    // check credit card number
+    if (!((cardNumber.length == 15 && cardNumber[0] == 3) || ((cardNumber.length == 16) && (cardNumber[0] == 4 || cardNumber[0] == 5)))) {
+        alert(`Invalid credit card number\n
+A valid credit card number follows these criteria
+* Starts with a 3 and has 15 digits total
+* Starts with either a 4 or 5 and has 16 digits total`);
+        return;
+      }
+    // cvv number length check
+    if (cvv.length !== 3 && cvv.length !== 4) {
+        alert(`Invalid CVV number\n
+A valid CVV number either has 3 or 4 digits`);
+        return;
     }
+    // zip code length check
+    if (zipCode.length !== 5) {
+        alert(`Invalid zip code
+            A valid zip code should contain 5 digits`);
+        return;
+    }
+    paymentInfo = { nameOnCard, cardNumber, exp, cvv, zipCode };
+    // update "activeStep" state in parent component
+    handleNext();
   };
 
   return (
