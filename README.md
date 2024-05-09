@@ -4,6 +4,36 @@ This is an online food delivery service website where users can shop online (bro
 
 ## User Guide
 
+### API Key
+
+1. Go to `https://console.cloud.google.com/` and sign-up/login.
+
+2. Using the search bar look for and enable the following APIs:
+
+    - `Address Validation API`
+
+    - `Distance Matrix API`
+
+    - `Places API`
+
+    - `Routes API`
+
+3. Click on the button for the Navigation Menu on the top left of the page, then go to `APIs & Services`.
+
+4. From this page nagivate to `Credentials` > `+ CREATE CREDENTIALS` > `API key`.
+
+5. After a delay, it should display your API key. 
+
+#### Optional (Restricting Your Key)
+
+1. Under `API Keys` click on the three vertical dots at the end right next to `SHOW KEY`, then click on `Edit API key`.
+
+2. Under `API restrictions` select `Restrict key`.
+
+3. Using the drop-down menu select the 4 APIs mentioned earlier.  
+
+4. Click `SAVE`, it will take up to 5 minutes for the restrictions to take into effect. 
+
 ### Installation
 
 1. Clone this repository onto your local machine with the following command
@@ -57,6 +87,17 @@ Below are the credentials for the two `manager` accounts (doesn't matter which o
 
 > When you create an account through the signup page, you are making a `customer` account. Only `managers` can create `employee` accounts through their private dashboard
 
+### Map
+
+The map is only visible for `Managers` and `Employees`. It allows them to view the orders on the map and the which orders are assigned to which delivery robot.
+
+- ***Delivery Conditon***: There are three conditions in which robots are sent out automatically. 
+
+    1. They have `10` orders on their route. 
+
+    2. Their orders reach exactly `200` pounds. 
+
+    3. It has been `2` hours since the youngest order on their route has been placed.
 
 ## Demo
 

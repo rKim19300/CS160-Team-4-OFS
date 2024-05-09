@@ -484,7 +484,6 @@ export default function OrdersMap() {
                                 Store
                             </Button>
                         </Box>
-                        {currentRobot.robot_id !== -1 && 
                         <Box>
                             <Button 
                                 label={"Robot"} 
@@ -493,7 +492,7 @@ export default function OrdersMap() {
                                         map.panTo({lat: robot1.latitude, lng: robot1.longitude});
                                         setCenter({lat: robot1.latitude, lng: robot1.longitude});
                                     }
-                                    else {
+                                    else if (currentRobot.robot_id === robot2.robot_id) {
                                         map.panTo({lat: robot2.latitude, lng: robot2.longitude});
                                         setCenter({lat: robot2.latitude, lng: robot2.longitude});
                                     }
@@ -501,7 +500,7 @@ export default function OrdersMap() {
                             >
                                 Robot
                             </Button>
-                        </Box>}  
+                        </Box>
                     </HStack>
                 </Flex>
 
