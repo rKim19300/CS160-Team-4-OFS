@@ -484,6 +484,8 @@ export default function OrdersMap() {
                                 Store
                             </Button>
                         </Box>
+                        {/* Make sure it is not on the orders tab */
+                        currentRobot.robot_id !== -1 && 
                         <Box>
                             <Button 
                                 label={"Robot"} 
@@ -500,7 +502,7 @@ export default function OrdersMap() {
                             >
                                 Robot
                             </Button>
-                        </Box>
+                        </Box>}
                     </HStack>
                 </Flex>
 
