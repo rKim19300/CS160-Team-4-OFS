@@ -100,6 +100,7 @@ export default function OrdersMap() {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const cancelRef = React.useRef();
     const [errMsg, setErrMsg] = useState("");
+    const [isError, setIsError] = useState(true); // Flag that determines if pop-up is an error
 
     const { isLoaded, loadError } = useLoadScript({
         googleMapsApiKey: "AIzaSyB4kJ8KLkJZ9C-E372tsLHyl29Ks-9jUmg"
@@ -111,6 +112,7 @@ export default function OrdersMap() {
         try {
             // Check on tab with robot
             if (robot_id < 0) {
+                setIsError(true);
                 await setErrMsg("There is no robot to send out on this tab.");
                 await onOpen();
                 return;
@@ -121,6 +123,7 @@ export default function OrdersMap() {
             });
 
             if (response.status !== 200) {
+                setIsError(true);
                 setErrMsg(response.data);
                 await onOpen();
                 return;
@@ -134,6 +137,7 @@ export default function OrdersMap() {
             setErrMsg(`Something went wrong on our end, please try again in 60 seconds. 
                         If this issue persists after a few tries, please call tech support
                         at 098-765-4321.`);
+            setIsError(true);
             await onOpen();
         }
     }
@@ -467,7 +471,10 @@ export default function OrdersMap() {
                     <br />
                     <HStack justifyContent="space-between">
                         <Box>
-                            <Button onClick={() => {sendRobot(currentRobot.robot_id)}} colorScheme="red">
+                            <Button onClick={() => {
+                                    setIsError(false);
+                                    onOpen();
+                            }} colorScheme="red">
                                 Send Orders
                             </Button>
                         </Box>
@@ -520,17 +527,30 @@ export default function OrdersMap() {
                 <AlertDialogOverlay>
                 <AlertDialogContent>
                     <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-                    ERROR!
+                    {(isError) ? "ERROR!" : "Confirmation"}
                     </AlertDialogHeader>
 
                     <AlertDialogBody>
-                    {errMsg}
+                    {(isError) ? (errMsg) : "Are you sure you want to send this robot EN_ROUTE?"}
                     </AlertDialogBody>
 
                     <AlertDialogFooter>
+                    {(isError) ? 
                     <Button colorScheme='red' onClick={onClose} ml={3}>
                         Okay
-                    </Button>
+                    </Button> :
+                    <Box>
+                        <Button colorScheme='green' onClick={() => {
+                            sendRobot(currentRobot.robot_id)
+                            onClose();
+                            }} ml={3}>
+                            Confirm
+                        </Button>
+                        <Button colorScheme='red' onClick={onClose} ml={3}>
+                            Cancel
+                        </Button>
+                    </Box>
+                    }
                     </AlertDialogFooter>
                 </AlertDialogContent>
                 </AlertDialogOverlay>

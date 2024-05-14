@@ -88,7 +88,7 @@ router.post('/sendRobot', checkIsStaff, async (req, res) => {
 
 		// Check if the robot is already ON_ROUTE
 		if ((await DB.is_on_route(robot_id))) {
-			res.status(400).send("ERROR: Robot is already on route");
+			res.status(400).send("ERROR: Robot is already on route"); 
 			return;
 		}
 
