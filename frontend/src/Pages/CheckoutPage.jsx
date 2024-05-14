@@ -353,6 +353,7 @@ function Step1Component({ handleNext }) {
 function Step2Component({ handleNext }) {
   const [nameOnCard, setNameOnCard] = useState(paymentInfo["nameOnCard"] || "");
   const [cardNumber, setCardNumber] = useState(paymentInfo["cardNumber"] || "");
+  const [exp, setExp] = useState(paymentInfo["exp"] || "");
   const [cvv, setCvv] = useState(paymentInfo["cvv"] || "");
   const [zipCode, setZipCode] = useState(paymentInfo["zipCode"] || "");
   const [errMsg, setErrMsg] = useState("");
@@ -430,9 +431,18 @@ A valid CVV number either has 3 or 4 digits`);
           />  
         </FormControl>
 
-        <Flex alignItems="end" paddingTop="8px">
-          <Flex flexDirection="row">
-            <input type="month" min={currDate} required={true} ></input>
+        <Flex justifyContent="space-between" paddingTop="8px">
+          <Flex flexDirection="column">
+            <FormLabel className={styles.formText}>Expiry Date</FormLabel>
+            <Input
+              type="month"
+              min={currDate}
+              fontSize="16px"
+              required
+              name="exp"
+              value={exp}
+              onChange={(e) => setExp(e.target.value)}
+            />
           </Flex>
 
           <Flex flexDirection="column">
