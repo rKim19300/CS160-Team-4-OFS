@@ -220,8 +220,8 @@ function Step1Component({ handleNext }) {
       console.error(err.message);
       await setIsError(true);
       setErrMsg(`Oops! Something went wrong on our end. Please try again in 60 seconds. 
-                  If this issue persists after a few attempts, please make us aware of the 
-                  issue at ofsdelivery@ofs.com.`);
+                  If this issue persists after a few attempts, please message one of the
+                  top contributors on LinkedIn (e.g. https://www.linkedin.com/in/reece-c-kim/).`);
       await onOpen();
       return;
     }

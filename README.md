@@ -99,6 +99,8 @@ The map is only visible for `Managers` and `Employees`. It allows them to view t
 
     3. It has been `2` hours since the youngest order on their route has been placed.
 
+- ***IMPORTANT***: The map can only be loaded a limited number of times per day. If the window which contains the map says "Oops! Something went wrong", try again in 60 seconds.  If the message still persists, then the maximum number of loads per day has been reached and should reset in about 24 hours.  
+
 ## Demo
 
 [https://drive.google.com/file/d/1m7qFAKbfneDhALq54WVmTPY3VvbCT7Ev/view?usp=sharing](https://drive.google.com/file/d/1m7qFAKbfneDhALq54WVmTPY3VvbCT7Ev/view?usp=sharing)

@@ -102,10 +102,9 @@ export default function OrdersMap() {
     const [errMsg, setErrMsg] = useState("");
     const [isError, setIsError] = useState(true); // Flag that determines if pop-up is an error
 
-    const { isLoaded, loadError } = useLoadScript({
-        googleMapsApiKey: "AIzaSyB4kJ8KLkJZ9C-E372tsLHyl29Ks-9jUmg"
+    const { isLoaded, loadError, url } = useLoadScript({
+        googleMapsApiKey: "AIzaSyBj00B39l35ltLswGMj0Ew4kQHJOEtSZFo"
     });
-
 
     // -- Data Calls --
     const sendRobot = async (robot_id) => {
@@ -135,8 +134,8 @@ export default function OrdersMap() {
         }
         catch (err) {
             setErrMsg(`Something went wrong on our end, please try again in 60 seconds. 
-                        If this issue persists after a few tries, please call tech support
-                        at 098-765-4321.`);
+                        If this issue persists after a few tries, please message one of the
+                        top contributors on LinkedIn (e.g. https://www.linkedin.com/in/reece-c-kim/).`);
             setIsError(true);
             await onOpen();
         }
@@ -517,7 +516,6 @@ export default function OrdersMap() {
                 {showOrders && displayOrdersInfoTable("Pending Orders", orders)}
                 {showRobot2 && displayOrdersInfoTable("Robot2 Orders", robot2Orders)}
             </Box>
-
             <AlertDialog
                 isOpen={isOpen}
                 leastDestructiveRef={cancelRef}
